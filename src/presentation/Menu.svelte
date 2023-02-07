@@ -1,4 +1,4 @@
-<!-- 
+<!--
     Menu.svelte
         View-specific work controls. Allows filesystem management and CPU machine state reloads
 -->
@@ -17,7 +17,7 @@
 
 
     /* EDITOR MENU CONTROLS */
-    
+
     // Meta click handler
     function click(){
         if(!readOnly){
@@ -61,7 +61,7 @@
             let filename = files[0].name
             let extension = filename.split('.').pop();
             extension = extension.split('.').pop();
-            if(extension == "asm"){
+            if(extension == "asm" || extension == "s"){
                 const reader = new FileReader()
                 reader.readAsText(files[0]);
                 reader.onload = function() {
@@ -108,7 +108,7 @@
     function updateFilename(fn) { openedFile.set(fn) }
 
 
-    
+
     /* SIMULATOR MENU CONTROLS */
 
     // Reload: Load code into memory, set PC to start of program, restore Processor Status Register to defaults, set clock-enable
