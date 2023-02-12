@@ -1,6 +1,6 @@
-<!-- 
+<!--
 	EditorView.svelte
-		This workspace view enables a client to write assembly programs through an Editor, 
+		This workspace view enables a client to write assembly programs through an Editor,
 		assemble and generate .obj files for Simulator use, and view assembly status and errors through a Console
 -->
 
@@ -13,8 +13,11 @@
 	import Assembler from "../logic/assembler/assembler"
 	import Simulator from "../logic/simulator/simulator";
 
+	const LC3_EXTENSION = "asm"
+	const ARM_EXTENSION = "s"
+
 	let appLoadComplete = false
-	onMount(() => { 
+	onMount(() => {
 		let filename = document.getElementById("filename")
 		filename.style.visibility = "visible"
 		appLoadComplete = true
@@ -38,7 +41,7 @@
 		if(!inputOpen)
 			showText = "Rename workspace"
 	}
-	
+
 	// Swap back text to .asm filename
 	function showFilename(){
 		if(!inputOpen)
@@ -65,7 +68,7 @@
 		newInput.style.borderBottom = "1px solid #5B5B5B"
 		newInput.value = filename.substring(0,filename.length-4)
 		newInput.ariaLabel = "Enter new filename"
-		
+
 		// Close input box
 		newInput.addEventListener("blur", function leave(e) {
 			showText = filename
@@ -94,7 +97,7 @@
 		function saveInput(newValue){
 			if(newValue.length > 0){
 				newValue = newValue.replaceAll(" ","_")
-				// Make filename utf-8 encoding-friendly 
+				// Make filename utf-8 encoding-friendly
 				newValue = encodeURIComponent(newValue)
 				.replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16)}`)
 				.replace(/%(7C|60|5E)/g, (str, hex) =>
@@ -103,7 +106,7 @@
 				openedFile.set(newValue + ".asm")
 			}
 		}
-		
+
 		return newInput // Complete text input element
 	}
 
@@ -112,29 +115,41 @@
 		assembledFile.set(filename.substring(0,filename.length-4)+".obj")
 	}
 
+	// Returns the currently open file's extension
+	function getExtension() {
+		let tokens = filename.split(".");
+		return tokens[tokens.length - 1]
+	}
 
 	/* ASSEMBLY */
-	
+
 	// Assemble program
 	async function assembleClick(){
 		let editor = globalThis.editor
 		if(editor){
-			let sourceCode = editor.getValue()
-			let obj = await Assembler.assemble(sourceCode)
+			if (getExtension() === LC3_EXTENSION) {
 
-			if(obj){
-				// Create globally-available Simulator class				
-				let map = obj.pop()
-				globalThis.simulator = new Simulator(obj[0], map)
-				globalThis.lastPtr = null
-				globalThis.lastBps = null
-				
-				// Globally store .obj file, and symbol table file blobs
-				if(globalThis.simulator){
-					setObjFilename()
-					globalThis.objFile = Assembler.getObjectFileBlob()
-					globalThis.symbolTable = Assembler.getSymbolTableBlob()
+				let sourceCode = editor.getValue()
+				let obj = await Assembler.assemble(sourceCode)
+
+				if(obj){
+					// Create globally-available Simulator class
+					let map = obj.pop()
+					globalThis.simulator = new Simulator(obj[0], map)
+					globalThis.lastPtr = null
+					globalThis.lastBps = null
+
+					// Globally store .obj file, and symbol table file blobs
+					if(globalThis.simulator){
+						setObjFilename()
+						globalThis.objFile = Assembler.getObjectFileBlob()
+						globalThis.symbolTable = Assembler.getSymbolTableBlob()
+					}
 				}
+			}
+			else if (getExtension() === ARM_EXTENSION)
+			{
+				alert("yippee arm")
 			}
 		}
 	}
@@ -158,7 +173,7 @@
 				Switch to Simulator
 			</button>
 		</div>
-		
+
 	</section>
 	{/if}
 	<section id="ev-left">
