@@ -127,29 +127,32 @@
 	async function assembleClick(){
 		let editor = globalThis.editor
 		if(editor){
+			let sourceCode = editor.getValue()
+			let obj;
+
 			if (getExtension() === LC3_EXTENSION) {
-
-				let sourceCode = editor.getValue()
-				let obj = await Assembler.assemble(sourceCode)
-
-				if(obj){
-					// Create globally-available Simulator class
-					let map = obj.pop()
-					globalThis.simulator = new Simulator(obj[0], map)
-					globalThis.lastPtr = null
-					globalThis.lastBps = null
-
-					// Globally store .obj file, and symbol table file blobs
-					if(globalThis.simulator){
-						setObjFilename()
-						globalThis.objFile = Assembler.getObjectFileBlob()
-						globalThis.symbolTable = Assembler.getSymbolTableBlob()
-					}
-				}
+				obj = await Assembler.assemble(sourceCode)
 			}
-			else if (getExtension() === ARM_EXTENSION)
-			{
+			else if (getExtension() === ARM_EXTENSION) {
 				alert("yippee arm")
+			}
+			else {
+				alert(`File ${filename} could not be assembled due to invalid extension. WebLC3 only accepts .asm and .s files.`);
+			}
+
+			if(obj){
+				// Create globally-available Simulator class
+				let map = obj.pop()
+				globalThis.simulator = new Simulator(obj[0], map)
+				globalThis.lastPtr = null
+				globalThis.lastBps = null
+
+				// Globally store .obj file, and symbol table file blobs
+				if(globalThis.simulator){
+					setObjFilename()
+					globalThis.objFile = Assembler.getObjectFileBlob()
+					globalThis.symbolTable = Assembler.getSymbolTableBlob()
+				}
 			}
 		}
 	}
