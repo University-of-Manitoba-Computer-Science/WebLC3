@@ -134,7 +134,7 @@
 				obj = await Assembler.assemble(sourceCode)
 			}
 			else if (getExtension() === ARM_EXTENSION) {
-				alert("yippee arm")
+				obj = await Assembler.assembleARM(sourceCode)
 			}
 			else {
 				alert(`File ${filename} could not be assembled due to invalid extension. WebLC3 only accepts .asm and .s files.`);
