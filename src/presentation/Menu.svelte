@@ -73,10 +73,10 @@
                         latestSnapshot.set(result)
                     }
                     else
-                        console.error("Reading .asm file to editor failed.")
+                        console.error("Reading file to editor failed.")
                 };
             } else {
-                alert("Invalid file. WebLC3 only accepts .asm files.")
+                alert("Invalid file. WebLC3 only accepts .asm and .s files.")
             }
         }
     }
