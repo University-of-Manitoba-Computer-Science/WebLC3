@@ -11,6 +11,7 @@
 	import { onMount } from 'svelte'
 	import { openedFile, currentView, assembledFile } from './stores'
 	import Assembler from "../logic/assembler/assembler"
+	import ARMAssembler from "../logic/assembler/armAssembler"
 	import Simulator from "../logic/simulator/simulator";
 
 	const LC3_EXTENSION = "asm"
@@ -134,7 +135,7 @@
 				obj = await Assembler.assemble(sourceCode)
 			}
 			else if (getExtension() === ARM_EXTENSION) {
-				obj = await Assembler.assembleARM(sourceCode)
+				obj = await ARMAssembler.assemble(sourceCode)
 			}
 			else {
 				alert(`File ${filename} could not be assembled due to invalid extension. WebLC3 only accepts .asm and .s files.`);

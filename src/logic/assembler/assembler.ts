@@ -337,25 +337,6 @@ export default class Assembler
     }
 
     /**
-     * Assemble the given ARM source code.
-     *
-     * If there are errors in the code, print errors to the editor
-     * console and return [null, null].
-     * If the code is assembled successfully: print a success message
-     * to the editor console, return the resulting object file as a
-     * Uint16Array and a Map of memory addresses mapped to the source
-     * code that was assembled and placed at that address.
-     * @param {string} sourceCode the code to assemble
-     * @param {boolean} saveFiles if true (default), save the resulting object file and symbol table
-     * @returns {Promise<[Uint16Array, Map<number, string>] | null>}
-     */
-    public static async assembleARM(sourceCode: string, saveFiles: boolean = true)
-        : Promise<[Uint16Array, Map<number, string>] | null>
-    {
-        return [new Uint16Array(), new Map()]
-    }
-
-    /**
      * assuming tokens[0] is a valid instruction, return true if
      * there are a valid number of operands following it
      * @param {string[]} tokens
