@@ -13,6 +13,7 @@
 	import Assembler from "../logic/assembler/assembler"
 	import ARMAssembler from "../logic/assembler/armAssembler"
 	import Simulator from "../logic/simulator/simulator";
+	import ARMSimulator from "../logic/simulator/armSimulator";
 
 	const LC3_EXTENSION = "asm"
 	const ARM_EXTENSION = "s"
@@ -133,27 +134,32 @@
 
 			if (getExtension() === LC3_EXTENSION) {
 				obj = await Assembler.assemble(sourceCode)
+
+				if(obj){
+					// Create globally-available Simulator class
+					let map = obj.pop()
+					globalThis.simulator = new Simulator(obj[0], map)
+					globalThis.lastPtr = null
+					globalThis.lastBps = null
+
+					// Globally store .obj file, and symbol table file blobs
+					if(globalThis.simulator){
+						setObjFilename()
+						globalThis.objFile = Assembler.getObjectFileBlob()
+						globalThis.symbolTable = Assembler.getSymbolTableBlob()
+					}
+				}
 			}
 			else if (getExtension() === ARM_EXTENSION) {
 				obj = await ARMAssembler.assemble(sourceCode)
+
+				if (obj) {
+					let map = obj.pop();
+					globalThis.simulator = new ARMSimulator(obj[0], map);
+				}
 			}
 			else {
 				alert(`File ${filename} could not be assembled due to invalid extension. WebLC3 only accepts .asm and .s files.`);
-			}
-
-			if(obj){
-				// Create globally-available Simulator class
-				let map = obj.pop()
-				globalThis.simulator = new Simulator(obj[0], map)
-				globalThis.lastPtr = null
-				globalThis.lastBps = null
-
-				// Globally store .obj file, and symbol table file blobs
-				if(globalThis.simulator){
-					setObjFilename()
-					globalThis.objFile = Assembler.getObjectFileBlob()
-					globalThis.symbolTable = Assembler.getSymbolTableBlob()
-				}
 			}
 		}
 	}
