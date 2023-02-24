@@ -26,12 +26,14 @@ export default class ARMAssembler
     public static async assemble(sourceCode: string, saveFiles: boolean = true)
         : Promise<[Uint16Array, Map<number, string>] | null>
     {
-        const result = new Uint16Array(2);
+        const result = new Uint16Array(3);
         const addressToCode: Map<number, string> = new Map();
 
         result[0] = 0;
-        result[1] = 0b00100111000000001;
+        result[1] = 0b0010011100000001;
         addressToCode.set(0, "mov or something i dunno");
+        result[2] = 0b1101111100000000;
+        addressToCode.set(1, "swi #0");
 
         console.log(result);
         return [result, addressToCode]
