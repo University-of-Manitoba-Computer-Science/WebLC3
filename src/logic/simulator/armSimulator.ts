@@ -7,6 +7,7 @@
 
 import Messages from "$lib/simMessages";
 import UI from "../../presentation/ui";
+import AsciiDecoder from "./asciiDecoder";
 import Worker from '$lib/simWorker?worker';
 
 export default class ARMSimulator
@@ -53,11 +54,15 @@ export default class ARMSimulator
         this.pc = new Uint16Array(new SharedArrayBuffer(2));
         this.cpsr = new Uint16Array(new SharedArrayBuffer(2));
 
-        UI.setSimulatorReady();
-        UI.appendConsole("Simulator ready.");
+        (async () => {
+            this.initWorker();
+            this.workerBusy = false;
 
-        this.initWorker();
-        this.workerBusy = false;
+            this.reloadProgram();
+
+            UI.setSimulatorReady();
+            UI.appendConsole("Simulator ready.");
+        })();
     }
 
     /**
@@ -89,6 +94,16 @@ export default class ARMSimulator
         });
     }
 
+    public reloadProgram()
+    {
+        let location = this.userObjectFile[0];
+        for (let i = 1; i < this.userObjectFile.length; i++)
+        {
+            this.setMemory(location++, this.userObjectFile[i]);
+        }
+        Atomics.store(this.pc, 0, this.userObjectFile[0]);
+    }
+
     /**
      * Return the formatted contents of memory in a given range. Both values in the range
      * will be taken mod x10000.
@@ -98,7 +113,51 @@ export default class ARMSimulator
      */
     public getMemoryRange(start: number, end: number): string[][]
     {
-        return [["gaming", "win"], ["ohgod", ":)", ":("]];
+        let len = end - start;
+
+        start %= 0x1_0000;
+        if (start < 0)
+            start += 0x1_0000;
+
+        len %= 0x1_0000;
+        if (len < 0)
+            len += 0x1_0000;
+
+        let res: string[][] = [];
+
+        console.log(this.userDisassembly);
+
+        for (let i = 0; i < len; i++)
+        {
+            let addr = (i + start) % 0x1_0000;
+            let content = this.getMemory(addr);
+            let code;
+            if (this.userDisassembly.has(addr))
+            {
+                code = this.userDisassembly.get(addr);
+            }
+            // todo: OS code
+            // else if (this.osDissassembly.has(addr))
+            // {
+            //     code = this.osDissassembly.get(addr);
+            // }
+            else
+            {
+                code = AsciiDecoder.decode(content);
+            }
+
+            if (typeof(code) === "undefined")
+            {
+                code = "";
+            }
+            res.push([
+                "0x" + addr.toString(16),
+                "0x" + content.toString(16),
+                this.signExtend(content).toString(10),
+                code
+            ]);
+        }
+        return res;
     }
 
     /**
@@ -109,6 +168,16 @@ export default class ARMSimulator
     public getMemory(address: number) : number
     {
         return Atomics.load(this.memory, address);
+    }
+
+    /**
+     * Write the given value to the given memory location
+     * @param address the address to write to
+     * @param value the value to store at memory[address]
+     */
+    public setMemory(address: number, value: number)
+    {
+        Atomics.store(this.memory, address, value);
     }
 
     /**
