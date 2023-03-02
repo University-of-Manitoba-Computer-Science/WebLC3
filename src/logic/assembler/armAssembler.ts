@@ -31,7 +31,7 @@ export default class ARMAssembler
 
         result[0] = 0;
         result[1] = 0b0010011100000001;
-        addressToCode.set(0, "mov or something i dunno");
+        addressToCode.set(0, "mov r7, #1");
         result[2] = 0b1101111100000000;
         addressToCode.set(1, "swi #0");
 
