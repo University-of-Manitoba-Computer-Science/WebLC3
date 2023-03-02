@@ -156,6 +156,12 @@
 				if (obj) {
 					let map = obj.pop();
 					globalThis.simulator = new ARMSimulator(obj[0], map);
+
+					if (globalThis.simulator) {
+						// setObjFilename()
+						// globalThis.objFile = ARMAssembler.getObjectFileBlob()
+						// globalThis.symbolTable = ARMAssembler.getSymbolTableBlob()
+					}
 				}
 			}
 			else {
