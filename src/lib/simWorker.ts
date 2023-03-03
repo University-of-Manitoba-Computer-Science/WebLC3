@@ -1,6 +1,6 @@
 /**
  * simWorker.ts
- * 
+ *
  * This class is responsible for executing LC-3 code for the simulator in a
  * separate thread. It contains references to the LC-3's data from the
  * simulator, which is implemented with SharedArrayBuffers. This allows changes
@@ -83,6 +83,8 @@ class SimWorker
      */
     public static init()
     {
+        console.log("initializing worker at least...");
+
         this.lastFlush = Date.now();
 
         self.onmessage = (event) => {
@@ -177,7 +179,7 @@ class SimWorker
     /***********************************
      ---- Atomics Function Wrappers ----
      ***********************************/
-    
+
     private static load(array: Uint16Array | Uint8Array, index: number): number
     {
         if (index < 0)
@@ -512,7 +514,9 @@ class SimWorker
             console ready bit
         (4) if INT asserted, initialize and return true. Else, return false
         */
-        
+
+        console.log("Executing something yippee");
+
         const oldPC = this.getPC();
         const instruction = this.getMemory(oldPC);
         this.setPC(oldPC + 1);
@@ -648,7 +652,7 @@ class SimWorker
 
     /**
      * Initialize an exception with the given vector
-     * @param vector 
+     * @param vector
      */
     private static initException(vector: number)
     {
@@ -710,7 +714,7 @@ class SimWorker
 
     /**
      * Initialize a trap with the given vector
-     * @param vector 
+     * @param vector
      */
     private static initTrap(vector: number)
     {
@@ -856,7 +860,7 @@ class SimWorker
     /**
      * Pop the PC and PSR off the stack, if privilege mode changes from
      * supervisor to user then load the USP into R6.
-     * @param instruction 
+     * @param instruction
      */
     private static execRti(instruction: number)
     {
@@ -899,7 +903,7 @@ class SimWorker
 
     /**
      * Call initTrap with the last 8 bits of the instruction as the vector
-     * @param instruction 
+     * @param instruction
      */
     private static execTrap(instruction: number)
     {

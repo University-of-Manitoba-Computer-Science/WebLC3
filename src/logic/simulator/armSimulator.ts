@@ -21,17 +21,26 @@ export default class ARMSimulator
     // How many general-purpose registers there are
     private static readonly NUM_REGISTERS = 32;
     private static readonly MEMORY_SIZE = (1 << 16) * ARMSimulator.BYTES_IN_WORD;
+    // Initial value for the supervisor stack pointer
+    private static readonly SSP_DEFAULT = 0x3000;
 
     // The machine's memory
     private memory: Uint16Array;
     // General-purpose registers
     private registers: Uint16Array;
+    // Internal registers for inactive stack pointer
+    private savedSSP: Uint16Array;
     // Program counter
     private pc: Uint16Array;
 
     // Current Program Status Register (CPSR) (more-or-less equivalent to LC-3's PSR)
     private cpsr: Uint16Array;
 
+    // Interrupt parameters
+    private interruptSignal: Uint8Array;
+
+    // Addresses of each active breakpoint
+    private breakPoints: Set<number> = new Set();
     // Object file to run
     private userObjectFile: Uint16Array;
     // Memory addresses mapped to the code at each address
@@ -51,8 +60,13 @@ export default class ARMSimulator
 
         this.memory = new Uint16Array(new SharedArrayBuffer(ARMSimulator.MEMORY_SIZE));
         this.registers = new Uint16Array(new SharedArrayBuffer(ARMSimulator.BYTES_IN_WORD * ARMSimulator.NUM_REGISTERS))
+        this.savedSSP = new Uint16Array(new SharedArrayBuffer(2));
         this.pc = new Uint16Array(new SharedArrayBuffer(2));
         this.cpsr = new Uint16Array(new SharedArrayBuffer(2));
+        this.interruptSignal = new Uint8Array(new SharedArrayBuffer(1));
+        this.workerHalt = new Uint8Array(new SharedArrayBuffer(1));
+        Atomics.store(this.workerHalt, 0, 0);
+        Atomics.store(this.savedSSP, 0, ARMSimulator.SSP_DEFAULT);
 
         (async () => {
             this.initWorker();
@@ -88,8 +102,11 @@ export default class ARMSimulator
             type: Messages.INIT,
             memory: this.memory,
             registers: this.registers,
+            savedSSP: this.savedSSP,
             pc: this.pc,
             psr: this.cpsr,
+            intSignal: this.interruptSignal,
+            breakPoints: this.breakPoints,
             halt: this.workerHalt
         });
     }
@@ -102,6 +119,32 @@ export default class ARMSimulator
             this.setMemory(location++, this.userObjectFile[i]);
         }
         Atomics.store(this.pc, 0, this.userObjectFile[0]);
+    }
+
+    public async halt()
+    {
+        if (this.workerBusy)
+        {
+            Atomics.store(this.workerHalt, 0, 1);
+        }
+        else
+        {
+            UI.appendConsole("Simulator is not running!\n")
+        }
+    }
+
+    public async run()
+    {
+        if (!this.workerBusy)
+        {
+            this.workerBusy = true;
+            this.simWorker.postMessage({type: Messages.RUN});
+            UI.setSimulatorRunning();
+        }
+        else
+        {
+            UI.appendConsole("Simulator is already running!\n");
+        }
     }
 
     /**
