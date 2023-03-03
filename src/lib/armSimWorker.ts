@@ -2,7 +2,7 @@ import SimWorker from "./simWorker"
 
 class ArmSimWorker extends SimWorker
 {
-    private static override execute(instruction: number)
+    protected static override execute(instruction: number)
     {
         /*
         Different instructions have their opcodes in different places, so we need to switch on the instruction format
@@ -29,7 +29,6 @@ class ArmSimWorker extends SimWorker
 
     private static executeMov(instruction: number)
     {
-        console.log("it's movin' time!")
         const registerNumber = (instruction & 0x0700) >> 8;
         const value = instruction & 0x00ff;
 
@@ -38,7 +37,16 @@ class ArmSimWorker extends SimWorker
 
     private static executeSwi(instruction: number)
     {
-        console.log("it's swiin' time(?)!")
+        const value = instruction & 0x00ff;
+
+        console.log(value);
+
+        if (value == 11)
+        {
+            // SWI_Exit
+            console.log('halting')
+            Atomics.store(this.haltFlag, 0, 1);
+        }
     }
 }
 

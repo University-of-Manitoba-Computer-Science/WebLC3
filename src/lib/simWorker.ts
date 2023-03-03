@@ -58,7 +58,7 @@ export default class SimWorker
     private static breakPoints: Set<number>;
 
     // if set to non-zero, worker must stop executing
-    private static haltFlag: Uint8Array;
+    protected static haltFlag: Uint8Array;
 
     // buffer for console output so we don't spam main thread too much
     private static consoleBuffer = "";

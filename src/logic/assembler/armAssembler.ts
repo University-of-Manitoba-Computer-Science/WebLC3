@@ -32,8 +32,8 @@ export default class ARMAssembler
         result[0] = 0;
         result[1] = 0b0010000000000001;
         addressToCode.set(0, "mov r0, #1");
-        result[2] = 0b1101111100000000;
-        addressToCode.set(1, "swi #0");
+        result[2] = 0b1101111100001011;
+        addressToCode.set(1, "swi #11");
 
         console.log(result);
         return [result, addressToCode]
