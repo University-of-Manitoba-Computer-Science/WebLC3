@@ -499,7 +499,7 @@ export default class SimWorker
      * false.
      * @returns true if an interrupt or exception occured, false otherwise
      */
-    private static instructionCycle() : boolean
+    protected static instructionCycle() : boolean
     {
         /*
         (1) check for exception (illegal instruction or privilege violation)
@@ -513,13 +513,52 @@ export default class SimWorker
         (4) if INT asserted, initialize and return true. Else, return false
         */
 
-        console.log("Executing something yippee");
-
         const oldPC = this.getPC();
         const instruction = this.getMemory(oldPC);
         this.setPC(oldPC + 1);
 
         // (1) check for exception
+        this.checkForException(instruction);
+
+        // (2) execute instruction
+        this.execute(instruction);
+
+        // (3) console output
+        if (this.getMemory(this.DDR) != 0)
+        {
+            // clear DSR ready bit
+            this.and(this.memory, this.DSR, 0x7FFF);
+            // print character, clear DDR, set DSR ready bit
+            const toPrint = this.getMemory(this.DDR) & 0x00FF;
+            this.sendConsoleMessage(String.fromCharCode(toPrint));
+            this.store(this.memory, this.DDR, 0);
+            this.or(this.memory, this.DSR, 0x8000);
+        }
+        // ensure console's ready bit is on if it isn't printing something out
+        else
+        {
+            this.or(this.memory, this.DSR, 0x8000);
+        }
+
+        // (4) handle interrupt
+        if (this.load(this.interruptSignal, 0) != 0)
+        {
+            this.initInterrupt();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Checks whether an exception would occur if the given instruction is executed
+     * @param instruction The instruction to be executed if an exception doesn't occur
+     * @returns
+     */
+    protected static checkForException(instruction: number)
+    {
         // (a) priviledge mode exception
         if (this.userMode() && Opcodes.isRTI(instruction))
         {
@@ -532,8 +571,14 @@ export default class SimWorker
             this.initException(Vectors.illegalOpcode());
             return true;
         }
+    }
 
-        // (2) execute instruction
+    /**
+     * Executes the given instruction
+     * @param instruction The instruction to execute
+     */
+    protected static execute(instruction: number)
+    {
         switch ((instruction & 0xF000) >> 12)
         {
             case 0b0000:
@@ -586,34 +631,6 @@ export default class SimWorker
                 break;
             default:
                 break;
-        }
-
-        // (3) console output
-        if (this.getMemory(this.DDR) != 0)
-        {
-            // clear DSR ready bit
-            this.and(this.memory, this.DSR, 0x7FFF);
-            // print character, clear DDR, set DSR ready bit
-            const toPrint = this.getMemory(this.DDR) & 0x00FF;
-            this.sendConsoleMessage(String.fromCharCode(toPrint));
-            this.store(this.memory, this.DDR, 0);
-            this.or(this.memory, this.DSR, 0x8000);
-        }
-        // ensure console's ready bit is on if it isn't printing something out
-        else
-        {
-            this.or(this.memory, this.DSR, 0x8000);
-        }
-
-        // (4) handle interrupt
-        if (this.load(this.interruptSignal, 0) != 0)
-        {
-            this.initInterrupt();
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 

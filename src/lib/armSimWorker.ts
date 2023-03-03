@@ -2,10 +2,9 @@ import SimWorker from "./simWorker"
 
 class ArmSimWorker extends SimWorker
 {
-    public static init()
+    private static override execute(instruction: number)
     {
-        console.log("initializing arm worker")
-        super.init()
+        console.log("now it's really instructin' time")
     }
 }
 
