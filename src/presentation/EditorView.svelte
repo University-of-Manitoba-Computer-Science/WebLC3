@@ -132,36 +132,23 @@
 			let sourceCode = editor.getValue()
 			let obj;
 
-			if (getExtension() === LC3_EXTENSION) {
+			if (getExtension() === LC3_EXTENSION)
 				obj = await Assembler.assemble(sourceCode)
-
-				if(obj){
-					// Create globally-available Simulator class
-					let map = obj.pop()
-					globalThis.simulator = new Simulator(obj[0], map)
-					globalThis.lastPtr = null
-					globalThis.lastBps = null
-
-					// Globally store .obj file, and symbol table file blobs
-					if(globalThis.simulator){
-						setObjFilename()
-						globalThis.objFile = Assembler.getObjectFileBlob()
-						globalThis.symbolTable = Assembler.getSymbolTableBlob()
-					}
-				}
-			}
-			else if (getExtension() === ARM_EXTENSION) {
+			else if (getExtension() === ARM_EXTENSION)
 				obj = await ARMAssembler.assemble(sourceCode)
 
-				if (obj) {
-					let map = obj.pop();
-					globalThis.simulator = new ARMSimulator(obj[0], map);
+			if(obj){
+				// Create globally-available Simulator class
+				let map = obj.pop()
+				globalThis.simulator = new Simulator(obj[0])
+				globalThis.lastPtr = null
+				globalThis.lastBps = null
 
-					if (globalThis.simulator) {
-						// setObjFilename()
-						// globalThis.objFile = ARMAssembler.getObjectFileBlob()
-						// globalThis.symbolTable = ARMAssembler.getSymbolTableBlob()
-					}
+				// Globally store .obj file, and symbol table file blobs
+				if(globalThis.simulator){
+					setObjFilename()
+					globalThis.objFile = Assembler.getObjectFileBlob()
+					globalThis.symbolTable = Assembler.getSymbolTableBlob()
 				}
 			}
 			else {
