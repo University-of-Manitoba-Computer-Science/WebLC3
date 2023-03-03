@@ -140,7 +140,7 @@
 			if(obj){
 				// Create globally-available Simulator class
 				let map = obj.pop()
-				globalThis.simulator = new Simulator(obj[0])
+				globalThis.simulator = new Simulator(obj[0], map, getExtension())
 				globalThis.lastPtr = null
 				globalThis.lastBps = null
 

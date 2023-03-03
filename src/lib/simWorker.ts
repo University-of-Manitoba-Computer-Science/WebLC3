@@ -83,8 +83,6 @@ class SimWorker
      */
     public static init()
     {
-        console.log("initializing worker at least...");
-
         this.lastFlush = Date.now();
 
         self.onmessage = (event) => {
