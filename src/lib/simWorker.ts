@@ -13,7 +13,7 @@ import Vectors from "./vectors";
 import decodeImmediate from "./decodeImm";
 import decodeRegister from "./decodeReg";
 
-class SimWorker
+export default class SimWorker
 {
     // Memory address constants:
 

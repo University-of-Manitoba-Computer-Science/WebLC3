@@ -1,10 +1,11 @@
-import Messages from "./simMessages";
+import SimWorker from "./simWorker"
 
-class ArmSimWorker
+class ArmSimWorker extends SimWorker
 {
     public static init()
     {
         console.log("initializing arm worker")
+        super.init()
     }
 }
 
