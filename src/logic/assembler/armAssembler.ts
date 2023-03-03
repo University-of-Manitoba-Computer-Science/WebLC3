@@ -30,8 +30,8 @@ export default class ARMAssembler
         const addressToCode: Map<number, string> = new Map();
 
         result[0] = 0;
-        result[1] = 0b0010011100000001;
-        addressToCode.set(0, "mov r7, #1");
+        result[1] = 0b0010000000000001;
+        addressToCode.set(0, "mov r0, #1");
         result[2] = 0b1101111100000000;
         addressToCode.set(1, "swi #0");
 

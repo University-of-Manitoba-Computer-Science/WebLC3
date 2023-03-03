@@ -30,6 +30,10 @@ class ArmSimWorker extends SimWorker
     private static executeMov(instruction: number)
     {
         console.log("it's movin' time!")
+        const registerNumber = (instruction & 0x0700) >> 8;
+        const value = instruction & 0x00ff;
+
+        this.setRegister(registerNumber, value);
     }
 
     private static executeSwi(instruction: number)

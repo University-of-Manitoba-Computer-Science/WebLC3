@@ -324,7 +324,7 @@ export default class SimWorker
     }
 
     // set a register's value
-    private static setRegister(index: number, value: number)
+    protected static setRegister(index: number, value: number)
     {
         this.store(this.registers, index, value);
     }
