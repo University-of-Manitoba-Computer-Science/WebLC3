@@ -318,7 +318,7 @@ export default class SimWorker
     }
 
     // get the value of a register
-    private static getRegister(index: number): number
+    protected static getRegister(index: number): number
     {
         return this.load(this.registers, index);
     }

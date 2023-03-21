@@ -17,7 +17,10 @@ class ArmSimWorker extends SimWorker
                 // Format 3 (move/compare/add/subtract immediate)
                 switch ((instruction & 0x1800) >> 11) {
                     case 0b00:
-                        this.executeMov(instruction);
+                        // MOV not implemented since there's no LC-3 equivalent
+                        break;
+                    case 0b10:
+                        this.executeAdd(instruction);
                         break;
                 }
                 break;
@@ -27,12 +30,12 @@ class ArmSimWorker extends SimWorker
         }
     }
 
-    private static executeMov(instruction: number)
+    private static executeAdd(instruction: number)
     {
         const registerNumber = (instruction & 0x0700) >> 8;
         const value = instruction & 0x00ff;
 
-        this.setRegister(registerNumber, value);
+        this.setRegister(registerNumber, this.getRegister(registerNumber) + value);
     }
 
     private static executeSwi(instruction: number)
