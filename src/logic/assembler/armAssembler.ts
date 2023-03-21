@@ -10,12 +10,18 @@
 
 import Parser from "./parser";
 import UI from "../../presentation/ui";
+import ErrorBuilder from "./errorBuilder";
 
 export default class ARMAssembler
 {
     // All valid opcodes including trap aliases
     private static opCodes = new Set([
         "add", "swi"
+    ]);
+
+    // All instructions mapped to the number of operands they take
+    private static operandCounts = new Map([
+        ["add", 2], ["swi", 1]
     ]);
 
     // Errors where assembly cannot begin for given file
@@ -48,6 +54,8 @@ export default class ARMAssembler
             UI.appendConsole(this.errors.INFILE + "\n");
             return null;
         }
+        // Object to generate error messages
+        const errorBuilder = new ErrorBuilder(sourceLines);
 
         let lineNumber = 0;
         let currentLine = Parser.trimLine(sourceLines[lineNumber]);
@@ -62,7 +70,11 @@ export default class ARMAssembler
                 // Instruction
                 if (this.opCodes.has(tokens[0]))
                 {
-                    console.log("🤖 INSTRUCTION DETECTED");
+                    if (!this.validOperandCount(tokens))
+                    {
+                        UI.appendConsole(errorBuilder.operandCount(lineNumber, tokens) + "\n");
+                        return null;
+                    }
                 }
             }
         }
@@ -81,5 +93,16 @@ export default class ARMAssembler
 
         console.log(result);
         return [result, addressToCode]
+    }
+
+    /**
+     * Assuming tokens[0] is a valid instruction, return true if there are a valid number of operands following it
+     * @param {string[]} tokens
+     * @returns {boolean}
+     */
+    public static validOperandCount(tokens: string[]): boolean
+    {
+        const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
+        return result;
     }
 }
