@@ -8,8 +8,15 @@
  * alongside the computer's memory in the simulator user interface.
  */
 
+import UI from "../../presentation/ui";
+
 export default class ARMAssembler
 {
+    // Errors where assembly cannot begin for given file
+    private static errors = {
+        INFILE: "Source code is empty",
+    };
+
     /**
      * Assemble the given ARM source code.
      *
@@ -26,6 +33,16 @@ export default class ARMAssembler
     public static async assemble(sourceCode: string, saveFiles: boolean = true)
         : Promise<[Uint16Array, Map<number, string>] | null>
     {
+        const sourceLines = sourceCode.split(/[\r]?[\n]/);
+
+        console.log(sourceLines);
+
+        if (sourceLines.length == 1 && sourceLines[0] == '')
+        {
+            UI.appendConsole(this.errors.INFILE + "\n");
+            return null;
+        }
+
         const result = new Uint16Array(3);
         const addressToCode: Map<number, string> = new Map();
 

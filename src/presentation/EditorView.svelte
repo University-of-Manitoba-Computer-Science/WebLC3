@@ -136,6 +136,8 @@
 				obj = await Assembler.assemble(sourceCode)
 			else if (getExtension() === ARM_EXTENSION)
 				obj = await ARMAssembler.assemble(sourceCode)
+			else
+				alert(`File ${filename} could not be assembled due to invalid extension. WebLC3 only accepts .asm and .s files.`);
 
 			if(obj){
 				// Create globally-available Simulator class
@@ -150,9 +152,6 @@
 					globalThis.objFile = Assembler.getObjectFileBlob()
 					globalThis.symbolTable = Assembler.getSymbolTableBlob()
 				}
-			}
-			else {
-				alert(`File ${filename} could not be assembled due to invalid extension. WebLC3 only accepts .asm and .s files.`);
 			}
 		}
 	}
