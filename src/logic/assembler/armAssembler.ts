@@ -8,10 +8,16 @@
  * alongside the computer's memory in the simulator user interface.
  */
 
+import Parser from "./parser";
 import UI from "../../presentation/ui";
 
 export default class ARMAssembler
 {
+    // All valid opcodes including trap aliases
+    private static opCodes = new Set([
+        "add", "swi"
+    ]);
+
     // Errors where assembly cannot begin for given file
     private static errors = {
         INFILE: "Source code is empty",
@@ -42,6 +48,27 @@ export default class ARMAssembler
             UI.appendConsole(this.errors.INFILE + "\n");
             return null;
         }
+
+        let lineNumber = 0;
+        let currentLine = Parser.trimLine(sourceLines[lineNumber]);
+
+        while (++lineNumber < sourceLines.length)
+        {
+            currentLine = Parser.trimLine(sourceLines[lineNumber]);
+            if (currentLine)
+            {
+                const tokens = Parser.tokenizeLine(currentLine);
+
+                // Instruction
+                if (this.opCodes.has(tokens[0]))
+                {
+                    console.log("🤖 INSTRUCTION DETECTED");
+                }
+            }
+        }
+
+
+
 
         const result = new Uint16Array(3);
         const addressToCode: Map<number, string> = new Map();
