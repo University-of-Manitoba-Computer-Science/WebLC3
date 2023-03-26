@@ -24,9 +24,16 @@ export default class ARMAssembler
         "add", "swi"
     ]);
 
-    // All instructions mapped to the number of operands they take
+    // All valid assembler directives
+    private static directives = new Set([
+        ".text", ".global"
+    ])
+
+    // All instructions and directives mapped to the number of operands they take
     private static operandCounts = new Map([
-        ["add", 2], ["swi", 1]
+        ["add", 2], ["swi", 1],
+
+        [".text", 0], [".global", 1]
     ]);
 
     // Errors where assembly cannot begin for given file
@@ -107,8 +114,28 @@ export default class ARMAssembler
 
                 const tokens = Parser.tokenizeLine(currentLine);
 
+                // Assembler directive
+                if (this.directives.has(tokens[0]))
+                {
+                    if (!this.validOperandCount(tokens))
+                    {
+                        UI.appendConsole(errorBuilder.operandCount(lineNumber, tokens) + "\n");
+                        hasError = true;
+                        continue;
+                    }
+
+                    const pcIncrement = parser.parseDirective(lineNumber, tokens, pc, memory, toFix);
+                    if (pcIncrement <= 0)
+                    {
+                        hasError == true;
+                    }
+                    else
+                    {
+                        pc += pcIncrement;
+                    }
+                }
                 // Instruction
-                if (this.opCodes.has(tokens[0]))
+                else if (this.opCodes.has(tokens[0]))
                 {
                     if (!this.validOperandCount(tokens))
                     {

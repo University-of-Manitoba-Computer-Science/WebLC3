@@ -59,4 +59,27 @@ export default class ArmParser extends Parser
 
         return result;
     }
+
+    /**
+     * Given a tokenized line of source code with an assembler directive, handle its effects and return the amount
+     * that the program counter must be increased by after the operation.
+     *
+     * Assumes that the number of operands is valid.
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @param {number} pc
+     * @param {number[]} memory
+     * @param {Map<string[], number>} toFix
+     */
+    public parseDirective(lineNum: number, tokens: string[], pc: number, memory: number[], toFix: Map<string[], number>): number
+    {
+        let increment = 0;
+
+        switch (tokens[0])
+        {
+
+        }
+
+        return increment;
+    }
 }
