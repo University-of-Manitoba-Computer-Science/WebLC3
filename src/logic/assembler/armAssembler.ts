@@ -6,6 +6,10 @@
  * also generates a Map with memory addresses as the keys and corresponding
  * lines of source code as the values, which is used to display the code
  * alongside the computer's memory in the simulator user interface.
+ *
+ * The algorithms used here are very similar to the LC-3 Assembler class, but
+ * there are certain subtle differences in the languages' directives and opcodes
+ * that make it so this needs to be a separate class.
  */
 
 import Parser from "./parser";
@@ -30,6 +34,11 @@ export default class ARMAssembler
         INFILE: "Source code is empty",
     };
 
+    // The most recently saved object file
+    private static lastObjectFile: Blob | null = null;
+    // The most recently saved symbol table
+    private static lastSymbolTable: Blob | null = null;
+
     /**
      * Assemble the given ARM source code.
      *
@@ -48,8 +57,14 @@ export default class ARMAssembler
     {
         let hasError = false;
 
-        const sourceLines = sourceCode.split(/[\r]?[\n]/);
+        // Since we're assembling a new program, delete the previously saved object and symbol table files
+        if (saveFiles)
+        {
+            this.lastObjectFile = null;
+            this.lastSymbolTable = null;
+        }
 
+        const sourceLines = sourceCode.split(/[\r]?[\n]/);
         if (sourceLines.length == 1 && sourceLines[0] == '')
         {
             UI.appendConsole(this.errors.INFILE + "\n");
@@ -130,24 +145,42 @@ export default class ARMAssembler
         {
             if (addressToLineNumber.has(i))
             {
-                lastLineNumber = addressto
+                // @ts-ignore
+                lastLineNumber = addressToLineNumber.get(i);
+            }
+
+            if (memory[i] > 0xffff)
+            {
+                UI.appendConsole(errorBuilder.badMemory(lastLineNumber, i + startOffset, memory[i]) + "\n");
+                hasError = true;
+                result[i + 1] = 0;
+            }
+            else if (isNaN(memory[i]))
+            {
+                UI.appendConsole(errorBuilder.nanMemory(lastLineNumber, i + startOffset) + "\n");
+                hasError = true;
+                result[i + 1] = 0;
+            }
+            else
+            {
+                result[i + 1] = memory[i];
             }
         }
 
-
-
-        result[0] = 0;
-        result[1] = 0b0011000000000001;
-        addressToCode.set(0, "add r0, #1");
-        result[2] = 0b1101111100001011;
-        addressToCode.set(1, "swi #11");
-
-        console.log(result);
-
         if (hasError)
             return null;
+        else
+        {
+            if (saveFiles)
+            {
+                // Save object and symbol table blobs
+                await this.makeObjectFileBlob(result);
+                await this.makeSymbolTableBlob(labels, startOffset);
+            }
+            UI.printConsole("Assembly successful. \n");
+            return [result, addressToCode]
+        }
 
-        return [result, addressToCode]
     }
 
     /**
@@ -159,5 +192,49 @@ export default class ARMAssembler
     {
         const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
         return result;
+    }
+
+    /**
+     * Converts object file into a blob that can be downloaded
+     * @param {Uint16Array} object
+     */
+    private static async makeObjectFileBlob(object: Uint16Array)
+    {
+        let objectString = "";
+        // Convert numbers to base-16 strings, add leading zeroes
+        for (let i = 0; i < object.length; i++)
+        {
+            let currentLine = object[i].toString(16);
+            while (currentLine.length < 4)
+                currentLine = "0" + currentLine;
+
+            if (i % 8 == 7)
+            {
+                currentLine += '\n';
+            }
+            else
+            {
+                currentLine += ' ';
+            }
+            objectString += currentLine;
+        }
+        this.lastObjectFile = new Blob(Array.from(objectString.trim() + '\n'), { type: "text/plan" });
+    }
+
+    /**
+     * Given a mapping of labels to memory addresses, creates a plain text symbol table blob
+     * @param {Map<string, number>} labels
+     * @param {number} startOffset
+     */
+    private static async makeSymbolTableBlob(labels: Map<string, number>, startOffset: number)
+    {
+        let table = "";
+        for (let pair of labels)
+        {
+            let label = pair[0];
+            let address = (pair[1] + startOffset).toString(16);
+            table += label + " = " + address + "\n";
+        }
+        this.lastSymbolTable = new Blob(Array.from(table), { type: "text/plain" });
     }
 }
