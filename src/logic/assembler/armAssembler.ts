@@ -112,10 +112,6 @@ export default class ARMAssembler
 
                 const tokens = Parser.tokenizeLine(currentLine);
 
-                console.log(tokens);
-                console.log(this.directives.has(tokens[0]))
-                console.log(this.opCodes.has(tokens[0]))
-
                 // Assembler directive
                 if (this.directives.has(tokens[0]))
                 {
