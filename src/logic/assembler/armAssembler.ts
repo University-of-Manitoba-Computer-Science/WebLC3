@@ -11,6 +11,7 @@
 import Parser from "./parser";
 import UI from "../../presentation/ui";
 import ErrorBuilder from "./errorBuilder";
+import ArmParser from "./armParser";
 
 export default class ARMAssembler
 {
@@ -45,9 +46,9 @@ export default class ARMAssembler
     public static async assemble(sourceCode: string, saveFiles: boolean = true)
         : Promise<[Uint16Array, Map<number, string>] | null>
     {
-        const sourceLines = sourceCode.split(/[\r]?[\n]/);
+        let hasError = false;
 
-        console.log(sourceLines);
+        const sourceLines = sourceCode.split(/[\r]?[\n]/);
 
         if (sourceLines.length == 1 && sourceLines[0] == '')
         {
@@ -56,8 +57,30 @@ export default class ARMAssembler
         }
         // Object to generate error messages
         const errorBuilder = new ErrorBuilder(sourceLines);
+        // Parses the source code
+        const parser = new ArmParser(errorBuilder);
 
+        // Stores the resulting machine code / binary data
+        const memory: number[] = [];
+        // Maps label names to the address of the label
+        const labels: Map<string, number> = new Map();
+        /*
+         Maps line tokens with label operands to the memory location they're in. After the first pass, we'll revisit
+         these to fix the offset values.
+         */
+        const toFix: Map<string[], number> = new Map();
+        // Maps memory locations to the source code they contain
+        const addressToCode: Map<number, string> = new Map();
+        // Maps memory locations to line numbers so we can print line numbers if an error occurs while fixing labels
+        const addressToLineNumber: Map<number, number> = new Map();
+
+        // Memory location of the first line of code
+        let startOffset = 0;
+        // Index in sourceCode of the line we're currently parsing
         let lineNumber = 0;
+        // Index in memory of the word we're currently writing
+        let pc = 0;
+
         let currentLine = Parser.trimLine(sourceLines[lineNumber]);
 
         while (++lineNumber < sourceLines.length)
@@ -65,6 +88,8 @@ export default class ARMAssembler
             currentLine = Parser.trimLine(sourceLines[lineNumber]);
             if (currentLine)
             {
+                addressToLineNumber.set(pc, lineNumber);
+
                 const tokens = Parser.tokenizeLine(currentLine);
 
                 // Instruction
@@ -73,17 +98,43 @@ export default class ARMAssembler
                     if (!this.validOperandCount(tokens))
                     {
                         UI.appendConsole(errorBuilder.operandCount(lineNumber, tokens) + "\n");
-                        return null;
+                        hasError = true;
+                        continue;
                     }
+                    const word = parser.parseCode(lineNumber, tokens, pc, labels, toFix);
+                    if (!isNaN(word))
+                    {
+                        memory[pc] = word;
+                        addressToCode.set(pc + startOffset, currentLine);
+                    }
+                    else
+                    {
+                        memory[pc] = 0;
+                        hasError = true;
+                    }
+                    ++pc;
+                }
+                else
+                {
+                    UI.appendConsole(errorBuilder.unknownMnemonic(lineNumber, tokens[0]) + "\n");
+                    hasError = true;
                 }
             }
         }
 
+        // Load resulting machine code into Uint16Array and return it
+        const result = new Uint16Array(memory.length + 1);
+        result[0] = startOffset;
+        let lastLineNumber: number = 0;
+        for (let i = 0; i < memory.length; i++)
+        {
+            if (addressToLineNumber.has(i))
+            {
+                lastLineNumber = addressto
+            }
+        }
 
 
-
-        const result = new Uint16Array(3);
-        const addressToCode: Map<number, string> = new Map();
 
         result[0] = 0;
         result[1] = 0b0011000000000001;
@@ -92,6 +143,10 @@ export default class ARMAssembler
         addressToCode.set(1, "swi #11");
 
         console.log(result);
+
+        if (hasError)
+            return null;
+
         return [result, addressToCode]
     }
 
