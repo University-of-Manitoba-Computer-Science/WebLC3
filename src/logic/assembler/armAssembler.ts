@@ -99,20 +99,22 @@ export default class ARMAssembler
         // Memory location of the first line of code
         let startOffset = 0;
         // Index in sourceCode of the line we're currently parsing
-        let lineNumber = 0;
+        let lineNumber = -1;
         // Index in memory of the word we're currently writing
         let pc = 0;
 
-        let currentLine = Parser.trimLine(sourceLines[lineNumber]);
-
         while (++lineNumber < sourceLines.length)
         {
-            currentLine = Parser.trimLine(sourceLines[lineNumber]);
+            let currentLine = Parser.trimLine(sourceLines[lineNumber]);
             if (currentLine)
             {
                 addressToLineNumber.set(pc, lineNumber);
 
                 const tokens = Parser.tokenizeLine(currentLine);
+
+                console.log(tokens);
+                console.log(this.directives.has(tokens[0]))
+                console.log(this.opCodes.has(tokens[0]))
 
                 // Assembler directive
                 if (this.directives.has(tokens[0]))
