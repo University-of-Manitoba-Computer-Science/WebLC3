@@ -14,7 +14,7 @@
 
 import Parser from "./parser";
 import UI from "../../presentation/ui";
-import ArmErrorBuilder from "./armErrorBuilder";
+import ErrorBuilder from "./errorBuilder";
 import ArmParser from "./armParser";
 
 export default class ARMAssembler
@@ -78,7 +78,7 @@ export default class ARMAssembler
             return null;
         }
         // Object to generate error messages
-        const errorBuilder = new ArmErrorBuilder(sourceLines);
+        const errorBuilder = new ErrorBuilder(sourceLines);
         // Parses the source code
         const parser = new ArmParser(errorBuilder);
 
@@ -114,12 +114,6 @@ export default class ARMAssembler
                 // Label
                 if (tokens[0][0] != '.' && !this.opCodes.has(tokens[0]))
                 {
-                    // Make sure the label name is followed by a colon
-                    if (tokens[0][tokens[0].length - 1] != ':')
-                    {
-                        UI.appendConsole(errorBuilder.labelMissingColon(lineNumber, tokens[0]) + "\n");
-                    }
-
                     labels.set(tokens[0].slice(0, tokens[0].length - 1), pc);
                     // Remove label from line
                     tokens.shift();
@@ -206,6 +200,8 @@ export default class ARMAssembler
                 result[i + 1] = memory[i];
             }
         }
+
+        console.log(result);
 
         if (hasError)
             return null;
