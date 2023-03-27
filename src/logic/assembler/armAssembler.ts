@@ -158,6 +158,7 @@ export default class ARMAssembler
                     }
                     else
                     {
+                        UI.appendConsole(errorBuilder.nanMemory(lineNumber, pc) + "\n");
                         memory[pc] = 0;
                         hasError = true;
                     }
