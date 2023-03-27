@@ -23,9 +23,13 @@ export default class ArmParser extends Parser
     public override parseCode(lineNum: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number {
         switch (tokens[0])
         {
-            // Format 3 (move/compare/add/subtract immediate)
+            // Format 3: move/compare/add/subtract immediate
             case "add":
                 return this.asmFormat3(lineNum, tokens);
+
+            // Format 17: Software interrupt
+            case "swi":
+                return this.asmFormat17(lineNum, tokens);
         }
     }
 
@@ -56,6 +60,25 @@ export default class ArmParser extends Parser
         // Immediate value
         const immediate = this.parseImmediate(tokens[2], true, lineNumber, 8)
         result |= immediate;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 17 (software interrupt)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat17(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b1101111100000000;
+
+        // Interrupt vector
+        const value = parseInt(tokens[1])
+        if (isNaN(value))
+            return NaN;
+        result |= value;
 
         return result;
     }
