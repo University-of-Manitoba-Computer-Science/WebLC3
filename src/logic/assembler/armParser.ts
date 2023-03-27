@@ -55,7 +55,7 @@ export default class ArmParser extends Parser
 
         // Immediate value
         const immediate = this.parseImmediate(tokens[2], true, lineNumber, 8)
-        result |= (immediate << 6);
+        result |= immediate;
 
         return result;
     }
