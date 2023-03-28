@@ -10,6 +10,33 @@ import UI from "../../presentation/ui";
 export default class ArmParser extends Parser
 {
     /**
+     * Converts a line of source code into machine code.
+     * Given a tokenized line of source code, the location of the instruction (given by pc), the known labels in the
+     * program, and the map containing labels which have yet to be defined, return the resulting machine code for that
+     * instruction.
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @param {number} pc
+     * @param {Map<string, number>} labels
+     * @param {Map<string[], number>} toFix
+     * @returns {number}
+     */
+    public override parseCode(lineNum: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number {
+        switch (tokens[0])
+        {
+            case "add":
+                return this.parseAdd(lineNum, tokens);
+            case "adc":
+            case "and":
+                return this.asmFormat4(lineNum, tokens);
+            case "swi":
+                return this.asmFormat17(lineNum, tokens);
+            default:
+                return NaN;
+        }
+    }
+
+    /**
      * Parses a register operand and returns the register number
      * @param {string} regStr
      * @param {number} lineNum
@@ -33,32 +60,6 @@ export default class ArmParser extends Parser
         }
         else
             return super.parseReg(registerString, lineNumber);
-    }
-
-    /**
-     * Converts a line of source code into machine code.
-     * Given a tokenized line of source code, the location of the instruction (given by pc), the known labels in the
-     * program, and the map containing labels which have yet to be defined, return the resulting machine code for that
-     * instruction.
-     * @param {number} lineNum
-     * @param {string[]} tokens
-     * @param {number} pc
-     * @param {Map<string, number>} labels
-     * @param {Map<string[], number>} toFix
-     * @returns {number}
-     */
-    public override parseCode(lineNum: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number {
-        switch (tokens[0])
-        {
-            case "add":
-                return this.parseAdd(lineNum, tokens);
-            case "adc":
-                return this.asmFormat4(lineNum, tokens);
-            case "swi":
-                return this.asmFormat17(lineNum, tokens);
-            default:
-                return NaN;
-        }
     }
 
     /**
@@ -137,6 +138,7 @@ export default class ArmParser extends Parser
         let opcode = 0;
         switch (tokens[0])
         {
+            case "and": opcode = 0b0000; break;
             case "adc": opcode = 0b0101; break;
             default: return NaN;
         }

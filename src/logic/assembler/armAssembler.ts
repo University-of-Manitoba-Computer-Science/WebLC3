@@ -21,7 +21,7 @@ export default class ARMAssembler
 {
     // All valid opcodes including trap aliases
     private static opCodes = new Set([
-        "adc", "add", "swi"
+        "adc", "add", "and", "swi"
     ]);
 
     // All valid assembler directives
@@ -34,7 +34,7 @@ export default class ARMAssembler
      variable number of operands and are handled in this.validOperandCount.
     */
     private static operandCounts = new Map([
-        ["adc", 2], ["swi", 1],
+        ["adc", 2], ["and", 2], ["swi", 1],
 
         [".text", 0], [".global", 1]
     ]);
@@ -213,7 +213,8 @@ export default class ARMAssembler
             0b001_10_000_00000001,   // add r0, #1
             0b010001_00_0_1_000_000, // add r0, h0
             0b1010_1_001_00000001,   // add r1, sp, #1
-            0b10110000_1_0000010,     // add sp, #-2
+            0b10110000_1_0000010,    // add sp, #-2
+            0b010000_0000_001_010,   // and r1, r2
             0b11011111_00001011,     // swi 11
         ]
         console.log(expectedBinary);
