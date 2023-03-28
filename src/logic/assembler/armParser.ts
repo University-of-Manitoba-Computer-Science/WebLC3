@@ -61,6 +61,8 @@ export default class ArmParser extends Parser
                 return this.parseLsl(lineNum, tokens);
             case "lsr":
                 return this.parseLsr(lineNum, tokens);
+            case "mov":
+                return this.parseMov(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -266,6 +268,20 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Generates machine code in the appropriate format for a mov instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseMov(lineNumber: number, tokens: string[]): number
+    {
+        if (this.isImmediate(tokens[2]))
+            return this.asmFormat3(lineNumber, tokens);
+        else
+            return this.asmFormat5(lineNumber, tokens);
+    }
+
+    /**
      * Generates machine code for an instruction in format 1 (move shifted register)
      * @param {number} lineNum
      * @param {string[]} tokens
@@ -315,6 +331,7 @@ export default class ArmParser extends Parser
         let opcode = 0;
         switch (tokens[0])
         {
+            case "mov": opcode = 0b00; break;
             case "add": opcode = 0b10; break;
             case "cmp": opcode = 0b01; break;
             default: return NaN;
@@ -392,6 +409,7 @@ export default class ArmParser extends Parser
         {
             case "add": opcode = 0b00; break;
             case "cmp": opcode = 0b01; break;
+            case "mov": opcode = 0b10; break;
             case "bx":
                 opcode = 0b11;
                 // Workaround for the fact that bx only takes one operand
@@ -418,13 +436,13 @@ export default class ArmParser extends Parser
         result |= (h2 << 6);
 
         // Source register
-        const sourceRegister = this.parseReg(tokens[1], lineNumber);
+        const sourceRegister = this.parseReg(tokens[2], lineNumber);
         if (isNaN(sourceRegister))
             return NaN;
         result |= (sourceRegister << 3);
 
         // Destination register
-        const destinationRegister = this.parseReg(tokens[2], lineNumber);
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
         if (isNaN(destinationRegister))
             return NaN;
         result |= destinationRegister;
