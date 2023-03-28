@@ -63,6 +63,8 @@ export default class ArmParser extends Parser
                 return this.parseLsr(lineNum, tokens);
             case "mov":
                 return this.parseMov(lineNum, tokens);
+            case "str":
+                return this.parseStr(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -292,6 +294,25 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Generates machine code in the appropriate format for a str instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseStr(lineNumber: number, tokens: string[]): number
+    {
+        if (this.isImmediate(tokens[3]))
+        {
+            if (tokens[2] == "sp")
+                return this.asmFormat11(lineNumber, tokens);
+            else
+                return this.asmFormat9(lineNumber, tokens);
+        }
+        else
+            return this.asmFormat7(lineNumber, tokens);
+    }
+
+    /**
      * Generates machine code for an instruction in format 1 (move shifted register)
      * @param {number} lineNum
      * @param {string[]} tokens
@@ -512,6 +533,10 @@ export default class ArmParser extends Parser
                 loadStoreFlag = 1;
                 byteWordFlag = 1;
                 break;
+            case "str":
+                loadStoreFlag = 0;
+                byteWordFlag = 0;
+                break;
         }
         result |= (loadStoreFlag << 11);
         result |= (byteWordFlag << 10);
@@ -649,6 +674,10 @@ export default class ArmParser extends Parser
                 loadStoreFlag = 1;
                 byteWordFlag = 0;
                 break;
+            case "str":
+                loadStoreFlag = 0;
+                byteWordFlag = 0;
+                break;
         }
         result |= (loadStoreFlag << 11);
         result |= (byteWordFlag << 12);
@@ -684,8 +713,11 @@ export default class ArmParser extends Parser
 
         // Load/store bit
         let loadStoreFlag = 0;
-        if (tokens[0] == "ldr")
-            loadStoreFlag = 1;
+        switch (tokens[0])
+        {
+            case "ldr": loadStoreFlag = 1; break;
+            case "str": loadStoreFlag = 0; break;
+        }
         result |= (loadStoreFlag << 11);
 
         // Destination register
