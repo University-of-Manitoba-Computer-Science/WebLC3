@@ -79,6 +79,7 @@ export default class ArmParser extends Parser
             case "ldsh":
                 return this.asmFormat8(lineNum, tokens);
             case "pop":
+            case "push":
                 return this.asmFormat14(lineNum, tokens);
             case "ldmia":
                 return this.asmFormat15(lineNum, tokens);
@@ -770,6 +771,12 @@ export default class ArmParser extends Parser
         {
             loadStoreBit = 1;
             if (tokens[tokens.length - 1] == "pc")
+                pcLrBit = 1;
+        }
+        else if (tokens[0] == "push")
+        {
+            loadStoreBit = 0;
+            if (tokens[tokens.length - 1] == "lr")
                 pcLrBit = 1;
         }
         result |= (loadStoreBit << 11);
