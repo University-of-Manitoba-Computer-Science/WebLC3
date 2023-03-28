@@ -71,9 +71,13 @@ export default class ArmParser extends Parser
     {
         if (tokens.length == 3)
         {
-            // Format 3
             if (tokens[2][0] == "#")
-                return this.asmFormat3(lineNumber, tokens);
+                // Format 13
+                if (tokens[1].toLowerCase() == "sp")
+                    return this.asmFormat13(lineNumber, tokens);
+                // Format 3
+                else
+                    return this.asmFormat3(lineNumber, tokens);
             // Format 5
             if (tokens[1][0].toLowerCase() == 'h' || tokens[2][0].toLowerCase() == 'h')
                 return this.asmFormat5(lineNumber, tokens);
@@ -83,6 +87,8 @@ export default class ArmParser extends Parser
         {
             return this.asmFormat12(lineNumber, tokens);
         }
+
+        return NaN;
     }
 
     /**
@@ -230,6 +236,34 @@ export default class ArmParser extends Parser
         // Immediate value
         const immediate = this.parseImmediate(tokens[3], true, lineNumber, 8)
         result |= immediate;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 13 (add offset to stack pointer)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat13(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b1011000000000000;
+
+        // Immediate value (part 1)
+        const immediate = parseInt(tokens[2].slice(1, tokens[2].length))
+
+        // Sign flag
+        let signFlag = 0;
+        if (immediate < 0)
+            signFlag = 1;
+        result |= (signFlag << 7);
+
+        console.log(immediate);
+        console.log(Math.abs(immediate));
+
+        // Immediate value (part 2)
+        result |= (Math.abs(immediate));
 
         return result;
     }
