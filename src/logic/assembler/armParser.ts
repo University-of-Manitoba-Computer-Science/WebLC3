@@ -33,6 +33,21 @@ export default class ArmParser extends Parser
                 return this.parseAsr(lineNum, tokens);
             case "b":
                 return this.asmFormat18(lineNum, tokens, pc, labels, toFix);
+            case "beq":
+            case "bne":
+            case "bcs":
+            case "bcc":
+            case "bmi":
+            case "bpl":
+            case "bvs":
+            case "bvc":
+            case "bhi":
+            case "bls":
+            case "bge":
+            case "blt":
+            case "bgt":
+            case "ble":
+                return this.asmFormat16(lineNum, tokens, pc, labels, toFix);
             case "swi":
                 return this.asmFormat17(lineNum, tokens);
             default:
@@ -322,6 +337,68 @@ export default class ArmParser extends Parser
         result |= (Math.abs(immediate));
 
         return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 16 (conditional branch)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat16(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
+    {
+        let result = 0b1101000000000000;
+
+        // Condition
+        let condition = 0;
+        switch (tokens[0])
+        {
+            case "beq":
+                condition = 0b0000; break;
+            case "bne":
+                condition = 0b0001; break;
+            case "bcs":
+                condition = 0b0010; break;
+            case "bcc":
+                condition = 0b0011; break;
+            case "bmi":
+                condition = 0b0100; break;
+            case "bpl":
+                condition = 0b0101; break;
+            case "bvs":
+                condition = 0b0110; break;
+            case "bvc":
+                condition = 0b0111; break;
+            case "bhi":
+                condition = 0b1000; break;
+            case "bls":
+                condition = 0b1001; break;
+            case "bge":
+                condition = 0b1010; break;
+            case "blt":
+                condition = 0b1011; break;
+            case "bgt":
+                condition = 0b1100; break;
+            case "ble":
+                condition = 0b1101; break;
+            default: return NaN;
+        }
+        result |= (condition << 8);
+
+        // Immediate value
+        if (labels.has(tokens[1]))
+        {
+            const offset = this.calcLabelOffset(tokens[1], pc, labels, 8, lineNumber);
+            if (isNaN(offset))
+                return NaN;
+
+            return result | offset;
+        }
+        else
+        {
+            toFix.set(tokens, pc);
+            return result;
+        }
     }
 
     /**

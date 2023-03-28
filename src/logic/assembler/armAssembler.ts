@@ -21,7 +21,9 @@ export default class ARMAssembler
 {
     // All valid opcodes including trap aliases
     private static opCodes = new Set([
-        "adc", "add", "and", "asr", "b", "swi"
+        "adc", "add", "and", "asr", "b",
+        "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
+        "swi"
     ]);
 
     // All valid assembler directives
@@ -35,6 +37,9 @@ export default class ARMAssembler
     */
     private static operandCounts = new Map([
         ["adc", 2], ["and", 2], ["b", 1], ["swi", 1],
+
+        ["beq", 1], ["bne", 1], ["bcs", 1], ["bcc", 1], ["bmi", 1], ["bpl", 1], ["bvs", 1], ["bvc", 1], ["bhi", 1],
+        ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
 
         [".text", 0], [".global", 1]
     ]);
@@ -218,17 +223,32 @@ export default class ARMAssembler
             0b000_10_00101_001_010,  // asr r1, r2, #5
             0b010000_0100_001_010,   // asr r1, r2
             0b11100_11111110111,     // b _start
+            0b1101_0000_11110110,    // beq _start
+            0b1101_0001_11110101,    // bne _start
+            0b1101_0010_11110100,    // bcs _start
+            0b1101_0011_11110011,    // bcc _start
+            0b1101_0100_11110010,    // bmi _start
+            0b1101_0101_11110001,    // bpl _start
+            0b1101_0110_11110000,    // bvs _start
+            0b1101_0111_11101111,    // bvc _start
+            0b1101_1000_11101110,    // bhi _start
+            0b1101_1001_11101101,    // bls _start
+            0b1101_1010_11101100,    // bge _start
+            0b1101_1011_11101011,    // blt _start
+            0b1101_1100_11101010,    // bgt _start
+            0b1101_1101_11101001,    // ble _start
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
         console.log(expectedBinary);
         console.log(result);
+        console.log(addressToCode);
         for (let i = 0; i < expectedBinary.length; i++)
         {
             if (result[i] != expectedBinary[i])
             {
                 identical = false;
-                console.log("Comparison failed for instruction " + i + ": expected " + expectedBinary[i] + ", got " + result[i])
+                console.log("Comparison failed for instruction '" + addressToCode.get(i-1) + "': expected " + expectedBinary[i].toString(16) + ", got " + result[i].toString(16))
             }
         }
         if (identical)
