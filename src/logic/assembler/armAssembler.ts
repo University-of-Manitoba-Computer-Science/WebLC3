@@ -255,7 +255,7 @@ export default class ARMAssembler
     {
         if (tokens[0] == "add")
         {
-            return tokens.length == 2 || tokens.length == 3
+            return tokens.length == 3 || tokens.length == 4
         }
         else
         {
