@@ -69,6 +69,7 @@ export default class ArmParser extends Parser
             case "cmn":
             case "eor":
             case "mul":
+            case "mvn":
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
@@ -376,6 +377,7 @@ export default class ArmParser extends Parser
             case "cmn": opcode = 0b1011; break;
             case "mul": opcode = 0b1101; break;
             case "bic": opcode = 0b1110; break;
+            case "mvn": opcode = 0b1111; break;
             default: return NaN;
         }
         result |= (opcode << 6);
