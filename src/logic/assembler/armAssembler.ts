@@ -24,7 +24,7 @@ export default class ARMAssembler
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
         "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
-        "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh",
+        "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh", "sub",
         "swi"
     ]);
 
@@ -289,7 +289,10 @@ export default class ARMAssembler
             0b1001_0_010_00000001,   // str r2, sp, #1
             0b0101_0_1_0_110_101_100,// strb r4, r5, r6
             0b0101_1_0_1_110_011_111,// strh r7, r3, r6
-            0b1000_0_00011_011_111, // strh r7, r3, #3
+            0b1000_0_00011_011_111,  // strh r7, r3, #3
+            0b00011_0_1_010_001_000, // sub r0, r1, r2
+            0b00011_1_1_110_001_000, // sub r0, r1, #6
+            0b001_11_010_00000010,   // sub r2, #2
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
@@ -340,6 +343,7 @@ export default class ARMAssembler
             case "lsl":
             case "lsr":
             case "str":
+            case "sub":
                 return tokens.length == 3 || tokens.length == 4;
             case "ldmia":
             case "pop":

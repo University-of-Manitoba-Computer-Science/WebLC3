@@ -67,6 +67,8 @@ export default class ArmParser extends Parser
                 return this.parseStr(lineNum, tokens);
             case "strh":
                 return this.parseStrh(lineNum, tokens);
+            case "sub":
+                return this.parseSub(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -333,6 +335,20 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Generates machine code in the appropriate format for a sub instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseSub(lineNumber: number, tokens: string[]): number
+    {
+        if (tokens.length == 4)
+            return this.asmFormat2(lineNumber, tokens);
+        else
+            return this.asmFormat3(lineNumber, tokens);
+    }
+
+    /**
      * Generates machine code for an instruction in format 1 (move shifted register)
      * @param {number} lineNum
      * @param {string[]} tokens
@@ -369,6 +385,55 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Generates machine code for an instruction in format 2 (add/subtract)
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat2(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b0001100000000000;
+
+        // Immediate flag and value
+        if (this.isImmediate(tokens[3]))
+        {
+            const immediateFlag = 1;
+            const immediate = this.parseImmediate(tokens[3], false, lineNumber, 3)
+
+            result |= (immediateFlag << 10);
+            result |= (immediate << 6);
+        }
+        else
+        {
+            // Source register 2
+            const sourceRegister2 = this.parseReg(tokens[3], lineNumber);
+            if (isNaN(sourceRegister2))
+                return NaN;
+            result |= (sourceRegister2 << 6);
+        }
+
+        // Opcode
+        let opcode = 0;
+        if (tokens[0] == "sub")
+            opcode = 1;
+        result |= (opcode << 9);
+
+        // Source register 1
+        const sourceRegister1 = this.parseReg(tokens[2], lineNumber);
+        if (isNaN(sourceRegister1))
+            return NaN;
+        result |= (sourceRegister1 << 3);
+
+        // Destination register
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(destinationRegister))
+            return NaN;
+        result |= destinationRegister;
+
+        return result;
+    }
+
+    /**
      * Generates machine code for an instruction in format 3 (move/compare/add/subtract immediate)
      * @param {number} lineNum
      * @param {string[]} tokens
@@ -385,6 +450,7 @@ export default class ArmParser extends Parser
             case "mov": opcode = 0b00; break;
             case "add": opcode = 0b10; break;
             case "cmp": opcode = 0b01; break;
+            case "sub": opcode = 0b11; break;
             default: return NaN;
         }
         result |= (opcode << 11);
