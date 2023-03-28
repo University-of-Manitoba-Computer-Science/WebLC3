@@ -59,6 +59,8 @@ export default class ArmParser extends Parser
                 return this.parseLdrh(lineNum, tokens);
             case "lsl":
                 return this.parseLsl(lineNum, tokens);
+            case "lsr":
+                return this.parseLsr(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -250,6 +252,20 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Generates machine code in the appropriate format for an lsr instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseLsr(lineNumber: number, tokens: string[]): number
+    {
+        if (tokens.length == 4)
+            return this.asmFormat1(lineNumber, tokens);
+        else
+            return this.asmFormat4(lineNumber, tokens);
+    }
+
+    /**
      * Generates machine code for an instruction in format 1 (move shifted register)
      * @param {number} lineNum
      * @param {string[]} tokens
@@ -264,6 +280,7 @@ export default class ArmParser extends Parser
         switch (tokens[0])
         {
             case 'lsl': opcode = 0b00; break;
+            case 'lsr': opcode = 0b01; break;
             case 'asr': opcode = 0b10; break;
             default: return NaN;
         }
@@ -334,6 +351,7 @@ export default class ArmParser extends Parser
             case "and": opcode = 0b0000; break;
             case "eor": opcode = 0b0001; break;
             case "lsl": opcode = 0b0010; break;
+            case "lsr": opcode = 0b0011; break;
             case "adc": opcode = 0b0101; break;
             case "asr": opcode = 0b0100; break;
             case "cmp": opcode = 0b1010; break;

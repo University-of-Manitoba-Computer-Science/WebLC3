@@ -23,7 +23,7 @@ export default class ARMAssembler
     private static opCodes = new Set([
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
-        "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh",
+        "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
         "swi"
     ]);
 
@@ -267,6 +267,8 @@ export default class ARMAssembler
             0b010000_0010_111_001,   // lsl r1, r7
             0b0101_0_1_1_001_010_011,// ldsb r3, r2, r1
             0b0101_1_1_1_110_101_100,// ldsh r4, r5, r6
+            0b000_01_01000_111_111,  // lsr r7, r7, #8
+            0b010000_0011_001_111,   // lsr r7, r1
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
@@ -312,15 +314,14 @@ export default class ARMAssembler
         switch (tokens[0])
         {
             case "add":
-                return tokens.length == 3 || tokens.length == 4;
             case "asr":
+            case "ldr":
+            case "lsl":
+            case "lsr":
                 return tokens.length == 3 || tokens.length == 4;
             case "ldmia":
                 return tokens.length > 1;
-            case "ldr":
-                return tokens.length == 3 || tokens.length == 4;
-            case "lsl":
-                return tokens.length == 3 || tokens.length == 4;
+
             default:
                 const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
                 return result;
