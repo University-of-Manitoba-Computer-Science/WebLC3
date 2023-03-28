@@ -23,7 +23,7 @@ export default class ARMAssembler
     private static opCodes = new Set([
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
-        "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh",
+        "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl",
         "swi"
     ]);
 
@@ -221,14 +221,14 @@ export default class ARMAssembler
         let identical = true;
         const expectedBinary = [
             0,                       // Leading zero
-            0b010000_0101_000_001,   // adc r0, r1
+            0b010000_0101_001_000,   // adc r0, r1
             0b001_10_000_00000001,   // add r0, #1
             0b010001_00_0_1_000_000, // add r0, h0
             0b1010_1_001_00000001,   // add r1, sp, #1
             0b10110000_1_0000010,    // add sp, #-2
-            0b010000_0000_001_010,   // and r1, r2
+            0b010000_0000_010_001,   // and r1, r2
             0b000_10_00101_001_010,  // asr r1, r2, #5
-            0b010000_0100_001_010,   // asr r1, r2
+            0b010000_0100_010_001,   // asr r1, r2
             0b11100_11111110111,     // b _start
             0b1101_0000_11110110,    // beq _start
             0b1101_0001_11110101,    // bne _start
@@ -244,15 +244,15 @@ export default class ARMAssembler
             0b1101_1011_11101011,    // blt _start
             0b1101_1100_11101010,    // bgt _start
             0b1101_1101_11101001,    // ble _start
-            0b010000_1110_010_011,   // bic r2, r3
+            0b010000_1110_011_010,   // bic r2, r3
             0b1111_0_11111111111,    // bl _start (1)
             0b1111_1_11111100111,    // bl _start (2)
             0b010001_11_1_1_100_100, // bx h4
-            0b010000_1011_101_100,   // cmn r5, r4
+            0b010000_1011_100_101,   // cmn r5, r4
             0b001_01_101_00001010,   // cmp r5, #10
-            0b010000_1010_001_100,   // cmp r1, r4
+            0b010000_1010_100_001,   // cmp r1, r4
             0b010001_01_1_1_100_001, // cmp h4, h1
-            0b010000_0001_110_011,   // eor r6, r3
+            0b010000_0001_011_110,   // eor r6, r3
             0b1100_1_001_00001101,   // ldmia r1, r0, r3, r2
             0b0101_1_0_0_101_011_111,// ldr r7, r3, r5
             0b01001_011_01100100,    // ldr r3, #100
@@ -262,6 +262,8 @@ export default class ARMAssembler
             0b011_1_1_00011_001_100, // ldrb r4, r1, #3
             0b0101_1_0_1_011_010_001,// ldrh r1, r2, r3
             0b1000_1_01100_111_111,  // ldrh r7, r7, #12
+            0b000_00_00001_001_001,  // lsl r1, r1, #1
+            0b010000_0010_111_001,   // lsl r1, r7
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
@@ -313,6 +315,8 @@ export default class ARMAssembler
             case "ldmia":
                 return tokens.length > 1;
             case "ldr":
+                return tokens.length == 3 || tokens.length == 4;
+            case "lsl":
                 return tokens.length == 3 || tokens.length == 4;
             default:
                 const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);

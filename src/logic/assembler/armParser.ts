@@ -57,6 +57,8 @@ export default class ArmParser extends Parser
                 return this.parseLdrb(lineNum, tokens);
             case "ldrh":
                 return this.parseLdrh(lineNum, tokens);
+            case "lsl":
+                return this.parseLsl(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -118,7 +120,7 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Parses machine code in the appropriate format for an add instruction
+     * Generates machine code in the appropriate format for an add instruction
      * @param {number} lineNum
      * @param {string[]} tokens
      * @returns {number}
@@ -144,7 +146,7 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Parses machine code in the appropriate format for an asr instruction
+     * Generates machine code in the appropriate format for an asr instruction
      * @param {number} lineNum
      * @param {string[]} tokens
      * @returns {number}
@@ -160,7 +162,7 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Parses machine code in the appropriate format for a cmp instruction
+     * Generates machine code in the appropriate format for a cmp instruction
      * @param {number} lineNum
      * @param {string[]} tokens
      * @returns {number}
@@ -179,7 +181,7 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Parses machine code in the appropriate format for an ldr instruction
+     * Generates machine code in the appropriate format for an ldr instruction
      * @param {number} lineNum
      * @param {string[]} tokens
      * @returns {number}
@@ -203,7 +205,7 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Parses machine code in the appropriate format for an ldrb instruction
+     * Generates machine code in the appropriate format for an ldrb instruction
      * @param {number} lineNum
      * @param {string[]} tokens
      * @returns {number}
@@ -217,7 +219,7 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Parses machine code in the appropriate format for an ldrh instruction
+     * Generates machine code in the appropriate format for an ldrh instruction
      * @param {number} lineNum
      * @param {string[]} tokens
      * @returns {number}
@@ -228,6 +230,20 @@ export default class ArmParser extends Parser
             return this.asmFormat10(lineNumber, tokens);
         else
             return this.asmFormat8(lineNumber, tokens);
+    }
+
+    /**
+     * Generates machine code in the appropriate format for an lsl instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseLsl(lineNumber: number, tokens: string[]): number
+    {
+        if (tokens.length == 4)
+            return this.asmFormat1(lineNumber, tokens);
+        else
+            return this.asmFormat4(lineNumber, tokens);
     }
 
     /**
@@ -244,6 +260,7 @@ export default class ArmParser extends Parser
         let opcode = 0;
         switch (tokens[0])
         {
+            case 'lsl': opcode = 0b00; break;
             case 'asr': opcode = 0b10; break;
             default: return NaN;
         }
@@ -313,6 +330,7 @@ export default class ArmParser extends Parser
         {
             case "and": opcode = 0b0000; break;
             case "eor": opcode = 0b0001; break;
+            case "lsl": opcode = 0b0010; break;
             case "adc": opcode = 0b0101; break;
             case "asr": opcode = 0b0100; break;
             case "cmp": opcode = 0b1010; break;
@@ -323,13 +341,13 @@ export default class ArmParser extends Parser
         result |= (opcode << 6);
 
         // Source register 2
-        const sourceRegister2 = this.parseReg(tokens[1], lineNumber);
+        const sourceRegister2 = this.parseReg(tokens[2], lineNumber);
         if (isNaN(sourceRegister2))
             return NaN;
         result |= (sourceRegister2 << 3);
 
         // Source/destination register
-        const sourceDestinationRegister = this.parseReg(tokens[2], lineNumber);
+        const sourceDestinationRegister = this.parseReg(tokens[1], lineNumber);
         if (isNaN(sourceDestinationRegister))
             return NaN;
         result |= sourceDestinationRegister;
@@ -526,9 +544,6 @@ export default class ArmParser extends Parser
 
         // Immediate value
         const immediate = this.parseImmediate(tokens[3], true, lineNumber, 5);
-
-        console.log(tokens[3]);
-        console.log(immediate);
 
         result |= (immediate << 6);
 
