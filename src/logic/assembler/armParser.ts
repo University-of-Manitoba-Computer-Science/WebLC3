@@ -51,6 +51,8 @@ export default class ArmParser extends Parser
                 return this.parseAsr(lineNum, tokens);
             case "cmp":
                 return this.parseCmp(lineNum, tokens);
+            case "ldr":
+                return this.parseLdr(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -170,6 +172,17 @@ export default class ArmParser extends Parser
             else
                 return this.asmFormat4(lineNumber, tokens);
         }
+    }
+
+    /**
+     * Parses machine code in the appropriate format for an ldr instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseLdr(lineNumber: number, tokens: string[]): number
+    {
+        return this.asmFormat7(lineNumber, tokens);
     }
 
     /**
@@ -331,6 +344,48 @@ export default class ArmParser extends Parser
         if (isNaN(destinationRegister))
             return NaN;
         result |= destinationRegister;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 7 (load/store with register offset)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat7(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b0101000000000000;
+
+        // Flags
+        let loadStoreFlag = 0;
+        let byteWordFlag = 0;
+        if (tokens[0] == "ldr")
+        {
+            loadStoreFlag = 0;
+            byteWordFlag = 0;
+        }
+        result |= (loadStoreFlag << 11);
+        result |= (byteWordFlag << 10);
+
+        // Offset register
+        const offsetRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(offsetRegister))
+            return NaN;
+        result |= (offsetRegister << 6);
+
+        // Base register
+        const baseRegister = this.parseReg(tokens[2], lineNumber);
+        if (isNaN(baseRegister))
+            return NaN;
+        result |= (baseRegister << 3);
+
+        // Source/destination register
+        const sourceDestinationRegister = this.parseReg(tokens[3], lineNumber);
+        if (isNaN(sourceDestinationRegister))
+            return NaN;
+        result |= sourceDestinationRegister;
 
         return result;
     }
