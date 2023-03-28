@@ -55,6 +55,8 @@ export default class ArmParser extends Parser
                 return this.parseLdr(lineNum, tokens);
             case "ldrb":
                 return this.parseLdrb(lineNum, tokens);
+            case "ldrh":
+                return this.parseLdrh(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -212,6 +214,20 @@ export default class ArmParser extends Parser
             return this.asmFormat9(lineNumber, tokens);
         else
             return this.asmFormat7(lineNumber, tokens);
+    }
+
+    /**
+     * Parses machine code in the appropriate format for an ldrh instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseLdrh(lineNumber: number, tokens: string[]): number
+    {
+        if (this.isImmediate(tokens[3]))
+            return this.asmFormat10(lineNumber, tokens);
+        else
+            return this.asmFormat8(lineNumber, tokens);
     }
 
     /**
@@ -444,6 +460,89 @@ export default class ArmParser extends Parser
         if (isNaN(sourceDestinationRegister))
             return NaN;
         result |= sourceDestinationRegister;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 8 (load/store sign-extended byte/halfword)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat8(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b0101001000000000;
+
+        // Flags
+        let hFlag = 0;
+        let signExtendFlag = 0;
+        if (tokens[0] == "ldrh")
+        {
+            hFlag = 1;
+            signExtendFlag = 0;
+        }
+        result |= (hFlag << 11);
+        result |= (signExtendFlag << 10);
+
+        // Offset register
+        const offsetRegister = this.parseReg(tokens[3], lineNumber);
+        if (isNaN(offsetRegister))
+            return NaN;
+        result |= (offsetRegister << 6);
+
+        // Base register
+        const baseRegister = this.parseReg(tokens[2], lineNumber);
+        if (isNaN(baseRegister))
+            return NaN;
+        result |= (baseRegister << 3);
+
+        // Destination register
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(destinationRegister))
+            return NaN;
+        result |= destinationRegister;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 8 (load/store halfword)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat10(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b1000000000000000;
+
+        // Load/store bit
+        let loadStoreBit = 0;
+        if (tokens[0] == "ldrh")
+        {
+            loadStoreBit = 1;
+        }
+        result |= (loadStoreBit << 11);
+
+        // Immediate value
+        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 5);
+
+        console.log(tokens[3]);
+        console.log(immediate);
+
+        result |= (immediate << 6);
+
+        // Base register
+        const baseRegister = this.parseReg(tokens[2], lineNumber);
+        if (isNaN(baseRegister))
+            return NaN;
+        result |= (baseRegister << 3);
+
+        // Destination register
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(destinationRegister))
+            return NaN;
+        result |= destinationRegister;
 
         return result;
     }
