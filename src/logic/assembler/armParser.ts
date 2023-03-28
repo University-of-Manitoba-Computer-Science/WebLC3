@@ -59,8 +59,8 @@ export default class ArmParser extends Parser
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
-            case "b":
-                return this.asmFormat18(lineNum, tokens, pc, labels, toFix);
+            case "ldmia":
+                return this.asmFormat15(lineNum, tokens);
             case "beq":
             case "bne":
             case "bcs":
@@ -78,6 +78,8 @@ export default class ArmParser extends Parser
                 return this.asmFormat16(lineNum, tokens, pc, labels, toFix);
             case "swi":
                 return this.asmFormat17(lineNum, tokens);
+            case "b":
+                return this.asmFormat18(lineNum, tokens, pc, labels, toFix);
             default:
                 return NaN;
         }
@@ -387,6 +389,38 @@ export default class ArmParser extends Parser
 
         // Immediate value (part 2)
         result |= (Math.abs(immediate));
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 15 (multiple load/store)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat15(lineNumber: number, tokens: string[])
+    {
+        let result = 0b1100000000000000;
+
+        let loadStore = 0;
+        if (tokens[0] == "stmia")
+            loadStore = 0;
+        if (tokens[0] == "ldmia")
+            loadStore = 1;
+        result |= (loadStore << 11);
+
+        const baseRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(baseRegister))
+            return NaN;
+        result |= (baseRegister << 8);
+
+        let registerList = 0;
+        for (let i = 2; i < tokens.length; i++)
+        {
+            registerList |= (1 << this.parseReg(tokens[i], lineNumber));
+        }
+        result |= registerList;
 
         return result;
     }

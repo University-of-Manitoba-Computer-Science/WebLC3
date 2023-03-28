@@ -23,7 +23,7 @@ export default class ARMAssembler
     private static opCodes = new Set([
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
-        "bic", "bl", "bx", "cmn", "cmp", "eor",
+        "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia",
         "swi"
     ]);
 
@@ -253,6 +253,7 @@ export default class ARMAssembler
             0b010000_1010_001_100,   // cmp r1, r4
             0b010001_01_1_1_100_001, // cmp h4, h1
             0b010000_0001_110_011,   // eor r6, r3
+            0b1100_1_001_00001101,   // ldmia r1, r0, r3, r2
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
@@ -299,6 +300,8 @@ export default class ARMAssembler
             return tokens.length == 3 || tokens.length == 4;
         else if (tokens[0] == "asr")
             return tokens.length == 3 || tokens.length == 4;
+        else if (tokens[0] == "ldmia")
+            return tokens.length > 1;
         else
         {
             const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
