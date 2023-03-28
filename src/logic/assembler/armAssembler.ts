@@ -25,7 +25,7 @@ export default class ARMAssembler
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
         "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
         "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh", "sub",
-        "swi"
+        "tst", "swi"
     ]);
 
     // All valid assembler directives
@@ -45,8 +45,7 @@ export default class ARMAssembler
 
         ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2], ["ldrb", 3], ["ldrh", 3], ["ldsb", 3],
         ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2], ["sbc", 2], ["strb", 3],
-        ["strh", 3],
-        ["swi", 1],
+        ["strh", 3], ["tst", 2], ["swi", 1],
 
         [".text", 0], [".global", 1]
     ]);
@@ -294,6 +293,7 @@ export default class ARMAssembler
             0b00011_1_1_110_001_000, // sub r0, r1, #6
             0b001_11_010_00000010,   // sub r2, #2
             0b11011111_00001011,     // swi 11
+            0b010000_1000_011_001,   // tst r1, r3
         ]
         console.log(labels);
         console.log(expectedBinary);
