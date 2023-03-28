@@ -24,7 +24,7 @@ export default class ARMAssembler
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
         "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
-        "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc",
+        "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia",
         "swi"
     ]);
 
@@ -282,6 +282,7 @@ export default class ARMAssembler
             0b1011_0_10_1_01010000,  // push r4, r6, lr
             0b010000_0111_000_111,   // ror r7, r0
             0b010000_0110_111_000,   // sbc r0, r7
+            0b1100_0_111_10000000,   // stmia r7, r7, ...
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
@@ -335,6 +336,7 @@ export default class ARMAssembler
             case "ldmia":
             case "pop":
             case "push":
+            case "stmia":
                 return tokens.length > 1;
 
             default:

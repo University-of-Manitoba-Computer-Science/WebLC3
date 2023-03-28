@@ -84,6 +84,7 @@ export default class ArmParser extends Parser
             case "push":
                 return this.asmFormat14(lineNum, tokens);
             case "ldmia":
+            case "stmia":
                 return this.asmFormat15(lineNum, tokens);
             case "beq":
             case "bne":
