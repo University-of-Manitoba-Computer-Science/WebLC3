@@ -26,7 +26,9 @@ export default class ArmParser extends Parser
             // Format 3: move/compare/add/subtract immediate
             case "add":
                 return this.asmFormat3(lineNum, tokens);
-
+            // Format 4: ALU operation
+            case "adc":
+                return this.asmFormat4(lineNum, tokens);
             // Format 17: Software interrupt
             case "swi":
                 return this.asmFormat17(lineNum, tokens);
@@ -50,6 +52,7 @@ export default class ArmParser extends Parser
         switch (tokens[0])
         {
             case "add": opcode = 0b10; break;
+            default: return NaN;
         }
         result |= (opcode << 11);
 
@@ -62,6 +65,40 @@ export default class ArmParser extends Parser
         // Immediate value
         const immediate = this.parseImmediate(tokens[2], true, lineNumber, 8)
         result |= immediate;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 4 (ALU operation)
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat4(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b0100000000000000;
+
+        // Opcode
+        let opcode = 0;
+        switch (tokens[0])
+        {
+            case "adc": opcode = 0b0101; break;
+            default: return NaN;
+        }
+        result |= (opcode << 6);
+
+        // Source register 2
+        const sourceRegister2 = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(sourceRegister2))
+            return NaN;
+        result |= (sourceRegister2 << 3);
+
+        // Source/destination register
+        const sourceDestinationRegister = this.parseReg(tokens[2], lineNumber);
+        if (isNaN(sourceDestinationRegister))
+            return NaN;
+        result |= sourceDestinationRegister;
 
         return result;
     }

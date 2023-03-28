@@ -21,7 +21,7 @@ export default class ARMAssembler
 {
     // All valid opcodes including trap aliases
     private static opCodes = new Set([
-        "add", "swi"
+        "adc", "add", "swi"
     ]);
 
     // All valid assembler directives
@@ -31,7 +31,7 @@ export default class ARMAssembler
 
     // All instructions and directives mapped to the number of operands they take
     private static operandCounts = new Map([
-        ["add", 2], ["swi", 1],
+        ["adc", 2], ["add", 2], ["swi", 1],
 
         [".text", 0], [".global", 1]
     ]);
@@ -205,7 +205,8 @@ export default class ARMAssembler
         // Verify the brute-force example
         let identical = true;
         const expectedBinary = [
-            0,                      // leading zero
+            0,                     // Leading zero
+            0b010000_0101_000_001, // adc r0, r1
             0b001_10_000_00000001, // add r0, #1
             0b11011111_00001011,   // swi 11
         ]
