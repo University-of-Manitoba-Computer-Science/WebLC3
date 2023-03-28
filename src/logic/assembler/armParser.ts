@@ -53,6 +53,8 @@ export default class ArmParser extends Parser
                 return this.parseCmp(lineNum, tokens);
             case "ldr":
                 return this.parseLdr(lineNum, tokens);
+            case "ldrb":
+                return this.parseLdrb(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -196,6 +198,20 @@ export default class ArmParser extends Parser
             else
                 return this.asmFormat7(lineNumber, tokens);
         }
+    }
+
+    /**
+     * Parses machine code in the appropriate format for an ldrb instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseLdrb(lineNumber: number, tokens: string[]): number
+    {
+        if (this.isImmediate(tokens[3]))
+            return this.asmFormat9(lineNumber, tokens);
+        else
+            return this.asmFormat7(lineNumber, tokens);
     }
 
     /**
@@ -379,10 +395,6 @@ export default class ArmParser extends Parser
 
         // Immediate value
         const immediate = this.parseImmediate(tokens[2], false, lineNumber, 8)
-
-        console.log(immediate);
-        console.log(immediate.toString(2));
-
         result |= immediate;
 
         return result;
@@ -401,10 +413,16 @@ export default class ArmParser extends Parser
         // Flags
         let loadStoreFlag = 0;
         let byteWordFlag = 0;
-        if (tokens[0] == "ldr")
+        switch (tokens[0])
         {
-            loadStoreFlag = 1;
-            byteWordFlag = 0;
+            case "ldr":
+                loadStoreFlag = 1;
+                byteWordFlag = 0;
+                break;
+            case "ldrb":
+                loadStoreFlag = 1;
+                byteWordFlag = 1;
+                break;
         }
         result |= (loadStoreFlag << 11);
         result |= (byteWordFlag << 10);
@@ -443,16 +461,22 @@ export default class ArmParser extends Parser
         // Flags
         let loadStoreFlag = 0;
         let byteWordFlag = 0;
-        if (tokens[0] == "ldr")
+        switch (tokens[0])
         {
-            loadStoreFlag = 1;
-            byteWordFlag = 0;
+            case "ldrb":
+                loadStoreFlag = 1;
+                byteWordFlag = 1;
+                break;
+            case "ldr":
+                loadStoreFlag = 1;
+                byteWordFlag = 0;
+                break;
         }
         result |= (loadStoreFlag << 11);
         result |= (byteWordFlag << 12);
 
         // Immediate value
-        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 8)
+        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 5)
         result |= (immediate << 6);
 
         // Base register

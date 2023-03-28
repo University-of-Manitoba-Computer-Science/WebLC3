@@ -23,7 +23,7 @@ export default class ARMAssembler
     private static opCodes = new Set([
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
-        "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr",
+        "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb",
         "swi"
     ]);
 
@@ -42,7 +42,7 @@ export default class ARMAssembler
         ["beq", 1], ["bne", 1], ["bcs", 1], ["bcc", 1], ["bmi", 1], ["bpl", 1], ["bvs", 1], ["bvc", 1], ["bhi", 1],
         ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
 
-        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2],
+        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2], ["ldrb", 3],
         ["swi", 1],
 
         [".text", 0], [".global", 1]
@@ -256,8 +256,10 @@ export default class ARMAssembler
             0b1100_1_001_00001101,   // ldmia r1, r0, r3, r2
             0b0101_1_0_0_101_011_111,// ldr r7, r3, r5
             0b01001_011_01100100,    // ldr r3, #100
-            0b011_0_1_10011_100_011, // ldr r3, r4, #19
+            0b011_0_1_00111_100_011, // ldr r3, r4, #19
             0b1001_1_011_00000100,   // ldr r3, sp, #4
+            0b0101_1_1_0_000_011_111,// ldrb r7, r3, r0
+            0b011_1_1_00011_001_100, // ldrb r4, r1, #3
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
