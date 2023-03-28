@@ -23,7 +23,7 @@ export default class ARMAssembler
     private static opCodes = new Set([
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
-        "bic", "bl", "bx", "cmn",
+        "bic", "bl", "bx", "cmn", "cmp",
         "swi"
     ]);
 
@@ -42,7 +42,7 @@ export default class ARMAssembler
         ["beq", 1], ["bne", 1], ["bcs", 1], ["bcc", 1], ["bmi", 1], ["bpl", 1], ["bvs", 1], ["bvc", 1], ["bhi", 1],
         ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
 
-        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2],
+        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2],
         ["swi", 1],
 
         [".text", 0], [".global", 1]
@@ -249,6 +249,9 @@ export default class ARMAssembler
             0b1111_1_11111100111,    // bl _start (2)
             0b010001_11_1_1_100_100, // bx h4
             0b010000_1011_101_100,   // cmn r5, r4
+            0b001_01_101_00001010,   // cmp r5, #10
+            0b010000_1010_001_100,   // cmp r1, r4
+            0b010001_01_1_1_100_001, // cmp h4, h1
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);

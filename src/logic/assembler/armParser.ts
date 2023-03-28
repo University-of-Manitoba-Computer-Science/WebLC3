@@ -47,6 +47,10 @@ export default class ArmParser extends Parser
         {
             case "add":
                 return this.parseAdd(lineNum, tokens);
+            case "asr":
+                return this.parseAsr(lineNum, tokens);
+            case "cmp":
+                return this.parseCmp(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -54,8 +58,6 @@ export default class ArmParser extends Parser
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
-            case "asr":
-                return this.parseAsr(lineNum, tokens);
             case "b":
                 return this.asmFormat18(lineNum, tokens, pc, labels, toFix);
             case "beq":
@@ -116,18 +118,14 @@ export default class ArmParser extends Parser
     {
         if (tokens.length == 3)
         {
-            if (tokens[2][0] == "#")
-                // Format 13
+            if (this.isImmediate(tokens[2][0]))
                 if (tokens[1].toLowerCase() == "sp")
                     return this.asmFormat13(lineNumber, tokens);
-                // Format 3
                 else
                     return this.asmFormat3(lineNumber, tokens);
-            // Format 5
             if (tokens[1][0].toLowerCase() == 'h' || tokens[2][0].toLowerCase() == 'h')
                 return this.asmFormat5(lineNumber, tokens);
         }
-        // Format 12
         else if (tokens.length == 4)
         {
             return this.asmFormat12(lineNumber, tokens);
@@ -145,13 +143,30 @@ export default class ArmParser extends Parser
     private parseAsr(lineNumber: number, tokens: string[]): number
     {
         if (tokens.length == 4)
-            // Format 1
             return this.asmFormat1(lineNumber, tokens);
         else if (tokens.length == 3)
-            // Format 4
             return this.asmFormat4(lineNumber, tokens);
 
         return NaN;
+    }
+
+    /**
+     * Parses machine code in the appropriate format for a cmp instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseCmp(lineNumber: number, tokens: string[]): number
+    {
+        if (this.isImmediate(tokens[2][0]))
+            return this.asmFormat3(lineNumber, tokens);
+        else
+        {
+            if (tokens[1][0].toLowerCase() == 'h' || tokens[2][0].toLowerCase() == 'h')
+                return this.asmFormat5(lineNumber, tokens);
+            else
+                return this.asmFormat4(lineNumber, tokens);
+        }
     }
 
     /**
@@ -203,6 +218,7 @@ export default class ArmParser extends Parser
         switch (tokens[0])
         {
             case "add": opcode = 0b10; break;
+            case "cmp": opcode = 0b01; break;
             default: return NaN;
         }
         result |= (opcode << 11);
@@ -211,7 +227,7 @@ export default class ArmParser extends Parser
         const register = this.parseReg(tokens[1], lineNumber);
         if (isNaN(register))
             return NaN;
-        result |= (register << 9);
+        result |= (register << 8);
 
         // Immediate value
         const immediate = this.parseImmediate(tokens[2], true, lineNumber, 8)
@@ -237,6 +253,7 @@ export default class ArmParser extends Parser
             case "and": opcode = 0b0000; break;
             case "adc": opcode = 0b0101; break;
             case "asr": opcode = 0b0100; break;
+            case "cmp": opcode = 0b1010; break;
             case "cmn": opcode = 0b1011; break;
             case "bic": opcode = 0b1110; break;
             default: return NaN;
@@ -273,6 +290,7 @@ export default class ArmParser extends Parser
         switch (tokens[0])
         {
             case "add": opcode = 0b00; break;
+            case "cmp": opcode = 0b01; break;
             case "bx":
                 opcode = 0b11;
                 // Workaround for the fact that bx only takes one operand
@@ -532,5 +550,15 @@ export default class ArmParser extends Parser
         }
 
         return increment;
+    }
+
+    /**
+     * Tells whether the given token is an immediate value
+     * @param {string} token
+     * @returns {boolean}
+     */
+    private isImmediate(token: string): boolean
+    {
+        return (token[0] == "#");
     }
 }
