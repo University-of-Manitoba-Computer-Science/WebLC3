@@ -28,6 +28,7 @@ export default class ArmParser extends Parser
                 return this.parseAdd(lineNum, tokens);
             case "adc":
             case "and":
+            case "bic":
                 return this.asmFormat4(lineNum, tokens);
             case "asr":
                 return this.parseAsr(lineNum, tokens);
@@ -212,6 +213,7 @@ export default class ArmParser extends Parser
             case "and": opcode = 0b0000; break;
             case "adc": opcode = 0b0101; break;
             case "asr": opcode = 0b0100; break;
+            case "bic": opcode = 0b1110; break;
             default: return NaN;
         }
         result |= (opcode << 6);
