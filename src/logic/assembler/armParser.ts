@@ -79,6 +79,8 @@ export default class ArmParser extends Parser
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
+            case "strb":
+                return this.asmFormat7(lineNum, tokens);
             case "ldsb":
             case "ldsh":
                 return this.asmFormat8(lineNum, tokens);
@@ -536,6 +538,10 @@ export default class ArmParser extends Parser
             case "str":
                 loadStoreFlag = 0;
                 byteWordFlag = 0;
+                break;
+            case "strb":
+                loadStoreFlag = 0;
+                byteWordFlag = 1;
                 break;
         }
         result |= (loadStoreFlag << 11);
