@@ -10,6 +10,27 @@ import UI from "../../presentation/ui";
 export default class ArmParser extends Parser
 {
     /**
+     * Converts a line of source code into at least one line of machine code. Should generally be used instead of
+     * parseCode, since this supports instructions that assemble into multiple words of machine code.
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @param {number} pc
+     * @param {Map<string, number>} labels
+     * @param {Map<string[], number>} toFix
+     * @returns {number}
+     */
+    public parseInstruction(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number[]
+    {
+        switch (tokens[0])
+        {
+            case "bl":
+                return this.asmFormat19(lineNumber, tokens, pc, labels, toFix);
+            default:
+                return [this.parseCode(lineNumber, tokens, pc, labels, toFix)]
+        }
+    }
+
+    /**
      * Converts a line of source code into machine code.
      * Given a tokenized line of source code, the location of the instruction (given by pc), the known labels in the
      * program, and the map containing labels which have yet to be defined, return the resulting machine code for that
@@ -445,6 +466,43 @@ export default class ArmParser extends Parser
         {
             toFix.set(tokens, pc);
             return result;
+        }
+    }
+
+    /**
+     * Generates machine code for an instruction in format 19 (long branch with link)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat19(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number[]
+    {
+        let highInstruction = 0b1111000000000000;
+        let lowInstruction = 0b1111100000000000;
+
+        // Immediate value
+        if (labels.has(tokens[1]))
+        {
+            const offset = this.calcLabelOffset(tokens[1], pc, labels, 23, lineNumber);
+            if (isNaN(offset))
+                return [NaN];
+
+            const highBits = (offset & 0b11111111111000000000000) >> 12;
+            highInstruction |= highBits;
+
+            const lowBits = (offset & 0b00000000000111111111111);
+            lowInstruction |= lowBits;
+
+            console.log(offset);
+            console.log(highBits);
+            console.log(lowBits);
+
+            return [highInstruction, lowInstruction];
+        }
+        else
+        {
+            toFix.set(tokens, pc);
+            return [highInstruction, lowInstruction];
         }
     }
 

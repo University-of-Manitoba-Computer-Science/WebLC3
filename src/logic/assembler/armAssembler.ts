@@ -23,7 +23,7 @@ export default class ARMAssembler
     private static opCodes = new Set([
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
-        "bic",
+        "bic", "bl",
         "swi"
     ]);
 
@@ -42,7 +42,8 @@ export default class ARMAssembler
         ["beq", 1], ["bne", 1], ["bcs", 1], ["bcc", 1], ["bmi", 1], ["bpl", 1], ["bvs", 1], ["bvc", 1], ["bhi", 1],
         ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
 
-        ["bic", 2], ["swi", 1],
+        ["bic", 2], ["bl", 1],
+        ["swi", 1],
 
         [".text", 0], [".global", 1]
     ]);
@@ -161,19 +162,22 @@ export default class ARMAssembler
                         hasError = true;
                         continue;
                     }
-                    const word = parser.parseCode(lineNumber, tokens, pc, labels, toFix);
-                    if (!isNaN(word))
+                    const words = parser.parseInstruction(lineNumber, tokens, pc, labels, toFix);
+                    for (let i = 0; i < words.length; i++)
                     {
-                        memory[pc] = word;
-                        addressToCode.set(pc + startOffset, currentLine);
+                        if (!isNaN(words[i]))
+                        {
+                            memory[pc] = words[i];
+                            addressToCode.set(pc + startOffset, currentLine);
+                        }
+                        else
+                        {
+                            UI.appendConsole(errorBuilder.nanMemory(lineNumber, pc) + "\n");
+                            memory[pc] = 0;
+                            hasError = true;
+                        }
+                        ++pc;
                     }
-                    else
-                    {
-                        UI.appendConsole(errorBuilder.nanMemory(lineNumber, pc) + "\n");
-                        memory[pc] = 0;
-                        hasError = true;
-                    }
-                    ++pc;
                 }
                 else
                 {
@@ -241,6 +245,9 @@ export default class ARMAssembler
             0b1101_1100_11101010,    // bgt _start
             0b1101_1101_11101001,    // ble _start
             0b010000_1110_010_011,   // bic r2, r3
+            0b1111_0_11111111111,    // bl _start (1)
+            0b1111_1_11111100111,    // bl _start (2)
+
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
