@@ -67,6 +67,8 @@ export default class ArmParser extends Parser
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
+            case "ldsb":
+                return this.asmFormat8(lineNum, tokens);
             case "ldmia":
                 return this.asmFormat15(lineNum, tokens);
             case "beq":
@@ -495,10 +497,16 @@ export default class ArmParser extends Parser
         // Flags
         let hFlag = 0;
         let signExtendFlag = 0;
-        if (tokens[0] == "ldrh")
+        switch (tokens[0])
         {
-            hFlag = 1;
-            signExtendFlag = 0;
+            case "ldrh":
+                hFlag = 1;
+                signExtendFlag = 0;
+                break;
+            case "ldsb":
+                hFlag = 0;
+                signExtendFlag = 1;
+                break;
         }
         result |= (hFlag << 11);
         result |= (signExtendFlag << 10);
