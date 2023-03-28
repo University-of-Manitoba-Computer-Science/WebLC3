@@ -65,6 +65,8 @@ export default class ArmParser extends Parser
                 return this.parseMov(lineNum, tokens);
             case "str":
                 return this.parseStr(lineNum, tokens);
+            case "strh":
+                return this.parseStrh(lineNum, tokens);
             case "adc":
             case "and":
             case "bic":
@@ -312,6 +314,22 @@ export default class ArmParser extends Parser
         }
         else
             return this.asmFormat7(lineNumber, tokens);
+    }
+
+    /**
+     * Generates machine code in the appropriate format for a strh instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseStrh(lineNumber: number, tokens: string[]): number
+    {
+        if (this.isImmediate(tokens[3]))
+        {
+            return this.asmFormat10(lineNumber, tokens);
+        }
+        else
+            return this.asmFormat8(lineNumber, tokens);
     }
 
     /**
@@ -594,6 +612,11 @@ export default class ArmParser extends Parser
             case "ldsh":
                 hFlag = 1;
                 signExtendFlag = 1;
+                break;
+            case "strh":
+                hFlag = 1;
+                signExtendFlag = 0;
+                break;
         }
         result |= (hFlag << 11);
         result |= (signExtendFlag << 10);
@@ -721,8 +744,13 @@ export default class ArmParser extends Parser
         let loadStoreFlag = 0;
         switch (tokens[0])
         {
-            case "ldr": loadStoreFlag = 1; break;
-            case "str": loadStoreFlag = 0; break;
+            case "ldr":
+                loadStoreFlag = 1;
+                break;
+            case "strh":
+            case "str":
+                loadStoreFlag = 0;
+                break;
         }
         result |= (loadStoreFlag << 11);
 
