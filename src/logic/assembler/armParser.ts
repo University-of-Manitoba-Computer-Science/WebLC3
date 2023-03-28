@@ -31,6 +31,8 @@ export default class ArmParser extends Parser
                 return this.asmFormat4(lineNum, tokens);
             case "asr":
                 return this.parseAsr(lineNum, tokens);
+            case "b":
+                return this.asmFormat18(lineNum, tokens, pc, labels, toFix);
             case "swi":
                 return this.asmFormat17(lineNum, tokens);
             default:
@@ -339,6 +341,32 @@ export default class ArmParser extends Parser
         result |= value;
 
         return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 18 (unconditional branch)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat18(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
+    {
+        let result = 0b1110000000000000;
+
+        // Immediate value
+        if (labels.has(tokens[1]))
+        {
+            const offset = this.calcLabelOffset(tokens[1], pc, labels, 11, lineNumber);
+            if (isNaN(offset))
+                return NaN;
+
+            return result | offset;
+        }
+        else
+        {
+            toFix.set(tokens, pc);
+            return result;
+        }
     }
 
     /**

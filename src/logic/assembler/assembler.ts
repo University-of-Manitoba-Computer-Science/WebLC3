@@ -15,7 +15,7 @@ import UI from "../../presentation/ui";
 export default class Assembler
 {
     // all valid opcodes, including trap aliases
-    private static opCodes = new Set([
+    protected static opCodes = new Set([
         "add", "and", "br", "brn", "brz", "brp",
         "brnz", "brnp", "brzp", "brnzp", "jmp", "jsr",
         "jsrr", "ld", "ldi", "ldr", "lea", "not",

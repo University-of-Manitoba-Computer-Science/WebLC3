@@ -21,7 +21,7 @@ export default class ARMAssembler
 {
     // All valid opcodes including trap aliases
     private static opCodes = new Set([
-        "adc", "add", "and", "asr", "swi"
+        "adc", "add", "and", "asr", "b", "swi"
     ]);
 
     // All valid assembler directives
@@ -34,7 +34,7 @@ export default class ARMAssembler
      variable number of operands and are handled in this.validOperandCount.
     */
     private static operandCounts = new Map([
-        ["adc", 2], ["and", 2], ["swi", 1],
+        ["adc", 2], ["and", 2], ["b", 1], ["swi", 1],
 
         [".text", 0], [".global", 1]
     ]);
@@ -117,7 +117,7 @@ export default class ARMAssembler
                 // Label
                 if (tokens[0][0] != '.' && !this.opCodes.has(tokens[0]))
                 {
-                    labels.set(tokens[0].slice(0, tokens[0].length - 1), pc);
+                    labels.set(tokens[0], pc);
                     // Remove label from line
                     tokens.shift();
                     if (tokens.length == 0)
@@ -217,8 +217,10 @@ export default class ARMAssembler
             0b010000_0000_001_010,   // and r1, r2
             0b000_10_00101_001_010,  // asr r1, r2, #5
             0b010000_0100_001_010,   // asr r1, r2
+            0b11100_11111110111,     // b _start
             0b11011111_00001011,     // swi 11
         ]
+        console.log(labels);
         console.log(expectedBinary);
         console.log(result);
         for (let i = 0; i < expectedBinary.length; i++)
