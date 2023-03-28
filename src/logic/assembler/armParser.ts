@@ -78,6 +78,11 @@ export default class ArmParser extends Parser
             if (tokens[1][0].toLowerCase() == 'h' || tokens[2][0].toLowerCase() == 'h')
                 return this.asmFormat5(lineNumber, tokens);
         }
+        // Format 12
+        else if (tokens.length == 4)
+        {
+            return this.asmFormat12(lineNumber, tokens);
+        }
     }
 
     /**
@@ -192,6 +197,39 @@ export default class ArmParser extends Parser
         if (isNaN(destinationRegister))
             return NaN;
         result |= (destinationRegister << 3);
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 12 (load address)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat12(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b1010000000000000;
+
+        // Source
+        let source = -1;
+        if (tokens[2].toLowerCase() == "pc")
+            source = 0;
+        else if (tokens[2].toLowerCase() == "sp")
+            source = 1;
+        else
+            return NaN;
+        result |= (source << 11);
+
+        // Destination register
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(destinationRegister))
+            return NaN;
+        result |= (destinationRegister << 8);
+
+        // Immediate value
+        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 8)
+        result |= immediate;
 
         return result;
     }
