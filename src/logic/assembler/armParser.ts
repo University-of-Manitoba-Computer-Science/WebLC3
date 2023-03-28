@@ -261,9 +261,6 @@ export default class ArmParser extends Parser
             signFlag = 1;
         result |= (signFlag << 7);
 
-        console.log(immediate);
-        console.log(Math.abs(immediate));
-
         // Immediate value (part 2)
         result |= (Math.abs(immediate));
 
