@@ -78,6 +78,8 @@ export default class ArmParser extends Parser
             case "ldsb":
             case "ldsh":
                 return this.asmFormat8(lineNum, tokens);
+            case "pop":
+                return this.asmFormat14(lineNum, tokens);
             case "ldmia":
                 return this.asmFormat15(lineNum, tokens);
             case "beq":
@@ -752,6 +754,42 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Generates machine code for an instruction in format 14 (push/pop registers)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat14(lineNumber: number, tokens: string[])
+    {
+        let result = 0b1011010000000000;
+
+        // Flags
+        let loadStoreBit = 0;
+        let pcLrBit = 0;
+        if (tokens[0] == "pop")
+        {
+            loadStoreBit = 1;
+            if (tokens[tokens.length - 1] == "pc")
+                pcLrBit = 1;
+        }
+        result |= (loadStoreBit << 11);
+        result |= (pcLrBit << 8);
+
+        // Register list
+        let registerListCutoff = tokens.length;
+        if (pcLrBit == 1)
+            registerListCutoff = tokens.length - 1;
+        let registerList = 0;
+        for (let i = 1; i < registerListCutoff; i++)
+        {
+            registerList |= (1 << this.parseReg(tokens[i], lineNumber));
+        }
+        result |= registerList;
+
+        return result;
+    }
+
+    /**
      * Generates machine code for an instruction in format 15 (multiple load/store)
      * @param {number} lineNumber
      * @param {string[]} tokens
@@ -761,6 +799,7 @@ export default class ArmParser extends Parser
     {
         let result = 0b1100000000000000;
 
+        // Load/store bit
         let loadStore = 0;
         if (tokens[0] == "stmia")
             loadStore = 0;
@@ -768,11 +807,13 @@ export default class ArmParser extends Parser
             loadStore = 1;
         result |= (loadStore << 11);
 
+        // Base register
         const baseRegister = this.parseReg(tokens[1], lineNumber);
         if (isNaN(baseRegister))
             return NaN;
         result |= (baseRegister << 8);
 
+        // Register list
         let registerList = 0;
         for (let i = 2; i < tokens.length; i++)
         {
