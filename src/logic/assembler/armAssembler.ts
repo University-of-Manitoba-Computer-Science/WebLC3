@@ -216,7 +216,7 @@ export default class ARMAssembler
             0b10110000_1_0000010,    // add sp, #-2
             0b010000_0000_001_010,   // and r1, r2
             0b000_10_00101_001_010,  // asr r1, r2, #5
-            // asr r1, r2
+            0b010000_0100_001_010,   // asr r1, r2
             0b11011111_00001011,     // swi 11
         ]
         console.log(expectedBinary);

@@ -105,6 +105,9 @@ export default class ArmParser extends Parser
         if (tokens.length == 4)
             // Format 1
             return this.asmFormat1(lineNumber, tokens);
+        else if (tokens.length == 3)
+            // Format 4
+            return this.asmFormat4(lineNumber, tokens);
 
         return NaN;
     }
@@ -191,6 +194,7 @@ export default class ArmParser extends Parser
         {
             case "and": opcode = 0b0000; break;
             case "adc": opcode = 0b0101; break;
+            case "asr": opcode = 0b0100; break;
             default: return NaN;
         }
         result |= (opcode << 6);
