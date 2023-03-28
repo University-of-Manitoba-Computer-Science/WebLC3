@@ -55,6 +55,7 @@ export default class ArmParser extends Parser
             case "and":
             case "bic":
             case "cmn":
+            case "eor":
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
@@ -251,6 +252,7 @@ export default class ArmParser extends Parser
         switch (tokens[0])
         {
             case "and": opcode = 0b0000; break;
+            case "eor": opcode = 0b0001; break;
             case "adc": opcode = 0b0101; break;
             case "asr": opcode = 0b0100; break;
             case "cmp": opcode = 0b1010; break;
