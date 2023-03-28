@@ -68,6 +68,7 @@ export default class ArmParser extends Parser
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
             case "ldsb":
+            case "ldsh":
                 return this.asmFormat8(lineNum, tokens);
             case "ldmia":
                 return this.asmFormat15(lineNum, tokens);
@@ -507,6 +508,9 @@ export default class ArmParser extends Parser
                 hFlag = 0;
                 signExtendFlag = 1;
                 break;
+            case "ldsh":
+                hFlag = 1;
+                signExtendFlag = 1;
         }
         result |= (hFlag << 11);
         result |= (signExtendFlag << 10);
