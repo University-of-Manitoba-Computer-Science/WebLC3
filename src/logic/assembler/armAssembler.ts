@@ -42,7 +42,7 @@ export default class ARMAssembler
         ["beq", 1], ["bne", 1], ["bcs", 1], ["bcc", 1], ["bmi", 1], ["bpl", 1], ["bvs", 1], ["bvc", 1], ["bhi", 1],
         ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
 
-        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2], ["ldr", 3],
+        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2],
         ["swi", 1],
 
         [".text", 0], [".global", 1]
@@ -254,7 +254,10 @@ export default class ARMAssembler
             0b010001_01_1_1_100_001, // cmp h4, h1
             0b010000_0001_110_011,   // eor r6, r3
             0b1100_1_001_00001101,   // ldmia r1, r0, r3, r2
-            0b0101_0_0_0_111_011_101,// ldr r7, r3, r5
+            0b0101_1_0_0_101_011_111,// ldr r7, r3, r5
+            0b01001_011_01100100,    // ldr r3, #100
+            0b011_0_1_10011_100_011, // ldr r3, r4, #19
+            0b1001_1_011_00000100,   // ldr r3, sp, #4
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
@@ -297,16 +300,19 @@ export default class ARMAssembler
      */
     public static validOperandCount(tokens: string[]): boolean
     {
-        if (tokens[0] == "add")
-            return tokens.length == 3 || tokens.length == 4;
-        else if (tokens[0] == "asr")
-            return tokens.length == 3 || tokens.length == 4;
-        else if (tokens[0] == "ldmia")
-            return tokens.length > 1;
-        else
+        switch (tokens[0])
         {
-            const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
-            return result;
+            case "add":
+                return tokens.length == 3 || tokens.length == 4;
+            case "asr":
+                return tokens.length == 3 || tokens.length == 4;
+            case "ldmia":
+                return tokens.length > 1;
+            case "ldr":
+                return tokens.length == 3 || tokens.length == 4;
+            default:
+                const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
+                return result;
         }
     }
 

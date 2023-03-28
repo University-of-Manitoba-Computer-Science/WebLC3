@@ -182,7 +182,20 @@ export default class ArmParser extends Parser
      */
     private parseLdr(lineNumber: number, tokens: string[]): number
     {
-        return this.asmFormat7(lineNumber, tokens);
+        if (tokens.length == 3)
+            return this.asmFormat6(lineNumber, tokens);
+        else
+        {
+            if (this.isImmediate(tokens[3]))
+            {
+                if (tokens[2] == "sp")
+                    return this.asmFormat11(lineNumber, tokens);
+                else
+                    return this.asmFormat9(lineNumber, tokens);
+            }
+            else
+                return this.asmFormat7(lineNumber, tokens);
+        }
     }
 
     /**
@@ -349,6 +362,33 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Generates machine code for an instruction in format 6 (load/store with register offset)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat6(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b0100100000000000;
+
+        // Destination register
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(destinationRegister))
+            return NaN;
+        result |= (destinationRegister << 8);
+
+        // Immediate value
+        const immediate = this.parseImmediate(tokens[2], false, lineNumber, 8)
+
+        console.log(immediate);
+        console.log(immediate.toString(2));
+
+        result |= immediate;
+
+        return result;
+    }
+
+    /**
      * Generates machine code for an instruction in format 7 (load/store with register offset)
      * @param {number} lineNumber
      * @param {string[]} tokens
@@ -363,14 +403,14 @@ export default class ArmParser extends Parser
         let byteWordFlag = 0;
         if (tokens[0] == "ldr")
         {
-            loadStoreFlag = 0;
+            loadStoreFlag = 1;
             byteWordFlag = 0;
         }
         result |= (loadStoreFlag << 11);
         result |= (byteWordFlag << 10);
 
         // Offset register
-        const offsetRegister = this.parseReg(tokens[1], lineNumber);
+        const offsetRegister = this.parseReg(tokens[3], lineNumber);
         if (isNaN(offsetRegister))
             return NaN;
         result |= (offsetRegister << 6);
@@ -382,10 +422,79 @@ export default class ArmParser extends Parser
         result |= (baseRegister << 3);
 
         // Source/destination register
-        const sourceDestinationRegister = this.parseReg(tokens[3], lineNumber);
+        const sourceDestinationRegister = this.parseReg(tokens[1], lineNumber);
         if (isNaN(sourceDestinationRegister))
             return NaN;
         result |= sourceDestinationRegister;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 9 (load/store with immediate offset)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat9(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b0110000000000000;
+
+        // Flags
+        let loadStoreFlag = 0;
+        let byteWordFlag = 0;
+        if (tokens[0] == "ldr")
+        {
+            loadStoreFlag = 1;
+            byteWordFlag = 0;
+        }
+        result |= (loadStoreFlag << 11);
+        result |= (byteWordFlag << 12);
+
+        // Immediate value
+        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 8)
+        result |= (immediate << 6);
+
+        // Base register
+        const baseRegister = this.parseReg(tokens[2], lineNumber);
+        if (isNaN(baseRegister))
+            return NaN;
+        result |= (baseRegister << 3);
+
+        // Source/destination register
+        const sourceDestinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(sourceDestinationRegister))
+            return NaN;
+        result |= sourceDestinationRegister;
+
+        return result;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 11 (SP-relative load/store)
+     * @param {number} lineNumber
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat11(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0b1001000000000000;
+
+        // Load/store bit
+        let loadStoreFlag = 0;
+        if (tokens[0] == "ldr")
+            loadStoreFlag = 1;
+        result |= (loadStoreFlag << 11);
+
+        // Destination register
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(destinationRegister))
+            return NaN;
+        result |= (destinationRegister << 8);
+
+        // Immediate value
+        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 8);
+        result |= immediate;
 
         return result;
     }
