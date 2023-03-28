@@ -29,9 +29,12 @@ export default class ARMAssembler
         ".text", ".global"
     ])
 
-    // All instructions and directives mapped to the number of operands they take
+    /*
+     All instructions and directives mapped to the number of operands they take. Instructions not mapped here can take a
+     variable number of operands and are handled in this.validOperandCount.
+    */
     private static operandCounts = new Map([
-        ["adc", 2], ["add", 2], ["swi", 1],
+        ["adc", 2], ["swi", 1],
 
         [".text", 0], [".global", 1]
     ]);
@@ -205,10 +208,12 @@ export default class ARMAssembler
         // Verify the brute-force example
         let identical = true;
         const expectedBinary = [
-            0,                     // Leading zero
-            0b010000_0101_000_001, // adc r0, r1
-            0b001_10_000_00000001, // add r0, #1
-            0b11011111_00001011,   // swi 11
+            0,                       // Leading zero
+            0b010000_0101_000_001,   // adc r0, r1
+            0b001_10_000_00000001,   // add r0, #1
+            0b010001_00_0_1_000_000, // add r0, h0
+            0b0,                     // add r0, pc, #1
+            0b11011111_00001011,     // swi 11
         ]
         console.log(expectedBinary);
         console.log(result);
@@ -248,8 +253,15 @@ export default class ARMAssembler
      */
     public static validOperandCount(tokens: string[]): boolean
     {
-        const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
-        return result;
+        if (tokens[0] == "add")
+        {
+            return tokens.length == 2 || tokens.length == 3
+        }
+        else
+        {
+            const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
+            return result;
+        }
     }
 
     /**

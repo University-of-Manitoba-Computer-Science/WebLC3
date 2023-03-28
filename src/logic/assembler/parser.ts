@@ -42,7 +42,7 @@ export default class Parser
         ['t', '\t'.charCodeAt(0)]
     ]);
 
-    private errorBuilder: ErrorBuilder;
+    protected errorBuilder: ErrorBuilder;
 
     public constructor(errorBuilder: ErrorBuilder)
     {
