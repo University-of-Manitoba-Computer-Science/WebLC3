@@ -29,6 +29,8 @@ export default class ArmParser extends Parser
             case "adc":
             case "and":
                 return this.asmFormat4(lineNum, tokens);
+            case "asr":
+                return this.parseAsr(lineNum, tokens);
             case "swi":
                 return this.asmFormat17(lineNum, tokens);
             default:
@@ -90,6 +92,55 @@ export default class ArmParser extends Parser
         }
 
         return NaN;
+    }
+
+    /**
+     * Parses machine code in the appropriate format for an asr instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseAsr(lineNumber: number, tokens: string[]): number
+    {
+        if (tokens.length == 4)
+            // Format 1
+            return this.asmFormat1(lineNumber, tokens);
+
+        return NaN;
+    }
+
+    /**
+     * Generates machine code for an instruction in format 1 (move shifted register)
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private asmFormat1(lineNumber: number, tokens: string[]): number
+    {
+        let result = 0;
+
+        // Opcode
+        let opcode = 0;
+        switch (tokens[0])
+        {
+            case 'asr': opcode = 0b10; break;
+            default: return NaN;
+        }
+        result |= (opcode << 11);
+
+        // Immediate value
+        const immediate = this.parseImmediate(tokens[3], false, lineNumber, 5);
+        result |= (immediate << 6);
+
+        // Source register
+        const sourceRegister = this.parseReg(tokens[1], lineNumber);
+        result |= (sourceRegister << 3);
+
+        // Destination register
+        const destinationRegister = this.parseReg(tokens[2], lineNumber);
+        result |= destinationRegister;
+
+        return result;
     }
 
     /**

@@ -21,7 +21,7 @@ export default class ARMAssembler
 {
     // All valid opcodes including trap aliases
     private static opCodes = new Set([
-        "adc", "add", "and", "swi"
+        "adc", "add", "and", "asr", "swi"
     ]);
 
     // All valid assembler directives
@@ -215,6 +215,8 @@ export default class ARMAssembler
             0b1010_1_001_00000001,   // add r1, sp, #1
             0b10110000_1_0000010,    // add sp, #-2
             0b010000_0000_001_010,   // and r1, r2
+            0b000_10_00101_001_010,  // asr r1, r2, #5
+            // asr r1, r2
             0b11011111_00001011,     // swi 11
         ]
         console.log(expectedBinary);
@@ -256,9 +258,9 @@ export default class ARMAssembler
     public static validOperandCount(tokens: string[]): boolean
     {
         if (tokens[0] == "add")
-        {
-            return tokens.length == 3 || tokens.length == 4
-        }
+            return tokens.length == 3 || tokens.length == 4;
+        else if (tokens[0] == "asr")
+            return tokens.length == 3 || tokens.length == 4;
         else
         {
             const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
