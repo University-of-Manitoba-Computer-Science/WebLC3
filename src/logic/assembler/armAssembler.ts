@@ -202,7 +202,27 @@ export default class ARMAssembler
             }
         }
 
+        // Verify the brute-force example
+        let identical = true;
+        const expectedBinary = [
+            0,                      // leading zero
+            0b001_10_000_00000001, // add r0, #1
+            0b11011111_00001011,   // swi 11
+        ]
+        console.log(expectedBinary);
         console.log(result);
+        for (let i = 0; i < expectedBinary.length; i++)
+        {
+            if (result[i] != expectedBinary[i])
+            {
+                identical = false;
+                console.log("Comparison failed for instruction " + i + ": expected " + expectedBinary[i] + ", got " + result[i])
+            }
+        }
+        if (identical)
+        {
+            console.log("All instructions assembled as expected :)");
+        }
 
         if (hasError)
             return null;

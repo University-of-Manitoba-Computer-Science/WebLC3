@@ -30,6 +30,8 @@ export default class ArmParser extends Parser
             // Format 17: Software interrupt
             case "swi":
                 return this.asmFormat17(lineNum, tokens);
+            default:
+                return NaN;
         }
     }
 
