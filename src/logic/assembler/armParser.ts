@@ -73,6 +73,7 @@ export default class ArmParser extends Parser
             case "neg":
             case "orr":
             case "ror":
+            case "sbc":
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
@@ -379,6 +380,7 @@ export default class ArmParser extends Parser
             case "lsr": opcode = 0b0011; break;
             case "adc": opcode = 0b0101; break;
             case "asr": opcode = 0b0100; break;
+            case "sbc": opcode = 0b0110; break;
             case "ror": opcode = 0b0111; break;
             case "neg": opcode = 0b1001; break;
             case "cmp": opcode = 0b1010; break;

@@ -24,7 +24,7 @@ export default class ARMAssembler
         "adc", "add", "and", "asr", "b",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
         "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
-        "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror",
+        "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc",
         "swi"
     ]);
 
@@ -44,7 +44,7 @@ export default class ARMAssembler
         ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
 
         ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2], ["ldrb", 3], ["ldrh", 3], ["ldsb", 3],
-        ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2],
+        ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2], ["sbc", 2],
         ["swi", 1],
 
         [".text", 0], [".global", 1]
@@ -281,6 +281,7 @@ export default class ARMAssembler
             0b1011_0_10_0_01010101,  // push r0, r2, r4, r6
             0b1011_0_10_1_01010000,  // push r4, r6, lr
             0b010000_0111_000_111,   // ror r7, r0
+            0b010000_0110_111_000,   // sbc r0, r7
             0b11011111_00001011,     // swi 11
         ]
         console.log(labels);
