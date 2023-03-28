@@ -51,6 +51,8 @@ export default class ArmParser extends Parser
             case "and":
             case "bic":
                 return this.asmFormat4(lineNum, tokens);
+            case "bx":
+                return this.asmFormat5(lineNum, tokens);
             case "asr":
                 return this.parseAsr(lineNum, tokens);
             case "b":
@@ -96,7 +98,7 @@ export default class ArmParser extends Parser
             }
             else
             {
-                return NaN;
+                return registerNumber;
             }
         }
         else
@@ -269,6 +271,11 @@ export default class ArmParser extends Parser
         switch (tokens[0])
         {
             case "add": opcode = 0b00; break;
+            case "bx":
+                opcode = 0b11;
+                // Workaround for the fact that bx only takes one operand
+                tokens.push(tokens[1])
+                break;
             default: return NaN;
         }
         result |= (opcode << 8);
@@ -296,10 +303,10 @@ export default class ArmParser extends Parser
         result |= (sourceRegister << 3);
 
         // Destination register
-        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        const destinationRegister = this.parseReg(tokens[2], lineNumber);
         if (isNaN(destinationRegister))
             return NaN;
-        result |= (destinationRegister << 3);
+        result |= destinationRegister;
 
         return result;
     }
@@ -492,10 +499,6 @@ export default class ArmParser extends Parser
 
             const lowBits = (offset & 0b00000000000111111111111);
             lowInstruction |= lowBits;
-
-            console.log(offset);
-            console.log(highBits);
-            console.log(lowBits);
 
             return [highInstruction, lowInstruction];
         }
