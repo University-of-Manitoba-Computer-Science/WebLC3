@@ -295,10 +295,6 @@ export default class ARMAssembler
             0b11011111_00001011,     // swi 11
             0b010000_1000_011_001,   // tst r1, r3
         ]
-        console.log(labels);
-        console.log(expectedBinary);
-        console.log(result);
-        console.log(addressToCode);
         for (let i = 0; i < expectedBinary.length; i++)
         {
             if (result[i] != expectedBinary[i])
