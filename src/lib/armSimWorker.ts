@@ -4,6 +4,14 @@ class ArmSimWorker extends SimWorker
 {
     // An extra flag for ARM's fourth status register bit
     private static MASK_C = 0x8;
+    // General-purpose registers 8-15
+    private static hiRegisters: Uint16Array;
+
+    // Gets the value of a high register (i.e. a register with index 8-15)
+    private static getHiRegister(index: number)
+    {
+        return this.load(this.hiRegisters, index);
+    }
 
     protected static override execute(instruction: number)
     {
@@ -17,6 +25,8 @@ class ArmSimWorker extends SimWorker
             this.executeFormat3(instruction);
         else if (this.getBits(instruction, 15, 10) == 0b010000)
             this.executeFormat4(instruction);
+        else if (this.getBits(instruction, 15, 10) == 0b010001)
+            this.executeFormat5(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b11011111)
             this.executeSwi(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b10110000)
@@ -47,6 +57,18 @@ class ArmSimWorker extends SimWorker
         this.executeAdc(instruction);
     }
 
+    /**
+     * Parses an instruction in format 5 (hi register operations/branch exchange) and calls the appropriate execute
+     * function
+     * @param {number} instruction
+     */
+    private static executeFormat5(instruction: number)
+    {
+        console.log("format 5")
+
+        this.executeAddFormat5(instruction);
+    }
+
     // Executes an adc instruction
     private static executeAdc(instruction: number)
     {
@@ -74,6 +96,31 @@ class ArmSimWorker extends SimWorker
         const value = instruction & 0x00ff;
 
         this.setRegister(registerNumber, this.getRegister(registerNumber) + value);
+    }
+
+    // Executes an add instruction in format 5
+    private static executeAddFormat5(instruction: number)
+    {
+        console.log("add format 5")
+
+        const destinationRegisterNumber = this.getBits(instruction, 2, 0);
+        const sourceRegisterNumber = this.getBits(instruction, 5, 3);
+        const hiFlag2 = this.getBits(instruction, 6, 6);
+        const hiFlag1 = this.getBits(instruction, 7, 7);
+
+        let destinationRegisterValue;
+        if (hiFlag1 == 0)
+            destinationRegisterValue = this.getRegister(destinationRegisterNumber);
+        else
+            destinationRegisterValue = this.getHiRegister(destinationRegisterNumber);
+
+        let sourceRegisterValue;
+        if (hiFlag2 == 0)
+            sourceRegisterValue = this.getRegister(sourceRegisterNumber);
+        else
+            sourceRegisterValue = this.getHiRegister(sourceRegisterNumber);
+
+        //this.setRegister()
     }
 
     // Executes an add instruction in format 13
