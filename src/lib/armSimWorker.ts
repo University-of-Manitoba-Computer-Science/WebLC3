@@ -10,9 +10,9 @@ class ArmSimWorker extends SimWorker
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
         */
-        if ((instruction & 0xe000) >> 13 == 0b001)
+        if (this.firstNBits(instruction, 3) == 0b001)
             this.executeFormat3(instruction);
-        else if ((instruction & 0xff00) >> 8 == 0b11011111)
+        else if (this.firstNBits(instruction, 8) == 0b11011111)
             this.executeSwi(instruction);
     }
 
@@ -54,6 +54,18 @@ class ArmSimWorker extends SimWorker
             console.log('halting')
             Atomics.store(this.haltFlag, 0, 1);
         }
+    }
+
+    /**
+     * Gets the first n bits of a 16-bit number
+     * @param {number} of
+     * @param {number} n
+     * @returns {number}
+     */
+    private static firstNBits(of: number, n: number): number
+    {
+        const mask = ((1 << n) - 1) << (16 - n);
+        return (of & mask) >> (16 - n);
     }
 }
 
