@@ -19,10 +19,12 @@ class ArmSimWorker extends SimWorker
             this.executeFormat4(instruction);
         else if (this.getBits(instruction, 15, 10) == 0b010001)
             this.executeFormat5(instruction);
-        else if (this.getBits(instruction, 15, 8) == 0b11011111)
-            this.executeSwi(instruction);
+        else if (this.getBits(instruction, 15, 12) == 0b1010)
+            this.executeAddFormat12(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b10110000)
             this.executeAddFormat13(instruction)
+        else if (this.getBits(instruction, 15, 8) == 0b11011111)
+            this.executeSwi(instruction); // Format 17
     }
 
     /**
@@ -116,6 +118,21 @@ class ArmSimWorker extends SimWorker
         //this.setRegister() Implement a way to view high registers in the simulator before finishing this! As far as
         // storing them goes, turning registers into a 16-element array in an overridden init method is probably the
         // way.
+    }
+
+    // Executes an add instruction in format 12
+    private static executeAddFormat12(instruction: number)
+    {
+        console.log("add format 12")
+
+        const sourceBit = this.getBits(instruction, 11, 11);
+        const destinationRegister = this.getBits(instruction, 10, 8);
+        const word8 = this.getBits(instruction, 7, 0);
+
+        if (sourceBit == 0)
+            this.setRegister(destinationRegister, this.getPC() + word8);
+        else
+            this.setRegister(destinationRegister, this.load(this.savedUSP, 0) + word8);
     }
 
     // Executes an add instruction in format 13

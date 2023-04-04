@@ -45,7 +45,7 @@ export default class SimWorker
     protected static savedUSP: Uint16Array;
     private static savedSSP: Uint16Array;
     // program counter
-    private static pc: Uint16Array;
+    protected static pc: Uint16Array;
     // processor status register
     private static psr: Uint16Array;
 
@@ -307,7 +307,7 @@ export default class SimWorker
         this.store(this.memory, addr, value);
     }
 
-    private static getPC(): number
+    protected static getPC(): number
     {
         return this.load(this.pc, 0);
     }
