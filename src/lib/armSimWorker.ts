@@ -2,6 +2,9 @@ import SimWorker from "./simWorker"
 
 class ArmSimWorker extends SimWorker
 {
+    // An extra flag for ARM's fourth status register bit
+    private static MASK_C = 0x8;
+
     protected static override execute(instruction: number)
     {
         console.log(instruction.toString(16))
@@ -47,11 +50,17 @@ class ArmSimWorker extends SimWorker
     {
         console.log("adc")
 
-        const sourceRegisterNumber = this.getBits(instruction, 5, 3);
-        console.log(sourceRegisterNumber.toString(2));
-        const destinationRegisterNumber = this.getBits(instruction, 2, 0);
-        console.log(destinationRegisterNumber.toString(2));
+        const sourceRegister2Number = this.getBits(instruction, 5, 3);
+        const sourceDestinationRegisterNumber = this.getBits(instruction, 2, 0);
 
+        let result = this.getRegister(sourceDestinationRegisterNumber) + this.getRegister(sourceRegister2Number);
+
+        const cpsrValue = this.getPSR();
+        const carry = cpsrValue & this.MASK_C;
+        if (carry)
+            result++;
+
+        this.setRegister(sourceDestinationRegisterNumber, result);
     }
 
     // Executes an add instruction

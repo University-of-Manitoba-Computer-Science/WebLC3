@@ -272,7 +272,7 @@ export default class SimWorker
         this.store(this.psr, 0, value);
     }
 
-    private static getPSR(): number
+    protected static getPSR(): number
     {
         return this.load(this.psr, 0);
     }
