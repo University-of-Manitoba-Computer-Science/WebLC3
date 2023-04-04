@@ -91,6 +91,7 @@ class ArmSimWorker extends SimWorker
             case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
+            case 0b1110: this.executeBic(sourceDestinationRegister, sourceRegister2); break;
         }
 
     }
@@ -217,6 +218,15 @@ class ArmSimWorker extends SimWorker
         if (carry)
             result++;
 
+        this.setRegister(sourceDestinationRegister, result);
+    }
+
+    // Executes a bic instruction
+    private static executeBic(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("bic");
+
+        const result = this.getRegister(sourceDestinationRegister) & ~this.getRegister(sourceRegister2)
         this.setRegister(sourceDestinationRegister, result);
     }
 
