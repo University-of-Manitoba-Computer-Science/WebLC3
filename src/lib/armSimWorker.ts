@@ -19,6 +19,8 @@ class ArmSimWorker extends SimWorker
             this.executeFormat4(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b11011111)
             this.executeSwi(instruction);
+        else if (this.getBits(instruction, 15, 8) == 0b10110000)
+            this.executeAddFormat13(instruction)
     }
 
     /**
@@ -30,7 +32,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("format 3");
 
-        this.executeAdd(instruction);
+        this.executeAddFormat3(instruction);
     }
 
     /**
@@ -63,15 +65,36 @@ class ArmSimWorker extends SimWorker
         this.setRegister(sourceDestinationRegisterNumber, result);
     }
 
-    // Executes an add instruction
-    private static executeAdd(instruction: number)
+    // Executes an add instruction in format 3
+    private static executeAddFormat3(instruction: number)
     {
-        console.log("add")
+        console.log("add format 3")
 
         const registerNumber = (instruction & 0x0700) >> 8;
         const value = instruction & 0x00ff;
 
         this.setRegister(registerNumber, this.getRegister(registerNumber) + value);
+    }
+
+    // Executes an add instruction in format 13
+    private static executeAddFormat13(instruction: number)
+    {
+        console.log("add format 13")
+
+        const signBit = this.getBits(instruction, 7, 7);
+        const sWord7 = this.getBits(instruction, 6, 0);
+        const stackPointerValue = this.load(this.savedUSP, 0);
+
+        console.log(signBit);
+        console.log(sWord7);
+        console.log(stackPointerValue);
+
+        if (signBit == 0)
+            this.store(this.savedUSP, 0, stackPointerValue + sWord7);
+        else
+            this.store(this.savedUSP, 0, stackPointerValue - sWord7);
+
+        console.log(this.load(this.savedUSP, 0));
     }
 
     // Executes an swi instruction

@@ -42,7 +42,7 @@ export default class SimWorker
     // general-purpose registers
     private static registers: Uint16Array;
     // internal registers for non-active stack pointer
-    private static savedUSP: Uint16Array;
+    protected static savedUSP: Uint16Array;
     private static savedSSP: Uint16Array;
     // program counter
     private static pc: Uint16Array;
@@ -178,7 +178,7 @@ export default class SimWorker
      ---- Atomics Function Wrappers ----
      ***********************************/
 
-    private static load(array: Uint16Array | Uint8Array, index: number): number
+    protected static load(array: Uint16Array | Uint8Array, index: number): number
     {
         if (index < 0)
         {
@@ -195,7 +195,7 @@ export default class SimWorker
         return Atomics.load(array, index);
     }
 
-    private static store(array: Uint16Array | Uint8Array, index: number, value: number)
+    protected static store(array: Uint16Array | Uint8Array, index: number, value: number)
     {
         if (index < 0)
         {
