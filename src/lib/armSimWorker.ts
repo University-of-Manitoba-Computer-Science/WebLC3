@@ -105,7 +105,7 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat5(instruction: number)
     {
-        console.log("format 5 (not supported)")
+        console.log("format 5 (not supported - no high registers)")
         return;
         // Implement a way to view high registers in the simulator before finishing this! As far as storing them goes,
         // turning registers into a 16-element array in an overridden init method is probably the way.
@@ -359,7 +359,8 @@ class ArmSimWorker extends SimWorker
     // Executes a bl instruction
     private static executeBl(instruction: number)
     {
-        console.log("bl")
+        console.log("bl (not supported - no link register)")
+        return;
 
         const offsetBit = this.getBits(instruction, 11, 11);
         let offset = this.getBits(instruction, 10, 0);
