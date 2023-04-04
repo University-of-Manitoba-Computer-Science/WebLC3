@@ -52,6 +52,14 @@ class ArmSimWorker extends SimWorker
             this.executeFormat4(instruction);
         else if (this.getBits(instruction, 15, 10) == 0b010001)
             this.executeFormat5(instruction);
+        else if (this.getBits(instruction, 15, 11) == 0b01001)
+            this.executeLdrFormat6(instruction);
+        else if (this.getBits(instruction, 15, 12) == 0b0101 && this.getBits(instruction, 9, 9) == 0)
+            this.executeFormat7(instruction);
+        else if (this.getBits(instruction, 15, 13) == 0b011)
+            this.executeFormat9(instruction);
+        else if (this.getBits(instruction, 15, 12) == 0b1001)
+            this.executeFormat11(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b1010)
             this.executeAddFormat12(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b10110000)
@@ -150,6 +158,59 @@ class ArmSimWorker extends SimWorker
             //case 0b11: this.executeBx(
         }
 
+    }
+
+    /**
+     * Parses an instruction in format 7 (load/store with register offset) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat7(instruction: number)
+    {
+        console.log("format 7");
+
+        const loadStoreFlag = this.getBits(instruction, 11, 11);
+        const byteWordFlag = this.getBits(instruction, 10, 10);
+        const offsetRegister = this.getBits(instruction, 8, 6);
+        const baseRegister = this.getBits(instruction, 5, 3);
+        const sourceDestinationRegister = this.getBits(instruction, 2, 0);
+
+        if (loadStoreFlag == 1 && byteWordFlag == 0)
+            this.executeLdrFormat7(sourceDestinationRegister, baseRegister, offsetRegister)
+    }
+
+    /**
+     * Parses an instruction in format 9 (load/store with immediate offset) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat9(instruction: number)
+    {
+        console.log("format 9");
+
+        const loadStoreFlag = this.getBits(instruction, 11, 11);
+        const byteWordFlag = this.getBits(instruction, 12, 12);
+        const offset5 = this.getBits(instruction, 10, 6);
+        const baseRegister = this.getBits(instruction, 5, 3);
+        const sourceDestinationRegister = this.getBits(instruction, 2, 0);
+
+        if (loadStoreFlag == 1 && byteWordFlag == 0)
+            this.executeLdrFormat9(sourceDestinationRegister, baseRegister, offset5)
+    }
+
+    /**
+     * Parses an instruction in format 11 (SP-relative load/store) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat11(instruction: number)
+    {
+        console.log("format 11");
+
+        const loadStoreBit = this.getBits(instruction, 11, 11);
+        const destinationRegister = this.getBits(instruction, 10, 8);
+        const word8 = this.getBits(instruction, 7, 0);
+
+        if (loadStoreBit == 0) { }
+        else
+            this.executeLdrFormat11(destinationRegister, word8);
     }
 
     /**
@@ -484,6 +545,46 @@ class ArmSimWorker extends SimWorker
             const register = registerList[i];
             this.setMemory(startLocation + i, this.getRegister(register));
         }
+    }
+
+    // Executes an ldr instruction in format 6
+    private static executeLdrFormat6(instruction: number)
+    {
+        console.log("ldr format 6");
+
+        const destinationRegister = this.getBits(instruction, 10, 8);
+        const word8 = this.getBits(instruction, 7, 0);
+        this.setRegister(destinationRegister, this.getMemory(this.getPC() + word8));
+    }
+
+    // Executes an ldr instruction in format 7
+    private static executeLdrFormat7(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("ldr format 7")
+
+        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const result = this.getMemory(sourceAddress);
+        this.setRegister(sourceDestinationRegister, result);
+    }
+
+    // Executes an ldr instruction in format 9
+    private static executeLdrFormat9(sourceDestinationRegister: number, baseRegister: number, offset5: number)
+    {
+        console.log("ldr format 9")
+
+        const sourceAddress = this.getRegister(baseRegister) + offset5;
+        const result = this.getMemory(sourceAddress);
+        this.setRegister(sourceDestinationRegister, result);
+    }
+
+    // Executes an ldr instruction in format 11
+    private static executeLdrFormat11(destinationRegister: number, word8: number)
+    {
+        console.log("ldr format 11")
+
+        const startLocation = this.getRegister(7);
+        const result = this.getMemory(startLocation + word8);
+        this.setRegister(destinationRegister, result);
     }
 
     // Executes an swi instruction

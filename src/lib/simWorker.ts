@@ -296,7 +296,7 @@ export default class SimWorker
     }
 
     // get the value at a memory location
-    private static getMemory(addr: number): number
+    protected static getMemory(addr: number): number
     {
         return this.load(this.memory, addr);
     }
