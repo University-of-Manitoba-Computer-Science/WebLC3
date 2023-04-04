@@ -13,7 +13,9 @@ class ArmSimWorker extends SimWorker
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
         */
-        if (this.getBits(instruction, 15, 13) == 0b001)
+        if (this.getBits(instruction, 15, 13) == 0b000)
+            this.executeAddFormat12(instruction);
+        else if (this.getBits(instruction, 15, 13) == 0b001)
             this.executeFormat3(instruction);
         else if (this.getBits(instruction, 15, 10) == 0b010000)
             this.executeFormat4(instruction);
@@ -25,6 +27,20 @@ class ArmSimWorker extends SimWorker
             this.executeAddFormat13(instruction)
         else if (this.getBits(instruction, 15, 8) == 0b11011111)
             this.executeSwi(instruction); // Format 17
+    }
+
+    /**
+     * Parses an instruction in format 1 (move shifted register) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat1(instruction: number)
+    {
+        const opcode = this.getBits(instruction, 12, 11);
+        const offset5 = this.getBits(instruction, 10, 6);
+        const sourceRegister = this.getBits(instruction, 5, 3);
+        const destinationRegister = this.getBits(instruction, 2, 0);
+
+        this.executeAsr(destinationRegister, sourceRegister, offset5);
     }
 
     /**
@@ -168,6 +184,14 @@ class ArmSimWorker extends SimWorker
         console.log("and")
 
         this.setRegister(sourceDestinationRegister, sourceDestinationRegister & sourceRegister2);
+    }
+
+    // Executes an asr instruction
+    private static executeAsr(destinationRegister: number, sourceRegister: number, offset5: number)
+    {
+        console.log("asr");
+
+        this.setRegister(destinationRegister, sourceRegister >> offset5);
     }
 
     // Executes an swi instruction
