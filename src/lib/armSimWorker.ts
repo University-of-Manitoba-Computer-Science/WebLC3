@@ -56,6 +56,8 @@ class ArmSimWorker extends SimWorker
             this.executeAddFormat12(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b10110000)
             this.executeAddFormat13(instruction)
+        else if (this.getBits(instruction, 15, 12) == 0b1100)
+            this.executeFormat15(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b1101)
             this.executeFormat16(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b11011111)
@@ -148,6 +150,30 @@ class ArmSimWorker extends SimWorker
             //case 0b11: this.executeBx(
         }
 
+    }
+
+    /**
+     * Parses a an instruction in format 15 (multiple load/store) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat15(instruction: number)
+    {
+        console.log("format 15");
+
+        const loadStoreBit = this.getBits(instruction, 11, 11);
+        const baseRegister = this.getBits(instruction, 10, 8);
+        const registerBits = this.getBits(instruction, 7, 0);
+
+        const registerList = [];
+        for (let i = 0; i < 7; i++)
+        {
+            if (((1 << i) & registerBits) > 0)
+                registerList.push(i);
+        }
+
+        if (loadStoreBit == 0) { }
+        else
+            this.executeLdmia(baseRegister, registerList);
     }
 
     /**
@@ -444,6 +470,20 @@ class ArmSimWorker extends SimWorker
         const result = this.getRegister(sourceDestinationRegister) ^ this.getRegister(sourceRegister2);
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
+    }
+
+    // Executes an ldmia instruction
+    private static executeLdmia(baseRegister: number, registerList: Array<number>)
+    {
+        console.log("ldmia")
+
+        const startLocation = this.getRegister(baseRegister);
+
+        for (let i = 0; i < registerList.length; i++)
+        {
+            const register = registerList[i];
+            this.setMemory(startLocation + i, this.getRegister(register));
+        }
     }
 
     // Executes an swi instruction

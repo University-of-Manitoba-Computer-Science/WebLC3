@@ -302,7 +302,7 @@ export default class SimWorker
     }
 
     // set a word of memory
-    private static setMemory(addr: number, value: number)
+    protected static setMemory(addr: number, value: number)
     {
         this.store(this.memory, addr, value);
     }
