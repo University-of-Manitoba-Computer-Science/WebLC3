@@ -176,6 +176,8 @@ class ArmSimWorker extends SimWorker
 
         if (loadStoreFlag == 1 && byteWordFlag == 0)
             this.executeLdrFormat7(sourceDestinationRegister, baseRegister, offsetRegister)
+        else if (loadStoreFlag == 1 && byteWordFlag == 1)
+            this.executeLdrbFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
     }
 
     /**
@@ -194,6 +196,8 @@ class ArmSimWorker extends SimWorker
 
         if (loadStoreFlag == 1 && byteWordFlag == 0)
             this.executeLdrFormat9(sourceDestinationRegister, baseRegister, offset5)
+        else if (loadStoreFlag == 1 && byteWordFlag == 1)
+            this.executeLdrbFormat9(sourceDestinationRegister, baseRegister, offset5);
     }
 
     /**
@@ -585,6 +589,26 @@ class ArmSimWorker extends SimWorker
         const startLocation = this.getRegister(7);
         const result = this.getMemory(startLocation + word8);
         this.setRegister(destinationRegister, result);
+    }
+
+    // Executes an ldrb instruction in format 7
+    private static executeLdrbFormat7(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("ldrb format 7")
+
+        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const result = this.getMemory(sourceAddress);
+        this.setRegister(sourceDestinationRegister, result & 0x00ff);
+    }
+
+    // Executes an ldrb isntruction in format 9
+    private static executeLdrbFormat9(sourceDestinationRegister: number, baseRegister: number, offset5: number)
+    {
+        console.log("ldrb format 9")
+
+        const sourceAddress = this.getRegister(baseRegister) + offset5;
+        const result = this.getMemory(sourceAddress);
+        this.setRegister(sourceDestinationRegister, result & 0x00ff);
     }
 
     // Executes an swi instruction
