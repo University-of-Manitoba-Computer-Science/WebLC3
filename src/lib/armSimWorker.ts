@@ -40,7 +40,7 @@ class ArmSimWorker extends SimWorker
         const sourceRegister = this.getBits(instruction, 5, 3);
         const destinationRegister = this.getBits(instruction, 2, 0);
 
-        this.executeAsr(destinationRegister, sourceRegister, offset5);
+        this.executeAsrFormat1(destinationRegister, sourceRegister, offset5);
     }
 
     /**
@@ -71,6 +71,7 @@ class ArmSimWorker extends SimWorker
         switch (opcode)
         {
             case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
+            case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
         }
 
@@ -186,12 +187,19 @@ class ArmSimWorker extends SimWorker
         this.setRegister(sourceDestinationRegister, sourceDestinationRegister & sourceRegister2);
     }
 
-    // Executes an asr instruction
-    private static executeAsr(destinationRegister: number, sourceRegister: number, offset5: number)
+    // Executes an asr instruction in format 1
+    private static executeAsrFormat1(destinationRegister: number, sourceRegister: number, offset5: number)
     {
-        console.log("asr");
+        console.log("asr format 1");
 
         this.setRegister(destinationRegister, sourceRegister >> offset5);
+    }
+
+    private static executeAsrFormat4(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("asr format 4")
+
+        this.setRegister(sourceDestinationRegister, sourceDestinationRegister >> sourceRegister2);
     }
 
     // Executes an swi instruction
