@@ -251,6 +251,7 @@ class ArmSimWorker extends SimWorker
             result++;
 
         this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes an add instruction in format 3
@@ -260,8 +261,10 @@ class ArmSimWorker extends SimWorker
 
         const registerNumber = (instruction & 0x0700) >> 8;
         const value = instruction & 0x00ff;
+        const result = this.getRegister(registerNumber) + value;
 
-        this.setRegister(registerNumber, this.getRegister(registerNumber) + value);
+        this.setRegister(registerNumber, result);
+        this.setConditions(result);
     }
 
     // Executes an add instruction in format 5
@@ -330,7 +333,9 @@ class ArmSimWorker extends SimWorker
     {
         console.log("and")
 
-        this.setRegister(sourceDestinationRegister, sourceDestinationRegister & sourceRegister2);
+        const result = sourceDestinationRegister & sourceRegister2;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes an asr instruction in format 1
@@ -338,7 +343,9 @@ class ArmSimWorker extends SimWorker
     {
         console.log("asr format 1");
 
-        this.setRegister(destinationRegister, sourceRegister >> offset5);
+        const result = this.getRegister(sourceRegister) >> offset5;
+        this.setRegister(destinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes an asr instruction in format 4
@@ -375,6 +382,7 @@ class ArmSimWorker extends SimWorker
 
         const result = this.getRegister(sourceDestinationRegister) & ~this.getRegister(sourceRegister2)
         this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes a bl instruction
