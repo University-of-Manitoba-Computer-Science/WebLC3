@@ -105,9 +105,18 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat5(instruction: number)
     {
-        console.log("format 5")
+        console.log("format 5 (not supported)")
+        return;
+        // Implement a way to view high registers in the simulator before finishing this! As far as storing them goes,
+        // turning registers into a 16-element array in an overridden init method is probably the way.
 
-        this.executeAddFormat5(instruction);
+        const opcode = this.getBits(instruction, 9, 8);
+        switch (opcode)
+        {
+            case 0b00: this.executeAddFormat5(instruction); break;
+            //case 0b11: this.executeBx(
+        }
+
     }
 
     /**
@@ -246,8 +255,7 @@ class ArmSimWorker extends SimWorker
     // Executes an add instruction in format 5
     private static executeAddFormat5(instruction: number)
     {
-        console.log("add format 5 (not supported)")
-        return;
+        console.log("add format 5")
 
         const destinationRegisterNumber = this.getBits(instruction, 2, 0);
         const sourceRegisterNumber = this.getBits(instruction, 5, 3);
@@ -257,18 +265,16 @@ class ArmSimWorker extends SimWorker
         let destinationRegisterValue;
         if (hiFlag1 == 0)
             destinationRegisterValue = this.getRegister(destinationRegisterNumber);
-        else
-            destinationRegisterValue = this.getHiRegister(destinationRegisterNumber);
+        // else
+        //     destinationRegisterValue = this.getHiRegister(destinationRegisterNumber);
 
         let sourceRegisterValue;
         if (hiFlag2 == 0)
             sourceRegisterValue = this.getRegister(sourceRegisterNumber);
-        else
-            sourceRegisterValue = this.getHiRegister(sourceRegisterNumber);
+        // else
+        //     sourceRegisterValue = this.getHiRegister(sourceRegisterNumber);
 
-        //this.setRegister() Implement a way to view high registers in the simulator before finishing this! As far as
-        // storing them goes, turning registers into a 16-element array in an overridden init method is probably the
-        // way.
+        //this.setRegister(
     }
 
     // Executes an add instruction in format 12
