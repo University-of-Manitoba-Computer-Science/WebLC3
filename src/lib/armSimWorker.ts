@@ -10,11 +10,11 @@ class ArmSimWorker extends SimWorker
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
         */
-        if (this.getBits(instruction, 0, 3) == 0b001)
+        if (this.getBits(instruction, 15, 13) == 0b001)
             this.executeFormat3(instruction);
-        else if (this.getBits(instruction, 0, 6) == 0b010000)
+        else if (this.getBits(instruction, 15, 10) == 0b010000)
             this.executeFormat4(instruction);
-        else if (this.getBits(instruction, 0, 8) == 0b11011111)
+        else if (this.getBits(instruction, 15, 8) == 0b11011111)
             this.executeSwi(instruction);
     }
 
@@ -47,7 +47,10 @@ class ArmSimWorker extends SimWorker
     {
         console.log("adc")
 
-        // const destinationRegisterNumber =
+        const sourceRegisterNumber = this.getBits(instruction, 5, 3);
+        console.log(sourceRegisterNumber.toString(2));
+        const destinationRegisterNumber = this.getBits(instruction, 2, 0);
+        console.log(destinationRegisterNumber.toString(2));
 
     }
 
@@ -80,17 +83,19 @@ class ArmSimWorker extends SimWorker
     }
 
     /**
-     * Gets the specified bits of a 16-bit number
+     * Gets the specified range of bits of a 16-bit number
      * @param {number} of
-     * @param {number} from
      * @param {number} to
+     * @param {number} from
      * @returns {number}
      */
-    private static getBits(of: number, from: number, to: number): number
+    private static getBits(of: number, to: number, from: number): number
     {
-        const offset = 16 - to + from;
-        const mask = ((1 << to) - 1) << offset;
-        return (of & mask) >> offset;
+        const high_mask = (1 << (to + 1)) - 1;
+        const low_mask = (1 << from) - 1;
+        const mask = high_mask ^ low_mask;
+
+        return (of & mask) >> from;
     }
 }
 
