@@ -92,7 +92,15 @@ class ArmSimWorker extends SimWorker
     {
         console.log("format 3");
 
-        this.executeAddFormat3(instruction);
+        const opcode = this.getBits(instruction, 12, 11);
+        const destinationRegister = this.getBits(instruction, 10, 8);
+        const offset8 = this.getBits(instruction, 7, 0);
+
+        switch (opcode)
+        {
+            case 0x01: this.executeCmpFormat3(destinationRegister, offset8); break;
+            case 0x10: this.executeAddFormat3(destinationRegister, offset8); break;
+        }
     }
 
     /**
@@ -113,6 +121,7 @@ class ArmSimWorker extends SimWorker
             case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
+            case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b1011: this.executeCmn(sourceDestinationRegister, sourceRegister2); break;
             case 0b1110: this.executeBic(sourceDestinationRegister, sourceRegister2); break;
         }
@@ -255,15 +264,12 @@ class ArmSimWorker extends SimWorker
     }
 
     // Executes an add instruction in format 3
-    private static executeAddFormat3(instruction: number)
+    private static executeAddFormat3(destinationRegister: number, offset8: number)
     {
         console.log("add format 3")
 
-        const registerNumber = (instruction & 0x0700) >> 8;
-        const value = instruction & 0x00ff;
-        const result = this.getRegister(registerNumber) + value;
-
-        this.setRegister(registerNumber, result);
+        const result = this.getRegister(destinationRegister) + offset8;
+        this.setRegister(destinationRegister, result);
         this.setConditions(result);
     }
 
@@ -405,7 +411,27 @@ class ArmSimWorker extends SimWorker
     // Executes a cmn instruction
     private static executeCmn(sourceDestinationRegister: number, sourceRegister2: number)
     {
+        console.log("cmn");
+
         const result = this.getRegister(sourceDestinationRegister) + this.getRegister(sourceRegister2);
+        this.setConditions(result);
+    }
+
+    // Executes a cmp instruction in format 3
+    private static executeCmpFormat3(destinationRegister: number, offset8: number)
+    {
+        console.log("cmp format 3");
+
+        const result = this.getRegister(destinationRegister) - offset8;
+        this.setConditions(result);
+    }
+
+    // Executes a cmp instruction in format 4
+    private static executeCmpFormat4(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("cmp format 4");
+
+        const result = this.getRegister(sourceDestinationRegister) - this.getRegister(sourceRegister2);
         this.setConditions(result);
     }
 
