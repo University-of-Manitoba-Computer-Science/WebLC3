@@ -4,14 +4,6 @@ class ArmSimWorker extends SimWorker
 {
     // An extra flag for ARM's fourth status register bit
     private static MASK_C = 0x8;
-    // General-purpose registers 8-15
-    private static hiRegisters: Uint16Array;
-
-    // Gets the value of a high register (i.e. a register with index 8-15)
-    private static getHiRegister(index: number)
-    {
-        return this.load(this.hiRegisters, index);
-    }
 
     protected static override execute(instruction: number)
     {
@@ -101,7 +93,8 @@ class ArmSimWorker extends SimWorker
     // Executes an add instruction in format 5
     private static executeAddFormat5(instruction: number)
     {
-        console.log("add format 5")
+        console.log("add format 5 (not supported)")
+        return;
 
         const destinationRegisterNumber = this.getBits(instruction, 2, 0);
         const sourceRegisterNumber = this.getBits(instruction, 5, 3);
@@ -120,7 +113,9 @@ class ArmSimWorker extends SimWorker
         else
             sourceRegisterValue = this.getHiRegister(sourceRegisterNumber);
 
-        //this.setRegister()
+        //this.setRegister() Implement a way to view high registers in the simulator before finishing this! As far as
+        // storing them goes, turning registers into a 16-element array in an overridden init method is probably the
+        // way.
     }
 
     // Executes an add instruction in format 13
