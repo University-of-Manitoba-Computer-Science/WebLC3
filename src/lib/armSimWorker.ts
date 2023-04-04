@@ -215,9 +215,6 @@ class ArmSimWorker extends SimWorker
 
         let offset11 = this.getBits(instruction, 10, 0);
 
-        console.log(this.getBits(offset11, 10, 10))
-        console.log(offset11);
-
         // If the immediate value is negative, get its signed value
         if (this.getBits(offset11, 10, 10) == 1)
         {
