@@ -246,7 +246,7 @@ export default class SimWorker
         Atomics.and(array, index, value);
     }
 
-    private static add(array: Uint16Array | Uint8Array, index: number, value: number)
+    protected static add(array: Uint16Array | Uint8Array, index: number, value: number)
     {
         if (index < 0)
         {

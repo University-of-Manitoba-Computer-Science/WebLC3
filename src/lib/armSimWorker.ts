@@ -27,6 +27,8 @@ class ArmSimWorker extends SimWorker
             this.executeAddFormat13(instruction)
         else if (this.getBits(instruction, 15, 8) == 0b11011111)
             this.executeSwi(instruction); // Format 17
+        else if (this.getBits(instruction, 15, 11) == 0b11100)
+            this.executeB(instruction); // Format 18
     }
 
     /**
@@ -198,11 +200,34 @@ class ArmSimWorker extends SimWorker
         this.setRegister(destinationRegister, sourceRegister >> offset5);
     }
 
+    // Executes an asr instruction in format 4
     private static executeAsrFormat4(sourceDestinationRegister: number, sourceRegister2: number)
     {
         console.log("asr format 4")
 
         this.setRegister(sourceDestinationRegister, sourceDestinationRegister >> sourceRegister2);
+    }
+
+    // Executes a b instruction
+    private static executeB(instruction: number)
+    {
+        console.log("🅱️");
+
+        let offset11 = this.getBits(instruction, 10, 0);
+
+        console.log(this.getBits(offset11, 10, 10))
+        console.log(offset11);
+
+        // If the immediate value is negative, get its signed value
+        if (this.getBits(offset11, 10, 10) == 1)
+        {
+            const mask = (1 << 11) - 1;
+            offset11 = -((offset11 ^ mask) + 1);
+        }
+
+        console.log(offset11);
+
+        this.add(this.pc, 0, offset11);
     }
 
     // Executes an swi instruction
