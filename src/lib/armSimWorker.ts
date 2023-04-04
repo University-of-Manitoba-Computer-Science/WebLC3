@@ -14,7 +14,7 @@ class ArmSimWorker extends SimWorker
         checking the opcode
         */
         if (this.getBits(instruction, 15, 13) == 0b000)
-            this.executeAddFormat12(instruction);
+            this.executeFormat1(instruction);
         else if (this.getBits(instruction, 15, 13) == 0b001)
             this.executeFormat3(instruction);
         else if (this.getBits(instruction, 15, 10) == 0b010000)
