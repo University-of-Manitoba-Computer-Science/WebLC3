@@ -48,7 +48,16 @@ class ArmSimWorker extends SimWorker
     {
         console.log("format 4");
 
-        this.executeAdc(instruction);
+        const sourceDestinationRegister = this.getBits(instruction, 2, 0);
+        const sourceRegister2 = this.getBits(instruction, 5, 3);
+
+        const opcode = this.getBits(instruction, 9, 6)
+        switch (opcode)
+        {
+            case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
+            case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
+        }
+
     }
 
     /**
@@ -64,21 +73,18 @@ class ArmSimWorker extends SimWorker
     }
 
     // Executes an adc instruction
-    private static executeAdc(instruction: number)
+    private static executeAdc(sourceDestinationRegister: number, sourceRegister2: number)
     {
         console.log("adc")
 
-        const sourceRegister2Number = this.getBits(instruction, 5, 3);
-        const sourceDestinationRegisterNumber = this.getBits(instruction, 2, 0);
-
-        let result = this.getRegister(sourceDestinationRegisterNumber) + this.getRegister(sourceRegister2Number);
+        let result = this.getRegister(sourceDestinationRegister) + this.getRegister(sourceRegister2);
 
         const cpsrValue = this.getPSR();
         const carry = cpsrValue & this.MASK_C;
         if (carry)
             result++;
 
-        this.setRegister(sourceDestinationRegisterNumber, result);
+        this.setRegister(sourceDestinationRegister, result);
     }
 
     // Executes an add instruction in format 3
@@ -154,6 +160,14 @@ class ArmSimWorker extends SimWorker
             this.store(this.savedUSP, 0, stackPointerValue - sWord7);
 
         console.log(this.load(this.savedUSP, 0));
+    }
+
+    // Executes an and instruction
+    private static executeAnd(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("and")
+
+        this.setRegister(sourceDestinationRegister, sourceDestinationRegister & sourceRegister2);
     }
 
     // Executes an swi instruction
