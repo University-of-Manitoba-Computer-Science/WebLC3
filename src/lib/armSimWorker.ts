@@ -10,9 +10,11 @@ class ArmSimWorker extends SimWorker
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
         */
-        if (this.firstNBits(instruction, 3) == 0b001)
+        if (this.getBits(instruction, 0, 3) == 0b001)
             this.executeFormat3(instruction);
-        else if (this.firstNBits(instruction, 8) == 0b11011111)
+        else if (this.getBits(instruction, 0, 6) == 0b010000)
+            this.executeFormat4(instruction);
+        else if (this.getBits(instruction, 0, 8) == 0b11011111)
             this.executeSwi(instruction);
     }
 
@@ -23,9 +25,30 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat3(instruction: number)
     {
-        console.log("format 3")
+        console.log("format 3");
 
-        this.executeAdd(instruction)
+        this.executeAdd(instruction);
+    }
+
+    /**
+     * Parses an instruction in format 3 (move/compare/add/subtract immediate) and calls the appropriate execute
+     * function
+     * @param {number} instruction
+     */
+    private static executeFormat4(instruction: number)
+    {
+        console.log("format 4");
+
+        this.executeAdc(instruction);
+    }
+
+    // Executes an adc instruction
+    private static executeAdc(instruction: number)
+    {
+        console.log("adc")
+
+        // const destinationRegisterNumber =
+
     }
 
     // Executes an add instruction
@@ -57,15 +80,17 @@ class ArmSimWorker extends SimWorker
     }
 
     /**
-     * Gets the first n bits of a 16-bit number
+     * Gets the specified bits of a 16-bit number
      * @param {number} of
-     * @param {number} n
+     * @param {number} from
+     * @param {number} to
      * @returns {number}
      */
-    private static firstNBits(of: number, n: number): number
+    private static getBits(of: number, from: number, to: number): number
     {
-        const mask = ((1 << n) - 1) << (16 - n);
-        return (of & mask) >> (16 - n);
+        const offset = 16 - to + from;
+        const mask = ((1 << to) - 1) << offset;
+        return (of & mask) >> offset;
     }
 }
 
