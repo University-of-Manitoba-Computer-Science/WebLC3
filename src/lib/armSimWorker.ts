@@ -119,6 +119,7 @@ class ArmSimWorker extends SimWorker
         switch (opcode)
         {
             case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
+            case 0b0001: this.executeEor(sourceDestinationRegister, sourceRegister2); break;
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
             case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
@@ -432,6 +433,16 @@ class ArmSimWorker extends SimWorker
         console.log("cmp format 4");
 
         const result = this.getRegister(sourceDestinationRegister) - this.getRegister(sourceRegister2);
+        this.setConditions(result);
+    }
+
+    // Executes an eor instruction
+    private static executeEor(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("eor");
+
+        const result = this.getRegister(sourceDestinationRegister) ^ this.getRegister(sourceRegister2);
+        this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
 
