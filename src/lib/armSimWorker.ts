@@ -40,7 +40,10 @@ class ArmSimWorker extends SimWorker
         const sourceRegister = this.getBits(instruction, 5, 3);
         const destinationRegister = this.getBits(instruction, 2, 0);
 
-        this.executeAsrFormat1(destinationRegister, sourceRegister, offset5);
+        switch (opcode)
+        {
+            case 0b10: this.executeAsrFormat1(destinationRegister, sourceRegister, offset5); break;
+        }
     }
 
     /**
