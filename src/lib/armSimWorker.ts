@@ -42,6 +42,8 @@ class ArmSimWorker extends SimWorker
             this.executeSwi(instruction); // Format 17
         else if (this.getBits(instruction, 15, 11) == 0b11100)
             this.executeB(instruction); // Format 18
+        else if (this.getBits(instruction, 15, 12) == 0b1111)
+            this.executeBl(instruction); // Format 19
     }
 
     /**
@@ -346,6 +348,22 @@ class ArmSimWorker extends SimWorker
         console.log(offset11);
 
         this.add(this.pc, 0, offset11);
+    }
+
+    // Executes a bl instruction
+    private static executeBl(instruction: number)
+    {
+        console.log("bl")
+
+        const offsetBit = this.getBits(instruction, 11, 11);
+        let offset = this.getBits(instruction, 10, 0);
+
+        if (offsetBit == 0)
+            offset = offset << 12;
+        else
+            offset = offset << 1;
+
+        this.add(this.pc, 0, offset);
     }
 
     // Executes an swi instruction
