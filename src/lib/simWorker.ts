@@ -267,7 +267,7 @@ export default class SimWorker
      ---- Getters and Setters ----
      *****************************/
 
-    private static setPSR(value: number)
+    protected static setPSR(value: number)
     {
         this.store(this.psr, 0, value);
     }
@@ -638,7 +638,7 @@ export default class SimWorker
      * Set the condition codes according to the given number
      * @param result the 16-bit result of an instruction
      */
-    private static setConditions(result: number)
+    protected static setConditions(result: number)
     {
         // truncate to 16 bits
         result &= 0xFFFF;

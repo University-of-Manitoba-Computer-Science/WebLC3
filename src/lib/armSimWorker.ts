@@ -7,13 +7,33 @@ class ArmSimWorker extends SimWorker
     private static MASK_V = 0x20;
 
     /**
+     * Set the condition codes according to the given number
+     * @param result the 16-bit result of an instruction
+     */
+    protected static override setConditions(result: number)
+    {
+        super.setConditions(result);
+
+        let psrValue = this.getPSR();
+
+        // (signed) Overflow
+        if (result >= 0x7fff)
+            psrValue |= this.MASK_V;
+        // Carry
+        else if (result >= 0xffff)
+            psrValue |= this.MASK_C;
+
+        this.setPSR(psrValue);
+    }
+
+    /**
      * Checks whether an exception would occur if the given instruction is executed
      * @param instruction The instruction to be executed if an exception doesn't occur
      * @returns
      */
     protected static override checkForException(instruction: number)
     {
-        return;
+        return undefined;
     }
 
     protected static override execute(instruction: number)
@@ -93,6 +113,7 @@ class ArmSimWorker extends SimWorker
             case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
+            case 0b1011: this.executeCmn(sourceDestinationRegister, sourceRegister2); break;
             case 0b1110: this.executeBic(sourceDestinationRegister, sourceRegister2); break;
         }
 
@@ -232,15 +253,6 @@ class ArmSimWorker extends SimWorker
         this.setRegister(sourceDestinationRegister, result);
     }
 
-    // Executes a bic instruction
-    private static executeBic(sourceDestinationRegister: number, sourceRegister2: number)
-    {
-        console.log("bic");
-
-        const result = this.getRegister(sourceDestinationRegister) & ~this.getRegister(sourceRegister2)
-        this.setRegister(sourceDestinationRegister, result);
-    }
-
     // Executes an add instruction in format 3
     private static executeAddFormat3(instruction: number)
     {
@@ -356,6 +368,15 @@ class ArmSimWorker extends SimWorker
         this.add(this.pc, 0, offset11);
     }
 
+    // Executes a bic instruction
+    private static executeBic(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("bic");
+
+        const result = this.getRegister(sourceDestinationRegister) & ~this.getRegister(sourceRegister2)
+        this.setRegister(sourceDestinationRegister, result);
+    }
+
     // Executes a bl instruction
     private static executeBl(instruction: number)
     {
@@ -371,6 +392,13 @@ class ArmSimWorker extends SimWorker
             offset = offset << 1;
 
         this.add(this.pc, 0, offset);
+    }
+
+    // Executes a cmn instruction
+    private static executeCmn(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        const result = this.getRegister(sourceDestinationRegister) + this.getRegister(sourceRegister2);
+        this.setConditions(result);
     }
 
     // Executes an swi instruction
