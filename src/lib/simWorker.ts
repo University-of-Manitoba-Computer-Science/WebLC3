@@ -27,8 +27,8 @@ export default class SimWorker
     private static MCR = 0xFFFE;
 
     // PSR can be AND'ed with these values to get a flag, OR'ed to set a flag
-    private static MASK_N = 0x4;
-    private static MASK_Z = 0x2;
+    protected static MASK_N = 0x4;
+    protected static MASK_Z = 0x2;
     private static MASK_P = 0x1;
     private static MASK_USER = 0x8000;
     // PSR can be AND'ed with these values to clear a flag
@@ -330,14 +330,14 @@ export default class SimWorker
     }
 
     // get status of N flag in PSR
-    private static flagNegative(): boolean
+    protected static flagNegative(): boolean
     {
         let psrVal = this.getPSR();
         return (psrVal & this.MASK_N) != 0;
     }
 
     // get status of Z flag in PSR
-    private static flagZero(): boolean
+    protected static flagZero(): boolean
     {
         let psrVal = this.getPSR();
         return (psrVal & this.MASK_Z) != 0;

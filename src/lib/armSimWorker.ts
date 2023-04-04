@@ -2,8 +2,19 @@ import SimWorker from "./simWorker"
 
 class ArmSimWorker extends SimWorker
 {
-    // An extra flag for ARM's fourth status register bit
-    private static MASK_C = 0x8;
+    // Extra flag for ARM's additional status register bits
+    private static MASK_C = 0x10;
+    private static MASK_V = 0x20;
+
+    /**
+     * Checks whether an exception would occur if the given instruction is executed
+     * @param instruction The instruction to be executed if an exception doesn't occur
+     * @returns
+     */
+    protected static override checkForException(instruction: number)
+    {
+        return;
+    }
 
     protected static override execute(instruction: number)
     {
@@ -25,6 +36,8 @@ class ArmSimWorker extends SimWorker
             this.executeAddFormat12(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b10110000)
             this.executeAddFormat13(instruction)
+        else if (this.getBits(instruction, 15, 12) == 0b1101)
+            this.executeFormat16(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b11011111)
             this.executeSwi(instruction); // Format 17
         else if (this.getBits(instruction, 15, 11) == 0b11100)
@@ -92,6 +105,104 @@ class ArmSimWorker extends SimWorker
         console.log("format 5")
 
         this.executeAddFormat5(instruction);
+    }
+
+    /**
+     * Parses and executes an instruction in format 16 (conditional branch)
+     * @param instruction
+     */
+    private static executeFormat16(instruction: number)
+    {
+        console.log("format 16")
+
+        const condition = this.getBits(instruction, 11, 8);
+        let sOffset8 = this.getBits(instruction, 7, 0);
+
+        // If the immediate value is negative, get its signed value
+        if (this.getBits(sOffset8, 7, 7) == 1)
+        {
+            const mask = (1 << 8) - 1;
+            sOffset8 = -((sOffset8 ^ mask) + 1);
+        }
+
+        let branch = false;
+        switch (condition)
+        {
+            // beq
+            case 0b0000:
+                console.log("beq");
+                branch = this.flagZero(); break;
+            // bne
+            case 0b0001:
+                console.log("bne");
+                branch = !this.flagZero(); break;
+            // bcs
+            case 0b0010:
+                console.log("bcs");
+                branch = !!(this.getPSR() & this.MASK_C); break;
+            // bcc
+            case 0b0011:
+                console.log("bcc");
+                branch = !(this.getPSR() & this.MASK_C); break;
+            // bmi
+            case 0b0100:
+                console.log("bmi");
+                branch = this.flagNegative(); break;
+            // bpl
+            case 0b0101:
+                console.log("bpl");
+                branch = !this.flagNegative(); break;
+            // bvs
+            case 0b0110:
+                console.log("bvs");
+                branch = !!(this.getPSR() & this.MASK_V); break;
+            // bvc
+            case 0b0111:
+                console.log("bvc");
+                branch = !(this.getPSR() & this.MASK_V); break;
+            // bhi
+            case 0b1000:
+                console.log("bhi");
+                branch = !!(this.getPSR() & this.MASK_C) && !this.flagZero(); break;
+            // bls
+            case 0b1001:
+                console.log("bls");
+                branch = !(this.getPSR() & this.MASK_C) || !this.flagZero(); break;
+            // bge
+            case 0b1010:
+                console.log("bge");
+                branch =
+                    (this.flagNegative() && !!(this.getPSR() & this.MASK_V))
+                    || !(this.flagNegative() && !(this.getPSR() & this.MASK_V));
+                break;
+            // blt
+            case 0b1011:
+                console.log("blt");
+                branch =
+                    (this.flagNegative() && !(this.getPSR() & this.MASK_V))
+                    || !(this.flagNegative() && !!(this.getPSR() & this.MASK_V));
+                break;
+            // bgt
+            case 0b1100:
+                console.log("bgt");
+                branch =
+                    this.flagZero() && (
+                        (this.flagNegative() && !!(this.getPSR() & this.MASK_V))
+                        || (!this.flagNegative() && !(this.getPSR() & this.MASK_V))
+                    );
+                break;
+            // ble
+            case 0b1101:
+                console.log("ble");
+                branch =
+                    this.flagZero() || (
+                        (this.flagNegative()) && !(this.getPSR() & this.MASK_V)
+                        || (!this.flagNegative()) && !!(this.getPSR() & this.MASK_V)
+                    );
+        }
+
+        if (branch)
+            this.add(this.pc, 0, sOffset8);
     }
 
     // Executes an adc instruction
