@@ -146,6 +146,7 @@ class ArmSimWorker extends SimWorker
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
             case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b1011: this.executeCmn(sourceDestinationRegister, sourceRegister2); break;
+            case 0b1100: this.executeOrr(sourceDestinationRegister, sourceRegister2); break;
             case 0b1101: this.executeMul(sourceDestinationRegister, sourceRegister2); break;
             case 0b1110: this.executeBic(sourceDestinationRegister, sourceRegister2); break;
             case 0b1111: this.executeMvn(sourceDestinationRegister, sourceRegister2); break;
@@ -807,6 +808,15 @@ class ArmSimWorker extends SimWorker
     {
         console.log("neg")
         const result = -sourceRegister2;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an orr instruction
+    private static executeOrr(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("orr")
+        const result = sourceDestinationRegister | sourceRegister2;
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
