@@ -145,6 +145,7 @@ class ArmSimWorker extends SimWorker
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
             case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b1011: this.executeCmn(sourceDestinationRegister, sourceRegister2); break;
+            case 0b1101: this.executeMul(sourceDestinationRegister, sourceRegister2); break;
             case 0b1110: this.executeBic(sourceDestinationRegister, sourceRegister2); break;
         }
     }
@@ -778,6 +779,16 @@ class ArmSimWorker extends SimWorker
             console.log('halting')
             Atomics.store(this.haltFlag, 0, 1);
         }
+    }
+
+    // Executes a mul instruction
+    private static executeMul(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("mul")
+
+        const result = sourceRegister2 * sourceDestinationRegister;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
     }
 
     /**
