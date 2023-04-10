@@ -86,6 +86,8 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat1(instruction: number)
     {
+        console.log("format 1");
+
         const opcode = this.getBits(instruction, 12, 11);
         const offset5 = this.getBits(instruction, 10, 6);
         const sourceRegister = this.getBits(instruction, 5, 3);
@@ -94,6 +96,7 @@ class ArmSimWorker extends SimWorker
         switch (opcode)
         {
             case 0b00: this.executeLslFormat1(destinationRegister, sourceRegister, offset5); break;
+            case 0b01: this.executeLsrFormat1(destinationRegister, sourceRegister, offset5); break;
             case 0b10: this.executeAsrFormat1(destinationRegister, sourceRegister, offset5); break;
         }
     }
@@ -113,6 +116,7 @@ class ArmSimWorker extends SimWorker
 
         switch (opcode)
         {
+            case 0x00: this.executeMovFormat3(destinationRegister, offset8); break;
             case 0x01: this.executeCmpFormat3(destinationRegister, offset8); break;
             case 0x10: this.executeAddFormat3(destinationRegister, offset8); break;
         }
@@ -135,14 +139,14 @@ class ArmSimWorker extends SimWorker
         {
             case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
             case 0b0001: this.executeEor(sourceDestinationRegister, sourceRegister2); break;
-            case 0b0010: this.executeLslFormat4(sourceDestinationRegister, sourceRegister2); break
+            case 0b0010: this.executeLslFormat4(sourceDestinationRegister, sourceRegister2); break;
+            case 0b0011: this.executeLsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
             case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b1011: this.executeCmn(sourceDestinationRegister, sourceRegister2); break;
             case 0b1110: this.executeBic(sourceDestinationRegister, sourceRegister2); break;
         }
-
     }
 
     /**
@@ -154,8 +158,11 @@ class ArmSimWorker extends SimWorker
     {
         console.log("format 5 (not supported - no high registers)")
         return;
-        // Implement a way to view high registers in the simulator before finishing this! As far as storing them goes,
-        // turning registers into a 16-element array in an overridden init method is probably the way.
+        /*
+        Implement a way to view high registers in the simulator before finishing this! As far as storing them goes,
+        turning registers into a 16-element array in an overridden init method is probably the way.
+        Update: These are officially not supported since they require simulated hardware not found in the LC-3.
+        */
 
         const opcode = this.getBits(instruction, 9, 8);
         switch (opcode)
@@ -498,7 +505,9 @@ class ArmSimWorker extends SimWorker
     {
         console.log("asr format 4")
 
-        this.setRegister(sourceDestinationRegister, sourceDestinationRegister >> sourceRegister2);
+        const result = sourceDestinationRegister >> sourceRegister2;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes a b instruction
@@ -683,9 +692,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("lsl format 1")
 
-        let result = this.getRegister(sourceRegister) >> offset5;
-        // Turn the arithmetic right shift into a logical one
-        result = this.getBits(result, 16 - offset5, 0);
+        let result = this.getRegister(sourceRegister) << offset5;
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
     }
@@ -695,7 +702,9 @@ class ArmSimWorker extends SimWorker
     {
         console.log("lsl format 4")
 
-        this.setRegister(sourceDestinationRegister, sourceDestinationRegister << sourceRegister2);
+        const result = sourceDestinationRegister << sourceRegister2;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes an ldsb instruction
@@ -719,6 +728,39 @@ class ArmSimWorker extends SimWorker
         const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
         let result = this.getMemory(sourceAddress);
         this.setRegister(destinationRegister, result);
+    }
+
+    // Executes an lsr instruction in format 1
+    private static executeLsrFormat1(destinationRegister: number, sourceRegister: number, offset5: number)
+    {
+        console.log("lsr format 1")
+
+        let result = this.getRegister(sourceRegister) >> offset5;
+        // Turn the arithmetic right shift into a logical one
+        result = this.getBits(result, 16 - offset5, 0);
+        this.setRegister(destinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an lsr instruction in format 4
+    private static executeLsrFormat4(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("lsr format 4")
+
+        let result = sourceDestinationRegister >> sourceRegister2;
+        // Turn the arithmetic right shift into a logical one
+        result = this.getBits(result, 16 - sourceRegister2, 0);
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes a mov instruction in format 3
+    private static executeMovFormat3(destinationRegister: number, offset8: number)
+    {
+        console.log("mov format 3")
+
+        this.setRegister(destinationRegister, offset8);
+        this.setConditions(offset8);
     }
 
     // Executes an swi instruction
