@@ -203,6 +203,10 @@ class ArmSimWorker extends SimWorker
 
         if (signExtendFlag == 0 && hFlag == 1)
             this.executeLdrhFormat8(destinationRegister, baseRegister, offsetRegister);
+        else if (signExtendFlag == 1 && hFlag == 0)
+            this.executeLdsb(destinationRegister, baseRegister, offsetRegister);
+        else if (signExtendFlag == 1 && hFlag == 1)
+            this.executeLdsh(destinationRegister, baseRegister, offsetRegister);
     }
 
     /**
@@ -692,6 +696,29 @@ class ArmSimWorker extends SimWorker
         console.log("lsl format 4")
 
         this.setRegister(sourceDestinationRegister, sourceDestinationRegister << sourceRegister2);
+    }
+
+    // Executes an ldsb instruction
+    private static executeLdsb(destinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("ldsb")
+
+        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        let result = this.getMemory(sourceAddress) & 0xff;
+        // Sign-extend the 8-bit value
+        if (this.getBits(result, 7, 7) == 1)
+            result |= 0xffff;
+        this.setRegister(destinationRegister, result);
+    }
+
+    // Executes an ldsh instruction
+    private static executeLdsh(destinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("ldsh")
+
+        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        let result = this.getMemory(sourceAddress);
+        this.setRegister(destinationRegister, result);
     }
 
     // Executes an swi instruction
