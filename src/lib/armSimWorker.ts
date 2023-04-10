@@ -68,6 +68,8 @@ class ArmSimWorker extends SimWorker
             this.executeAddFormat12(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b10110000)
             this.executeAddFormat13(instruction)
+        else if (this.getBits(instruction, 15, 12) == 0b1011 && this.getBits(instruction, 10, 9) == 0b10)
+            this.executeFormat14(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b1100)
             this.executeFormat15(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b1101)
@@ -273,6 +275,24 @@ class ArmSimWorker extends SimWorker
         if (loadStoreBit == 0) { }
         else
             this.executeLdrFormat11(destinationRegister, word8);
+    }
+
+    /**
+     * Parses an instruction in format 14 (push/pop registers) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat14(instruction: number)
+    {
+        console.log("format 14")
+
+        const loadStoreBit = this.getBits(instruction, 11, 11);
+        const pcLrBit = this.getBits(instruction, 8, 8);
+        const registerList = this.getBits(instruction, 7, 0);
+
+        if (loadStoreBit == 1 && pcLrBit == 0)
+            this.executePop(registerList);
+        else if (loadStoreBit == 1 && pcLrBit == 1)
+            this.executePopPc(registerList);
     }
 
     /**
@@ -767,6 +787,68 @@ class ArmSimWorker extends SimWorker
         this.setConditions(offset8);
     }
 
+    // Executes a mul instruction
+    private static executeMul(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("mul")
+
+        const result = sourceRegister2 * sourceDestinationRegister;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an mvn instruction
+    private static executeMvn(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("mvn")
+
+        const result = ~sourceRegister2;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes a neg instruction
+    private static executeNeg(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("neg")
+
+        const result = -sourceRegister2;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an orr instruction
+    private static executeOrr(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("orr")
+
+        const result = sourceDestinationRegister | sourceRegister2;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes a pop instruction
+    private static executePop(registerList: number)
+    {
+        console.log("pop")
+
+        for (let i = 0; i < 7; i++)
+        {
+            const bit = 1 << i;
+            if (registerList & bit)
+            {
+                this.setRegister(i, this.getMemory(this.getUSP()));
+                this.setUSP(this.getUSP() + 1);
+            }
+        }
+    }
+
+    // Executes a pop instruction involving the PC
+    private static executePopPc(registerList: number)
+    {
+        console.log("pop with pc (not supported - gotta figure out ARM calling conventions first)")
+    }
+
     // Executes an swi instruction
     private static executeSwi(instruction: number)
     {
@@ -784,43 +866,6 @@ class ArmSimWorker extends SimWorker
         }
     }
 
-    // Executes a mul instruction
-    private static executeMul(sourceDestinationRegister: number, sourceRegister2: number)
-    {
-        console.log("mul")
-
-        const result = sourceRegister2 * sourceDestinationRegister;
-        this.setRegister(sourceDestinationRegister, result);
-        this.setConditions(result);
-    }
-
-    // Executes an mvn instruction
-    private static executeMvn(sourceDestinationRegister: number, sourceRegister2: number)
-    {
-        console.log("mvn")
-        const result = ~sourceRegister2;
-        this.setRegister(sourceDestinationRegister, result);
-        this.setConditions(result);
-    }
-
-    // Executes a neg instruction
-    private static executeNeg(sourceDestinationRegister: number, sourceRegister2: number)
-    {
-        console.log("neg")
-        const result = -sourceRegister2;
-        this.setRegister(sourceDestinationRegister, result);
-        this.setConditions(result);
-    }
-
-    // Executes an orr instruction
-    private static executeOrr(sourceDestinationRegister: number, sourceRegister2: number)
-    {
-        console.log("orr")
-        const result = sourceDestinationRegister | sourceRegister2;
-        this.setRegister(sourceDestinationRegister, result);
-        this.setConditions(result);
-    }
-
     /**
      * Gets the specified range of bits of a 16-bit number
      * @param {number} of
@@ -835,6 +880,23 @@ class ArmSimWorker extends SimWorker
         const mask = high_mask ^ low_mask;
 
         return (of & mask) >> from;
+    }
+
+    /*
+    Returns the value of the user stack pointer
+    */
+    private static getUSP()
+    {
+        return Atomics.load(this.savedUSP, 0);
+    }
+
+    /**
+     * Set the value of the user stack pointer
+     * @param value the 16-bit word to use as the new USP value
+     */
+    private static setUSP(value: number)
+    {
+        return Atomics.store(this.savedUSP, 0, value)
     }
 }
 
