@@ -144,6 +144,7 @@ class ArmSimWorker extends SimWorker
             case 0b0010: this.executeLslFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0011: this.executeLsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
+            case 0b0111: this.executeRor(sourceDestinationRegister, sourceRegister2); break;
             case 0b1001: this.executeNeg(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
             case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
@@ -875,6 +876,20 @@ class ArmSimWorker extends SimWorker
     {
         console.log(
             "push with lr (not supported - relies on calling convention details that aren't implemented yet)")
+    }
+
+    // Executes a ror instruction
+    private static executeRor(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("ror")
+
+        const rs = this.getRegister(sourceRegister2);
+        const endBits = this.getBits(this.getRegister(sourceDestinationRegister), rs - 1, 0);
+        let result = this.getRegister(sourceDestinationRegister) >> rs;
+        // Reintroduce the bits we cut off
+        result |= (endBits << 16 - rs);
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes an swi instruction
