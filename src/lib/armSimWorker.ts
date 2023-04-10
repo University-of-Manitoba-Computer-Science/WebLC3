@@ -144,6 +144,7 @@ class ArmSimWorker extends SimWorker
             case 0b0010: this.executeLslFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0011: this.executeLsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
+            case 0b0110: this.executeSbc(sourceDestinationRegister, sourceRegister2); break;
             case 0b0111: this.executeRor(sourceDestinationRegister, sourceRegister2); break;
             case 0b1001: this.executeNeg(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
@@ -888,6 +889,19 @@ class ArmSimWorker extends SimWorker
         let result = this.getRegister(sourceDestinationRegister) >> rs;
         // Reintroduce the bits we cut off
         result |= (endBits << 16 - rs);
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an sbc instruction
+    private static executeSbc(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("sbc")
+
+        const cpsrValue = this.getPSR();
+        const carry = !!(cpsrValue & this.MASK_C);
+        const result = this.getRegister(sourceDestinationRegister) - this.getRegister(sourceRegister2) - ~carry;
+
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
