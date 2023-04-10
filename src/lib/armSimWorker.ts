@@ -147,6 +147,7 @@ class ArmSimWorker extends SimWorker
             case 0b1011: this.executeCmn(sourceDestinationRegister, sourceRegister2); break;
             case 0b1101: this.executeMul(sourceDestinationRegister, sourceRegister2); break;
             case 0b1110: this.executeBic(sourceDestinationRegister, sourceRegister2); break;
+            case 0b1111: this.executeMvn(sourceDestinationRegister, sourceRegister2); break;
         }
     }
 
@@ -787,6 +788,15 @@ class ArmSimWorker extends SimWorker
         console.log("mul")
 
         const result = sourceRegister2 * sourceDestinationRegister;
+        this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an mvn instruction
+    private static executeMvn(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("mvn")
+        const result = ~sourceRegister2;
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
