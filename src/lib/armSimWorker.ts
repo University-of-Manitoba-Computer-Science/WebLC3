@@ -220,7 +220,9 @@ class ArmSimWorker extends SimWorker
         const baseRegister = this.getBits(instruction, 5, 3);
         const destinationRegister = this.getBits(instruction, 2, 0);
 
-        if (signExtendFlag == 0 && hFlag == 1)
+        if (signExtendFlag == 0 && hFlag == 0)
+            this.executeStrhFormat8(destinationRegister, baseRegister, offsetRegister);
+        else if (signExtendFlag == 0 && hFlag == 1)
             this.executeLdrhFormat8(destinationRegister, baseRegister, offsetRegister);
         else if (signExtendFlag == 1 && hFlag == 0)
             this.executeLdsb(destinationRegister, baseRegister, offsetRegister);
@@ -265,7 +267,8 @@ class ArmSimWorker extends SimWorker
         const baseRegister = this.getBits(instruction, 5, 3);
         const sourceDestinationRegister = this.getBits(instruction, 2, 0);
 
-        if (loadStoreFlag == 0) { }
+        if (loadStoreFlag == 0)
+            this.executeStrhFormat10(sourceDestinationRegister, baseRegister, offset5);
         else
             this.executeLdrhFormat10(sourceDestinationRegister, baseRegister, offset5);
     }
@@ -978,6 +981,24 @@ class ArmSimWorker extends SimWorker
 
         const targetAddress = this.getRegister(baseRegister) + offset5;
         this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
+    }
+
+    // Executes an strh instruction in format 8
+    private static executeStrhFormat8(destinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("strh format 8")
+
+        const targetAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        this.setMemory(targetAddress, this.getRegister(destinationRegister));
+    }
+
+    // Executes an strh instruction in format 10
+    private static executeStrhFormat10(sourceDestinationRegister: number, baseRegister: number, offset5: number)
+    {
+        console.log("strh format 10")
+
+        const targetAddress = this.getRegister(baseRegister) + offset5;
+        this.setMemory(targetAddress, this.getRegister(sourceDestinationRegister));
     }
 
     // Executes an swi instruction
