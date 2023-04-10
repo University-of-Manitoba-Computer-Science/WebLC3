@@ -56,8 +56,12 @@ class ArmSimWorker extends SimWorker
             this.executeLdrFormat6(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b0101 && this.getBits(instruction, 9, 9) == 0)
             this.executeFormat7(instruction);
+        else if (this.getBits(instruction, 15, 12) == 0b0101 && this.getBits(instruction, 9, 9) == 1)
+            this.executeFormat8(instruction);
         else if (this.getBits(instruction, 15, 13) == 0b011)
             this.executeFormat9(instruction);
+        else if (this.getBits(instruction, 15, 12) == 0b1000)
+            this.executeFormat10(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b1001)
             this.executeFormat11(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b1010)
@@ -181,6 +185,25 @@ class ArmSimWorker extends SimWorker
     }
 
     /**
+     * Parses an instruction in format 8 (load/store sign-extended byte/halfword) and calls the appropriate execute
+     * function
+     * @param {number} instruction
+     */
+    private static executeFormat8(instruction: number)
+    {
+        console.log("format 8")
+
+        const hFlag = this.getBits(instruction, 11, 11);
+        const signExtendFlag = this.getBits(instruction, 10, 10);
+        const offsetRegister = this.getBits(instruction, 8, 6);
+        const baseRegister = this.getBits(instruction, 5, 3);
+        const destinationRegister = this.getBits(instruction, 2, 0);
+
+        if (signExtendFlag == 0 && hFlag == 1)
+            this.executeLdrhFormat8(destinationRegister, baseRegister, offsetRegister);
+    }
+
+    /**
      * Parses an instruction in format 9 (load/store with immediate offset) and calls the appropriate execute function
      * @param {number} instruction
      */
@@ -198,6 +221,24 @@ class ArmSimWorker extends SimWorker
             this.executeLdrFormat9(sourceDestinationRegister, baseRegister, offset5)
         else if (loadStoreFlag == 1 && byteWordFlag == 1)
             this.executeLdrbFormat9(sourceDestinationRegister, baseRegister, offset5);
+    }
+
+    /**
+     * Parses an instruction in format 10 (load/store halfword) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat10(instruction: number)
+    {
+        console.log("format 10")
+
+        const loadStoreFlag = this.getBits(instruction, 11, 11);
+        const offset5 = this.getBits(instruction, 10, 6);
+        const baseRegister = this.getBits(instruction, 5, 3);
+        const sourceDestinationRegister = this.getBits(instruction, 2, 0);
+
+        if (loadStoreFlag == 0) { }
+        else
+            this.executeLdrhFormat10(sourceDestinationRegister, baseRegister, offset5);
     }
 
     /**
@@ -609,6 +650,26 @@ class ArmSimWorker extends SimWorker
         const sourceAddress = this.getRegister(baseRegister) + offset5;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result & 0x00ff);
+    }
+
+    // Executes an ldrh instruction in format 8
+    private static executeLdrhFormat8(destinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("ldrh format 8")
+
+        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const result = this.getMemory(sourceAddress);
+        this.setRegister(destinationRegister, result);
+    }
+
+    // Executes an ldrh instruction in format 10
+    private static executeLdrhFormat10(sourceDestinationRegister: number, baseRegister: number, offset5: number)
+    {
+        console.log("ldrh format 10")
+
+        const sourceAddress = this.getRegister(baseRegister) + offset5;
+        const result = this.getMemory(sourceAddress);
+        this.setRegister(sourceDestinationRegister, result);
     }
 
     // Executes an swi instruction
