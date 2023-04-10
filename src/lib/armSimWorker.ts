@@ -197,6 +197,8 @@ class ArmSimWorker extends SimWorker
 
         if (loadStoreFlag == 0 && byteWordFlag == 0)
             this.executeStrFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
+        else if (loadStoreFlag == 0 && byteWordFlag == 1)
+            this.executeStrb(sourceDestinationRegister, baseRegister, offsetRegister);
         else if (loadStoreFlag == 1 && byteWordFlag == 0)
             this.executeLdrFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
         else if (loadStoreFlag == 1 && byteWordFlag == 1)
@@ -243,7 +245,7 @@ class ArmSimWorker extends SimWorker
         if (loadStoreFlag == 0 && byteWordFlag == 0)
             this.executeStrFormat9(sourceDestinationRegister, baseRegister, offset5);
         else if (loadStoreFlag == 1 && byteWordFlag == 0)
-            this.executeLdrFormat9(sourceDestinationRegister, baseRegister, offset5)
+            this.executeLdrFormat9(sourceDestinationRegister, baseRegister, offset5);
         else if (loadStoreFlag == 1 && byteWordFlag == 1)
             this.executeLdrbFormat9(sourceDestinationRegister, baseRegister, offset5);
     }
@@ -956,6 +958,15 @@ class ArmSimWorker extends SimWorker
         const startLocation = this.getRegister(7);
         const targetAddress = this.getMemory(startLocation + word8);
         this.setMemory(targetAddress, this.getRegister(destinationRegister));
+    }
+
+    // Executes an strb instruction in format 7
+    private static executeStrb(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("strb format 7")
+
+        const targetAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
     }
 
     // Executes an swi instruction
