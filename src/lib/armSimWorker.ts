@@ -195,8 +195,10 @@ class ArmSimWorker extends SimWorker
         const baseRegister = this.getBits(instruction, 5, 3);
         const sourceDestinationRegister = this.getBits(instruction, 2, 0);
 
-        if (loadStoreFlag == 1 && byteWordFlag == 0)
-            this.executeLdrFormat7(sourceDestinationRegister, baseRegister, offsetRegister)
+        if (loadStoreFlag == 0 && byteWordFlag == 0)
+            this.executeStrFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
+        else if (loadStoreFlag == 1 && byteWordFlag == 0)
+            this.executeLdrFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
         else if (loadStoreFlag == 1 && byteWordFlag == 1)
             this.executeLdrbFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
     }
@@ -238,7 +240,9 @@ class ArmSimWorker extends SimWorker
         const baseRegister = this.getBits(instruction, 5, 3);
         const sourceDestinationRegister = this.getBits(instruction, 2, 0);
 
-        if (loadStoreFlag == 1 && byteWordFlag == 0)
+        if (loadStoreFlag == 0 && byteWordFlag == 0)
+            this.executeStrFormat9(sourceDestinationRegister, baseRegister, offset5);
+        else if (loadStoreFlag == 1 && byteWordFlag == 0)
             this.executeLdrFormat9(sourceDestinationRegister, baseRegister, offset5)
         else if (loadStoreFlag == 1 && byteWordFlag == 1)
             this.executeLdrbFormat9(sourceDestinationRegister, baseRegister, offset5);
@@ -274,7 +278,8 @@ class ArmSimWorker extends SimWorker
         const destinationRegister = this.getBits(instruction, 10, 8);
         const word8 = this.getBits(instruction, 7, 0);
 
-        if (loadStoreBit == 0) { }
+        if (loadStoreBit == 0)
+            this.executeStrFormat11(destinationRegister, word8);
         else
             this.executeLdrFormat11(destinationRegister, word8);
     }
@@ -921,6 +926,36 @@ class ArmSimWorker extends SimWorker
             this.setMemory(startLocation + i, this.getRegister(register));
         }
         this.setRegister(baseRegister, registerList.length - 1);
+    }
+
+    // Executes an str instruction in format 7
+    private static executeStrFormat7(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
+    {
+        console.log("str format 7")
+
+        const targetAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const result = this.getRegister(sourceDestinationRegister);
+        this.setMemory(targetAddress, result);
+    }
+
+    // Executes an str instruction in format 9
+    private static executeStrFormat9(sourceDestinationRegister: number, baseRegister: number, offset5: number)
+    {
+        console.log("str format 9")
+
+        const targetAddress = this.getRegister(baseRegister) + offset5;
+        const result = this.getRegister(sourceDestinationRegister);
+        this.setMemory(targetAddress, result);
+    }
+
+    // Executes an str instruction in format 11
+    private static executeStrFormat11(destinationRegister: number, word8: number)
+    {
+        console.log("sdr format 11")
+
+        const startLocation = this.getRegister(7);
+        const targetAddress = this.getMemory(startLocation + word8);
+        this.setMemory(targetAddress, this.getRegister(destinationRegister));
     }
 
     // Executes an swi instruction
