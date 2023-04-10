@@ -289,7 +289,11 @@ class ArmSimWorker extends SimWorker
         const pcLrBit = this.getBits(instruction, 8, 8);
         const registerList = this.getBits(instruction, 7, 0);
 
-        if (loadStoreBit == 1 && pcLrBit == 0)
+        if (loadStoreBit == 0 && pcLrBit == 0)
+            this.executePush(registerList);
+        else if (loadStoreBit == 0 && pcLrBit == 1)
+            this.executePushLr(registerList);
+        else if (loadStoreBit == 1 && pcLrBit == 0)
             this.executePop(registerList);
         else if (loadStoreBit == 1 && pcLrBit == 1)
             this.executePopPc(registerList);
@@ -843,10 +847,34 @@ class ArmSimWorker extends SimWorker
         }
     }
 
-    // Executes a pop instruction involving the PC
+    // Executes a pop instruction involving the program counter
     private static executePopPc(registerList: number)
     {
-        console.log("pop with pc (not supported - gotta figure out ARM calling conventions first)")
+        console.log(
+            "pop with pc (not supported - relies on calling convention details that aren't implemented yet)")
+    }
+
+    // Executes a push instruction
+    private static executePush(registerList: number)
+    {
+        console.log("push")
+
+        for (let i = 0; i < 7; i++)
+        {
+            const bit = 1 << i;
+            if (registerList & bit)
+            {
+                this.setMemory(this.getUSP(), this.getRegister(i));
+                this.setUSP(this.getUSP() + 1);
+            }
+        }
+    }
+
+    // Executes a pop instruction involving the link register
+    private static executePushLr(registerList: number)
+    {
+        console.log(
+            "push with lr (not supported - relies on calling convention details that aren't implemented yet)")
     }
 
     // Executes an swi instruction
