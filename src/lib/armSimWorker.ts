@@ -93,6 +93,7 @@ class ArmSimWorker extends SimWorker
 
         switch (opcode)
         {
+            case 0b00: this.executeLslFormat1(destinationRegister, sourceRegister, offset5); break;
             case 0b10: this.executeAsrFormat1(destinationRegister, sourceRegister, offset5); break;
         }
     }
@@ -134,6 +135,7 @@ class ArmSimWorker extends SimWorker
         {
             case 0b0000: this.executeAnd(sourceDestinationRegister, sourceRegister2); break;
             case 0b0001: this.executeEor(sourceDestinationRegister, sourceRegister2); break;
+            case 0b0010: this.executeLslFormat4(sourceDestinationRegister, sourceRegister2); break
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
             case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
@@ -670,6 +672,26 @@ class ArmSimWorker extends SimWorker
         const sourceAddress = this.getRegister(baseRegister) + offset5;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result);
+    }
+
+    // Executes an lsl instruction in format 1
+    private static executeLslFormat1(destinationRegister: number, sourceRegister: number, offset5: number)
+    {
+        console.log("lsl format 1")
+
+        let result = this.getRegister(sourceRegister) >> offset5;
+        // Turn the arithmetic right shift into a logical one
+        result = this.getBits(result, 16 - offset5, 0);
+        this.setRegister(destinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an lsl instruction in format 4
+    private static executeLslFormat4(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("lsl format 4")
+
+        this.setRegister(sourceDestinationRegister, sourceDestinationRegister << sourceRegister2);
     }
 
     // Executes an swi instruction
