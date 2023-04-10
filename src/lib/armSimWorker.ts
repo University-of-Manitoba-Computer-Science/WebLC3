@@ -320,7 +320,8 @@ class ArmSimWorker extends SimWorker
                 registerList.push(i);
         }
 
-        if (loadStoreBit == 0) { }
+        if (loadStoreBit == 0)
+            this.executeStmia(baseRegister, registerList);
         else
             this.executeLdmia(baseRegister, registerList);
     }
@@ -633,8 +634,9 @@ class ArmSimWorker extends SimWorker
         for (let i = 0; i < registerList.length; i++)
         {
             const register = registerList[i];
-            this.setMemory(startLocation + i, this.getRegister(register));
+            this.setRegister(register, this.getMemory(startLocation + i));
         }
+        this.setRegister(baseRegister, registerList.length - 1);
     }
 
     // Executes an ldr instruction in format 6
@@ -904,6 +906,21 @@ class ArmSimWorker extends SimWorker
 
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
+    }
+
+    // Executes an stmia instruction
+    private static executeStmia(baseRegister: number, registerList: Array<number>)
+    {
+        console.log("stmia")
+
+        const startLocation = this.getRegister(baseRegister);
+
+        for (let i = 0; i < registerList.length; i++)
+        {
+            const register = registerList[i];
+            this.setMemory(startLocation + i, this.getRegister(register));
+        }
+        this.setRegister(baseRegister, registerList.length - 1);
     }
 
     // Executes an swi instruction
