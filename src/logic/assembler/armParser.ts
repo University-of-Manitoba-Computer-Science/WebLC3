@@ -65,6 +65,8 @@ export default class ArmParser extends Parser
                 return this.parseMov(lineNum, tokens);
             case "str":
                 return this.parseStr(lineNum, tokens);
+            case "strb":
+                return this.parseStrb(lineNum, tokens);
             case "strh":
                 return this.parseStrh(lineNum, tokens);
             case "sub":
@@ -84,8 +86,6 @@ export default class ArmParser extends Parser
                 return this.asmFormat4(lineNum, tokens);
             case "bx":
                 return this.asmFormat5(lineNum, tokens);
-            case "strb":
-                return this.asmFormat7(lineNum, tokens);
             case "ldsb":
             case "ldsh":
                 return this.asmFormat8(lineNum, tokens);
@@ -315,6 +315,20 @@ export default class ArmParser extends Parser
             else
                 return this.asmFormat9(lineNumber, tokens);
         }
+        else
+            return this.asmFormat7(lineNumber, tokens);
+    }
+
+    /**
+     * Generates machine code in the appropriate format for a strb instruction
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @returns {number}
+     */
+    private parseStrb(lineNumber: number, tokens: string[]): number
+    {
+        if (this.isImmediate(tokens[3]))
+            return this.asmFormat9(lineNumber, tokens);
         else
             return this.asmFormat7(lineNumber, tokens);
     }
@@ -770,6 +784,10 @@ export default class ArmParser extends Parser
             case "ldr":
                 loadStoreFlag = 1;
                 byteWordFlag = 0;
+                break;
+            case "strb":
+                loadStoreFlag = 0;
+                byteWordFlag = 1;
                 break;
             case "str":
                 loadStoreFlag = 0;

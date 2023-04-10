@@ -198,7 +198,7 @@ class ArmSimWorker extends SimWorker
         if (loadStoreFlag == 0 && byteWordFlag == 0)
             this.executeStrFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
         else if (loadStoreFlag == 0 && byteWordFlag == 1)
-            this.executeStrb(sourceDestinationRegister, baseRegister, offsetRegister);
+            this.executeStrbFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
         else if (loadStoreFlag == 1 && byteWordFlag == 0)
             this.executeLdrFormat7(sourceDestinationRegister, baseRegister, offsetRegister);
         else if (loadStoreFlag == 1 && byteWordFlag == 1)
@@ -244,6 +244,8 @@ class ArmSimWorker extends SimWorker
 
         if (loadStoreFlag == 0 && byteWordFlag == 0)
             this.executeStrFormat9(sourceDestinationRegister, baseRegister, offset5);
+        else if (loadStoreFlag == 0 && byteWordFlag == 1)
+            this.executeStrbFormat9(sourceDestinationRegister, baseRegister, offset5);
         else if (loadStoreFlag == 1 && byteWordFlag == 0)
             this.executeLdrFormat9(sourceDestinationRegister, baseRegister, offset5);
         else if (loadStoreFlag == 1 && byteWordFlag == 1)
@@ -961,11 +963,20 @@ class ArmSimWorker extends SimWorker
     }
 
     // Executes an strb instruction in format 7
-    private static executeStrb(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
+    private static executeStrbFormat7(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
     {
         console.log("strb format 7")
 
         const targetAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
+    }
+
+    // Executes an strb instruction in format 9
+    private static executeStrbFormat9(sourceDestinationRegister: number, baseRegister: number, offset5: number)
+    {
+        console.log("strb format 9")
+
+        const targetAddress = this.getRegister(baseRegister) + offset5;
         this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
     }
 
