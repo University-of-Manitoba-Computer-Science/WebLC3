@@ -118,9 +118,10 @@ class ArmSimWorker extends SimWorker
 
         switch (opcode)
         {
-            case 0x00: this.executeMovFormat3(destinationRegister, offset8); break;
-            case 0x01: this.executeCmpFormat3(destinationRegister, offset8); break;
-            case 0x10: this.executeAddFormat3(destinationRegister, offset8); break;
+            case 0b00: this.executeMovFormat3(destinationRegister, offset8); break;
+            case 0b01: this.executeCmpFormat3(destinationRegister, offset8); break;
+            case 0b10: this.executeAddFormat3(destinationRegister, offset8); break;
+            case 0b11: this.executeSubFormat3(destinationRegister, offset8); break;
         }
     }
 
@@ -999,6 +1000,16 @@ class ArmSimWorker extends SimWorker
 
         const targetAddress = this.getRegister(baseRegister) + offset5;
         this.setMemory(targetAddress, this.getRegister(sourceDestinationRegister));
+    }
+
+    // Executes a sub instruction in format 3
+    private static executeSubFormat3(destinationRegister: number, offset8: number)
+    {
+        console.log("sub format 3")
+
+        const result = this.getRegister(destinationRegister) - offset8;
+        this.setRegister(destinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes an swi instruction
