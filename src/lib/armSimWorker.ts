@@ -173,6 +173,7 @@ class ArmSimWorker extends SimWorker
             case 0b0100: this.executeAsrFormat4(sourceDestinationRegister, sourceRegister2); break;
             case 0b0110: this.executeSbc(sourceDestinationRegister, sourceRegister2); break;
             case 0b0111: this.executeRor(sourceDestinationRegister, sourceRegister2); break;
+            case 0b1000: this.executeTst(sourceDestinationRegister, sourceRegister2); break;
             case 0b1001: this.executeNeg(sourceDestinationRegister, sourceRegister2); break;
             case 0b0101: this.executeAdc(sourceDestinationRegister, sourceRegister2); break;
             case 0b1010: this.executeCmpFormat4(sourceDestinationRegister, sourceRegister2); break;
@@ -1093,6 +1094,14 @@ class ArmSimWorker extends SimWorker
             console.log('halting')
             Atomics.store(this.haltFlag, 0, 1);
         }
+    }
+
+    // Executes a tst instruction
+    private static executeTst(sourceDestinationRegister: number, sourceRegister2: number)
+    {
+        console.log("tst")
+
+        this.setConditions(this.getRegister(sourceDestinationRegister) & this.getRegister(sourceRegister2));
     }
 
     /**
