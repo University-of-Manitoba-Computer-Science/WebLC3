@@ -26,5 +26,8 @@
 		"express": "^4.18.2",
 		"monaco-editor": "^0.34.0",
 		"resize-observer": "^1.0.4"
+	},
+	"overrides": {
+		"rollup": "2.74.1"
 	}
 }

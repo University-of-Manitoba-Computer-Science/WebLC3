@@ -44,10 +44,10 @@ class ArmSimWorker extends SimWorker
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
         */
-        if (this.getBits(instruction, 15, 11) == 0b00011)
+        if (this.getBits(instruction, 15, 13) == 0b000 && this.getBits(instruction, 12, 11) != 0b11)
+           this.executeFormat1(instruction);
+        else if (this.getBits(instruction, 15, 11) == 0b00011)
            this.executeFormat2(instruction);
-        else if (this.getBits(instruction, 15, 13) == 0b000)
-            this.executeFormat1(instruction);
         else if (this.getBits(instruction, 15, 13) == 0b001)
             this.executeFormat3(instruction);
         else if (this.getBits(instruction, 15, 10) == 0b010000)
@@ -74,7 +74,7 @@ class ArmSimWorker extends SimWorker
             this.executeFormat14(instruction);
         else if (this.getBits(instruction, 15, 12) == 0b1100)
             this.executeFormat15(instruction);
-        else if (this.getBits(instruction, 15, 12) == 0b1101)
+        else if (this.getBits(instruction, 15, 12) == 0b1101 && this.getBits(instruction, 11, 8) != 0b1111)
             this.executeFormat16(instruction);
         else if (this.getBits(instruction, 15, 8) == 0b11011111)
             this.executeSwi(instruction); // Format 17
