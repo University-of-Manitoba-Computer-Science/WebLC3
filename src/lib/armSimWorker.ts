@@ -44,7 +44,9 @@ class ArmSimWorker extends SimWorker
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
         */
-        if (this.getBits(instruction, 15, 13) == 0b000)
+        if (this.getBits(instruction, 15, 11) == 0b00011)
+           this.executeFormat2(instruction);
+        else if (this.getBits(instruction, 15, 13) == 0b000)
             this.executeFormat1(instruction);
         else if (this.getBits(instruction, 15, 13) == 0b001)
             this.executeFormat3(instruction);
@@ -101,6 +103,30 @@ class ArmSimWorker extends SimWorker
             case 0b01: this.executeLsrFormat1(destinationRegister, sourceRegister, offset5); break;
             case 0b10: this.executeAsrFormat1(destinationRegister, sourceRegister, offset5); break;
         }
+    }
+
+    /**
+     * Parses an instruction in format 3 (add/subtract) and calls the appropriate execute function
+     * @param {number} instruction
+     */
+    private static executeFormat2(instruction: number)
+    {
+        console.log("format 2")
+
+        const immediateFlag = this.getBits(instruction, 10, 10);
+        const opcode = this.getBits(instruction, 9, 9);
+        const registerOrImmediate = this.getBits(instruction, 6, 8);
+        const sourceRegister = this.getBits(instruction, 5, 3);
+        const destinationRegister = this.getBits(instruction, 2, 0);
+
+        if (opcode == 0 && immediateFlag == 0)
+            this.executeAddFormat2(destinationRegister, sourceRegister, registerOrImmediate);
+        else if (opcode == 0 && immediateFlag == 1)
+            this.executeAddFormat2Immediate(destinationRegister, sourceRegister, registerOrImmediate);
+        else if (opcode == 1 && immediateFlag == 0)
+            this.executeSubFormat2(destinationRegister, sourceRegister, registerOrImmediate);
+        else if (opcode == 1 && immediateFlag == 1)
+            this.executeSubFormat2Immediate(destinationRegister, sourceRegister, registerOrImmediate);
     }
 
     /**
@@ -450,6 +476,26 @@ class ArmSimWorker extends SimWorker
             result++;
 
         this.setRegister(sourceDestinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an add instruction in format 2
+    private static executeAddFormat2(destinationRegister: number, sourceRegister: number, registerOrImmediate: number)
+    {
+        console.log("add format 2")
+
+        const result = this.getRegister(registerOrImmediate) + this.getRegister(sourceRegister);
+        this.setRegister(destinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes an add instruction in format 2, but the last operand is immediate (I want to throw a table at whoever designed this format)
+    private static executeAddFormat2Immediate(destinationRegister: number, sourceRegister: number, registerOrImmediate: number)
+    {
+        console.log("add format 2 (immediate)")
+
+        const result = registerOrImmediate + this.getRegister(sourceRegister);
+        this.setRegister(destinationRegister, result);
         this.setConditions(result);
     }
 
@@ -1000,6 +1046,26 @@ class ArmSimWorker extends SimWorker
 
         const targetAddress = this.getRegister(baseRegister) + offset5;
         this.setMemory(targetAddress, this.getRegister(sourceDestinationRegister));
+    }
+
+    // Executes a sub instruction in format 2
+    private static executeSubFormat2(destinationRegister: number, sourceRegister: number, registerOrImmediate: number)
+    {
+        console.log("sub format 2")
+
+        const result = this.getRegister(sourceRegister) - this.getRegister(registerOrImmediate);
+        this.setRegister(destinationRegister, result);
+        this.setConditions(result);
+    }
+
+    // Executes a sub instruction in format 2, but the last operand is immediate (:/)
+    private static executeSubFormat2Immediate(destinationRegister: number, sourceRegister: number, registerOrImmediate: number)
+    {
+        console.log("sub format 2 (immediate)")
+
+        const result = this.getRegister(sourceRegister) - registerOrImmediate;
+        this.setRegister(destinationRegister, result);
+        this.setConditions(result);
     }
 
     // Executes a sub instruction in format 3

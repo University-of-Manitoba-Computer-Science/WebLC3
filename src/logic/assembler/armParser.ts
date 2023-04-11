@@ -165,7 +165,10 @@ export default class ArmParser extends Parser
         }
         else if (tokens.length == 4)
         {
-            return this.asmFormat12(lineNumber, tokens);
+            if (tokens[2].toLowerCase() == "pc" || tokens[2].toLowerCase() == "sp")
+                return this.asmFormat12(lineNumber, tokens);
+            else
+                return this.asmFormat2(lineNumber, tokens);
         }
 
         return NaN;
