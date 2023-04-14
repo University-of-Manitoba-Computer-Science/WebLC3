@@ -219,7 +219,7 @@ export default class ArmParser extends Parser
     {
         if (tokens.length == 3)
             if (tokens[2].startsWith('='))
-                return this.ldrLabelPseudoOp(lineNumber, tokens, pc, labels, toFix);
+                return this.parseLdrLabelPseudoOp(lineNumber, tokens, pc, labels, toFix);
             else
                 return this.asmFormat6(lineNumber, tokens);
         else
@@ -1140,7 +1140,7 @@ export default class ArmParser extends Parser
      * @param {string[]} tokens
      * @returns {number}
      */
-    private ldrLabelPseudoOp(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
+    private parseLdrLabelPseudoOp(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
     {
         // Start with a format 3 instruction with opcode 00
         let result = 0b0010000000000000;
