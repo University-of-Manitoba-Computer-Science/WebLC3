@@ -1195,6 +1195,51 @@ export default class ArmParser extends Parser
     }
 
     /**
+     * Given a tokenized line of source code with an assembler directive, handle its effects and return the amount that
+     * the program counter must be increased by after the operation.
+     * If there is an error, return 0.
+     * Assumes that the number of operands is valid.
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     * @param {number} pc
+     * @param {number[]} memory
+     * @returns {number}
+     */
+    public parseDirective(
+        lineNum: number,
+        tokens: string[],
+        pc: number,
+        memory: number[],
+        toFix: Map<string[], number>)
+    : number
+    {
+        let increment = 0;
+
+        switch (tokens[0])
+        {
+            case ".stringz":
+                const asciiCodes = this.stringToCodes(tokens[1], lineNum);
+                if (asciiCodes !== null && asciiCodes.length > 0)
+                {
+                    for (let i = 0; i < asciiCodes.length; i++)
+                    {
+                        memory[pc++] = asciiCodes[i];
+                    }
+                    // Null-terminate the string
+                    memory[pc++] = 0;
+                    increment = asciiCodes.length + 1;
+                }
+                else if (asciiCodes !== null)
+                {
+                    UI.appendConsole(this.errorBuilder.emptyString(lineNum) + "\n");
+                }
+                break;
+        }
+
+        return increment;
+    }
+
+    /**
      * Tells whether the given token is an immediate value
      * @param {string} token
      * @returns {boolean}

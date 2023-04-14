@@ -266,7 +266,7 @@ export default class Parser
      * @param {string} literal
      * @returns {number[]}
      */
-    private stringToCodes(literal: string, lineNum: number) : number[] | null
+    protected stringToCodes(literal: string, lineNum: number) : number[] | null
     {
         const result: number[] = [];
         let quote = literal[0];

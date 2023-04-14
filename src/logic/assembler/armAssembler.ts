@@ -32,7 +32,7 @@ export default class ARMAssembler
 
     // All valid assembler directives
     private static directives = new Set([
-        ".text", ".global"
+        ".text", ".global", ".data", ".fill", ".blkw", ".stringz"
     ])
 
     /*
@@ -49,9 +49,9 @@ export default class ARMAssembler
         ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2], ["sbc", 2], ["strb", 3],
         ["strh", 3], ["tst", 2], ["swi", 1],
 
-        ["puts", 1],
+        ["puts", 0],
 
-        [".text", 0], [".global", 1], [".data", 0],
+        [".text", 0], [".global", 1], [".data", 0], [".fill", 1], [".blkw", 1], [".stringz", 1],
     ]);
 
     // Errors where assembly cannot begin for given file
