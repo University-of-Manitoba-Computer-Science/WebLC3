@@ -1158,16 +1158,14 @@ export default class ArmParser extends Parser
             return NaN;
         result |= (register << 8);
 
-        // Address: Take the label, calculate its offset from the PC, and save that offset
+        // Address: Take the label, calculate its absolute address, and save it
         const label = tokens[2].substring(1)
 
         if (labels.has(label))
         {
-            const offset = this.calcLabelOffset(label, pc, labels, 8, lineNumber);
-            if (isNaN(offset))
-                return NaN;
-
-            return result | offset;
+            const address = labels.get(label)
+            // @ts-ignore
+            return result | address;
         }
         else
         {

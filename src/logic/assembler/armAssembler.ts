@@ -193,6 +193,39 @@ export default class ARMAssembler
             }
         }
 
+        // Go back and fix branches
+        for (const entry of toFix)
+        {
+            const tokens = entry[0];
+            const location = entry[1];
+            let line = addressToLineNumber.get(location);
+            if (typeof(line) === "undefined")
+            {
+                UI.appendConsole(errorBuilder.noLineNumForAddr(location) + "\n");
+                lineNumber = -1;
+            }
+            else
+            {
+                lineNumber = line;
+            }
+
+            if (tokens[0] == "ldr")
+            {
+                const label = tokens[tokens.length - 1].substring(1);
+                if (labels.has(label))
+                {
+                    const address = labels.get(label);
+                    // @ts-ignore
+                    memory[location] |= address;
+                }
+                else
+                {
+                    hasError = true;
+                    UI.appendConsole(errorBuilder.badLabel(lineNumber, tokens[0]) + "\n");
+                }
+            }
+        }
+
         // Load resulting machine code into Uint16Array and return it
         const result = new Uint16Array(memory.length + 1);
         result[0] = startOffset;
