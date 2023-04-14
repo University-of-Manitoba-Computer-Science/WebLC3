@@ -1161,9 +1161,6 @@ export default class ArmParser extends Parser
         // Address: Take the label, calculate its offset from the PC, and save that offset
         const label = tokens[2].substring(1)
 
-        console.log(label);
-        console.log(label);
-
         if (labels.has(label))
         {
             const offset = this.calcLabelOffset(label, pc, labels, 8, lineNumber);
