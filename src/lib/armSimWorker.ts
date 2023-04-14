@@ -1084,16 +1084,9 @@ class ArmSimWorker extends SimWorker
     {
         console.log("swi")
 
-        const value = instruction & 0x00ff;
+        const vector = instruction & 0x00ff;
 
-        console.log(value);
-
-        if (value == 11)
-        {
-            // SWI_Exit
-            console.log('halting')
-            Atomics.store(this.haltFlag, 0, 1);
-        }
+        this.initTrap(vector);
     }
 
     // Executes a tst instruction

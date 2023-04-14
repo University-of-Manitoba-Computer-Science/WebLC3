@@ -731,7 +731,7 @@ export default class SimWorker
      * Initialize a trap with the given vector
      * @param vector
      */
-    private static initTrap(vector: number)
+    protected static initTrap(vector: number)
     {
         // push PSR and PC onto supervisor stack
         let ssp = this.load(this.savedSSP, 0);
