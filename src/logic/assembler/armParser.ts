@@ -114,6 +114,13 @@ export default class ArmParser extends Parser
                 return this.asmFormat17(lineNum, tokens);
             case "b":
                 return this.asmFormat18(lineNum, tokens, pc, labels, toFix);
+            case "getc":
+            case "out":
+            case "puts":
+            case "in":
+            case "putsp":
+            case "halt":
+                return this.asmSwiAlias(tokens[0]);
             default:
                 return NaN;
         }
@@ -1170,6 +1177,21 @@ export default class ArmParser extends Parser
             toFix.set(tokens, pc);
             return result;
         }
+    }
+
+    /**
+     * Generates machine code for a software interrupt alias
+     * @param {string[]} alias
+     * @returns {number}
+     */
+    private asmSwiAlias(alias: string): number
+    {
+        const swiValues = new Map([
+            ["getc", 0x20], ["halt", 0x25], ["in", 0x23], ["out", 0x21], ["puts", 0x22], ["putsp", 0x24]
+        ]);
+
+        // @ts-ignore
+        return 0b1101111100000000 | swiValues.get(alias);
     }
 
     /**

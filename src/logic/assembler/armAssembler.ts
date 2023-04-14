@@ -25,7 +25,9 @@ export default class ARMAssembler
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
         "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
         "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh", "sub",
-        "tst", "swi"
+        "tst", "swi",
+
+        "puts",
     ]);
 
     // All valid assembler directives
@@ -47,7 +49,9 @@ export default class ARMAssembler
         ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2], ["sbc", 2], ["strb", 3],
         ["strh", 3], ["tst", 2], ["swi", 1],
 
-        [".text", 0], [".global", 1]
+        ["puts", 1],
+
+        [".text", 0], [".global", 1], [".data", 0],
     ]);
 
     // Errors where assembly cannot begin for given file
