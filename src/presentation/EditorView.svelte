@@ -13,7 +13,6 @@
 	import Assembler from "../logic/assembler/assembler"
 	import ARMAssembler from "../logic/assembler/armAssembler"
 	import Simulator from "../logic/simulator/simulator";
-	import ARMSimulator from "../logic/simulator/armSimulator";
 
 	const LC3_EXTENSION = "asm"
 	const ARM_EXTENSION = "s"
