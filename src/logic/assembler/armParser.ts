@@ -52,7 +52,7 @@ export default class ArmParser extends Parser
             case "cmp":
                 return this.parseCmp(lineNum, tokens);
             case "ldr":
-                return this.parseLdr(lineNum, tokens);
+                return this.parseLdr(lineNum, tokens, pc, labels, toFix);
             case "ldrb":
                 return this.parseLdrb(lineNum, tokens);
             case "ldrh":
@@ -215,10 +215,13 @@ export default class ArmParser extends Parser
      * @param {string[]} tokens
      * @returns {number}
      */
-    private parseLdr(lineNumber: number, tokens: string[]): number
+    private parseLdr(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
     {
         if (tokens.length == 3)
-            return this.asmFormat6(lineNumber, tokens);
+            if (tokens[2].startsWith('='))
+                return this.ldrLabelPseudoOp(lineNumber, tokens, pc, labels, toFix);
+            else
+                return this.asmFormat6(lineNumber, tokens);
         else
         {
             if (this.isImmediate(tokens[3]))
@@ -1131,26 +1134,42 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Given a tokenized line of source code with an assembler directive, handle its effects and return the amount
-     * that the program counter must be increased by after the operation.
-     *
-     * Assumes that the number of operands is valid.
-     * @param {number} lineNum
+     * Generates machine code for an ldr pseudo-op. This weird instruction looks like an ldr involving a destination
+     * register and a label, but it actually assembles to a mov. Its purpose is the same as the LC-3's lea instruction.
+     * @param {number} lineNumber
      * @param {string[]} tokens
-     * @param {number} pc
-     * @param {number[]} memory
-     * @param {Map<string[], number>} toFix
+     * @returns {number}
      */
-    public parseDirective(lineNum: number, tokens: string[], pc: number, memory: number[], toFix: Map<string[], number>): number
+    private ldrLabelPseudoOp(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
     {
-        let increment = 0;
+        // Start with a format 3 instruction with opcode 00
+        let result = 0b0010000000000000;
 
-        switch (tokens[0])
+        // Destination register
+        const register = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(register))
+            return NaN;
+        result |= (register << 8);
+
+        // Address: Take the label, calculate its offset from the PC, and save that offset
+        const label = tokens[2].substring(1)
+
+        console.log(label);
+        console.log(label);
+
+        if (labels.has(label))
         {
+            const offset = this.calcLabelOffset(label, pc, labels, 8, lineNumber);
+            if (isNaN(offset))
+                return NaN;
 
+            return result | offset;
         }
-
-        return increment;
+        else
+        {
+            toFix.set(tokens, pc);
+            return result;
+        }
     }
 
     /**
