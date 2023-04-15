@@ -8,6 +8,8 @@
 ;         by Alex Kitt, 2023
 ; ==========================
 
+.ORIG 0
+
 ; Constants
 ; To clear the upper byte of a word
 BYTE_MASK: .FILL x00FF;

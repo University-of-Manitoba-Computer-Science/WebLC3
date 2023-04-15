@@ -1212,9 +1212,8 @@ export default class ArmParser extends Parser
 
         switch (tokens[0])
         {
-            // Exclude LC-3 directives that aren't supported here
-            case ".orig":
-            case "end":
+            // Exclude LC-3 directive(s) that aren't supported here
+            case ".end":
                 break;
             // Process any other LC-3 directive
             default:

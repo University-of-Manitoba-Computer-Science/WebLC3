@@ -32,7 +32,7 @@ export default class ARMAssembler
 
     // All valid assembler directives
     private static directives = new Set([
-        ".text", ".global", ".data", ".fill", ".blkw", ".stringz"
+        ".text", ".global", ".orig", ".data", ".fill", ".blkw", ".stringz"
     ])
 
     /*
@@ -51,12 +51,13 @@ export default class ARMAssembler
 
         ["puts", 0],
 
-        [".text", 0], [".global", 1], [".data", 0], [".fill", 1], [".blkw", 1], [".stringz", 1],
+        [".text", 0], [".global", 1], [".orig", 1], [".data", 0], [".fill", 1], [".blkw", 1], [".stringz", 1],
     ]);
 
     // Errors where assembly cannot begin for given file
     private static errors = {
         INFILE: "Source code is empty",
+        FIRSTLINE: "The first line of code must be a .ORIG directive",
     };
 
     // The most recently saved object file
@@ -115,15 +116,45 @@ export default class ARMAssembler
         const addressToLineNumber: Map<number, number> = new Map();
 
         // Memory location of the first line of code
-        let startOffset = 0;
+        let startOffset = 0x3000;
         // Index in sourceCode of the line we're currently parsing
-        let lineNumber = -1;
+        let lineNumber = 0;
         // Index in memory of the word we're currently writing
         let pc = 0;
 
+        // Scan for the first non-empty line, must be an .orig directive
+        let currentLine = Parser.trimLine(sourceLines[lineNumber]);
+        while (!currentLine)
+        {
+            currentLine = Parser.trimLine(sourceLines[++lineNumber]);
+        }
+        if (!currentLine.toLowerCase().startsWith(".orig"))
+        {
+            UI.appendConsole(this.errors.FIRSTLINE + "\n");
+            return null;
+        }
+        else
+        {
+            const tokens = Parser.tokenizeLine(currentLine);
+            if (!this.validOperandCount(tokens))
+            {
+                UI.appendConsole(errorBuilder.operandCount(lineNumber, tokens) + "\n");
+                return null;
+            }
+            const addr = parser.parseImmediate(tokens[1], false, lineNumber);
+            if (!isNaN(addr))
+            {
+                startOffset = addr;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         while (++lineNumber < sourceLines.length)
         {
-            let currentLine = Parser.trimLine(sourceLines[lineNumber]);
+            currentLine = Parser.trimLine(sourceLines[lineNumber]);
             if (currentLine)
             {
                 addressToLineNumber.set(pc, lineNumber);
