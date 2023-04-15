@@ -8,6 +8,7 @@
  */
 
 import Assembler from "../assembler/assembler";
+import ARMAssembler from "../assembler/armAssembler";
 import UI from "../../presentation/ui";
 import Messages from "./simMessages";
 import AsciiDecoder from "./asciiDecoder";
@@ -109,10 +110,9 @@ export default class Simulator
 
         // assemble operating system code, load into simulator, then load user's code
         (async ()=>{
-            const osAsmResult = await this.getOSAsm();
+            const osAsmResult = await this.getOSAsm(type);
             this.osObjFile = osAsmResult[0];
             this.osDissassembly = osAsmResult[1];
-
             this.loadBuiltInCode();
 
             this.initWorker(type);
@@ -126,11 +126,21 @@ export default class Simulator
         })();
     }
 
-    private async getOSAsm() : Promise<[Uint16Array, Map<number, string>]>
+    private async getOSAsm(type: FileType) : Promise<[Uint16Array, Map<number, string>]>
     {
-        const res = await fetch('/os/lc3_os.asm?raw');
-        const src = await res.text();
-        const asmResult = await Assembler.assemble(src, false);
+        let asmResult;
+        if (type == FileType.ARM)
+        {
+            const res = await fetch('/os/lc3_arm_os.s?raw');
+            const src = await res.text();
+            asmResult = await ARMAssembler.assemble(src, false);
+        }
+        else
+        {
+            const res = await fetch('/os/lc3_os.asm?raw');
+            const src = await res.text();
+            asmResult = await Assembler.assemble(src, false);
+        }
         if (asmResult === null)
         {
             UI.appendConsole("Operating system assembly unsuccessful.");
@@ -147,10 +157,10 @@ export default class Simulator
      */
     private initWorker(type: FileType)
     {
-        if (type == FileType.LC3)
-            this.simWorker = new LC3Worker();
-        else
+        if (type == FileType.ARM)
             this.simWorker = new ARMWorker();
+        else
+            this.simWorker = new LC3Worker();
 
         this.simWorker.onmessage = (event) => {
             const msg = event.data;
