@@ -1209,56 +1209,16 @@ export default class ArmParser extends Parser
     : number
     {
         let increment = 0;
-        let value;
+
         switch (tokens[0])
         {
-            case ".blkw":
-                const amount = this.parseImmediate(tokens[1], false, lineNum);
-                value = 0;
-                if (tokens.length === 3)
-                {
-                    /*
-                    If the first character is alphabetical or an underscore, treat it as a label; otherwise, treat it as
-                    an immediate value
-                    */
-                    if (tokens[2].match(/^[a-zA-Z_]/) != null
-                        && tokens[2].match(/^[xX][0-9a-fA-F]+$/) == null
-                        && tokens[2].match(/^[bB][0-1]+$/) == null
-                    )
-                    {
-                        increment = 1;
-                        toFix.set(tokens, pc);
-                    }
-                    else
-                    {
-                        value = this.parseImmediate(tokens[2], false, lineNum);
-                    }
-                }
-                if (!isNaN(value) && !isNaN(amount))
-                {
-                    for (let i = 0; i < amount; i++)
-                    {
-                        memory[pc++] = value;
-                    }
-                    increment = amount;
-                }
+            // Exclude LC-3 directives that aren't supported here
+            case ".orig":
+            case "end":
                 break;
-            case ".stringz":
-                const asciiCodes = this.stringToCodes(tokens[1], lineNum);
-                if (asciiCodes !== null && asciiCodes.length > 0)
-                {
-                    for (let i = 0; i < asciiCodes.length; i++)
-                    {
-                        memory[pc++] = asciiCodes[i];
-                    }
-                    // Null-terminate the string
-                    memory[pc++] = 0;
-                    increment = asciiCodes.length + 1;
-                }
-                else if (asciiCodes !== null)
-                {
-                    UI.appendConsole(this.errorBuilder.emptyString(lineNum) + "\n");
-                }
+            // Process any other LC-3 directive
+            default:
+                increment = super.parseDirective(lineNum, tokens, pc, memory, toFix);
                 break;
         }
 
