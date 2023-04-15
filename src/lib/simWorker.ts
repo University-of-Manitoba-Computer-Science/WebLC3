@@ -43,7 +43,7 @@ export default class SimWorker
     private static registers: Uint16Array;
     // internal registers for non-active stack pointer
     protected static savedUSP: Uint16Array;
-    private static savedSSP: Uint16Array;
+    protected static savedSSP: Uint16Array;
     // program counter
     protected static pc: Uint16Array;
     // processor status register
@@ -357,7 +357,7 @@ export default class SimWorker
     }
 
     // check the user mode bit in the PSR, return true if it is set
-    private static userMode(): boolean
+    protected static userMode(): boolean
     {
         let psrVal = this.getPSR();
         return (psrVal & this.MASK_USER) != 0;

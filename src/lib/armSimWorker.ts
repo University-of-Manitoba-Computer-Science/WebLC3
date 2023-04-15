@@ -329,7 +329,13 @@ class ArmSimWorker extends SimWorker
 
         const loadStoreBit = this.getBits(instruction, 11, 11);
         const pcLrBit = this.getBits(instruction, 8, 8);
-        const registerList = this.getBits(instruction, 7, 0);
+        const registerBits = this.getBits(instruction, 7, 0);
+        const registerList = [];
+        for (let i = 0; i < 7; i++)
+        {
+            if (((1 << i) & registerBits) > 0)
+                registerList.push(i);
+        }
 
         if (loadStoreBit == 0 && pcLrBit == 0)
             this.executePush(registerList);
@@ -896,46 +902,54 @@ class ArmSimWorker extends SimWorker
     }
 
     // Executes a pop instruction
-    private static executePop(registerList: number)
+    private static executePop(registerList: Array<number>)
     {
         console.log("pop")
 
-        for (let i = 0; i < 7; i++)
+        for (let i = 0; i < registerList.length; i++)
         {
-            const bit = 1 << i;
-            if (registerList & bit)
+            if (this.userMode())
             {
                 this.setRegister(i, this.getMemory(this.getUSP()));
                 this.setUSP(this.getUSP() + 1);
+            }
+            else
+            {
+                this.setRegister(i, this.getMemory(this.getSSP()));
+                this.setSSP(this.getSSP() + 1);
             }
         }
     }
 
     // Executes a pop instruction involving the program counter
-    private static executePopPc(registerList: number)
+    private static executePopPc(registerList: Array<number>)
     {
         console.log(
             "pop with pc (not supported - relies on calling convention details that aren't implemented yet)")
     }
 
     // Executes a push instruction
-    private static executePush(registerList: number)
+    private static executePush(registerList: Array<number>)
     {
         console.log("push")
 
-        for (let i = 0; i < 7; i++)
+        for (let i = 0; i < registerList.length; i++)
         {
-            const bit = 1 << i;
-            if (registerList & bit)
+            if (this.userMode())
             {
                 this.setMemory(this.getUSP(), this.getRegister(i));
-                this.setUSP(this.getUSP() + 1);
+                this.setUSP(this.getUSP() - 1);
+            }
+            else
+            {
+                this.setMemory(this.getSSP(), this.getRegister(i));
+                this.setSSP(this.getSSP() - 1);
             }
         }
     }
 
     // Executes a pop instruction involving the link register
-    private static executePushLr(registerList: number)
+    private static executePushLr(registerList: Array<number>)
     {
         console.log(
             "push with lr (not supported - relies on calling convention details that aren't implemented yet)")
@@ -1128,6 +1142,23 @@ class ArmSimWorker extends SimWorker
     private static setUSP(value: number)
     {
         return Atomics.store(this.savedUSP, 0, value)
+    }
+
+    /*
+    Returns the value of the supervisor stack pointer
+    */
+    private static getSSP()
+    {
+        return Atomics.load(this.savedSSP, 0);
+    }
+
+    /**
+     * Set the value of the supervisor stack pointer
+     * @param value the 16-bit word to use as the new SSP value
+     */
+    private static setSSP(value: number)
+    {
+        return Atomics.store(this.savedSSP, 0, value)
     }
 }
 
