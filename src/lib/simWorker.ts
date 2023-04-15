@@ -877,7 +877,7 @@ export default class SimWorker
      * supervisor to user then load the USP into R6.
      * @param instruction
      */
-    private static execRti(instruction: number)
+    protected static execRti(instruction: number)
     {
         let sp = this.load(this.savedSSP, 0);
         this.setPC(this.getMemory(sp));

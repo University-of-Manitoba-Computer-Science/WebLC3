@@ -192,6 +192,14 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat5(instruction: number)
     {
+        // Check for rti (see the parseRti method in armParser.ts for info on why this exists)
+        if (instruction == 0b0100011100000000)
+        {
+            console.log("format 5 (rti workaround)")
+            this.execRti(instruction);
+            return;
+        }
+
         console.log("format 5 (not supported - no high registers)")
         return;
         /*

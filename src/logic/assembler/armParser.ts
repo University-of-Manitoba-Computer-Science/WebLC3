@@ -121,6 +121,8 @@ export default class ArmParser extends Parser
             case "putsp":
             case "halt":
                 return this.asmSwiAlias(tokens[0]);
+            case "rti":
+                return this.parseRti(lineNum, tokens);
             default:
                 return NaN;
         }
@@ -1176,7 +1178,7 @@ export default class ArmParser extends Parser
 
     /**
      * Generates machine code for a software interrupt alias
-     * @param {string[]} alias
+     * @param {string} alias
      * @returns {number}
      */
     private asmSwiAlias(alias: string): number
@@ -1187,6 +1189,31 @@ export default class ArmParser extends Parser
 
         // @ts-ignore
         return 0b1101111100000000 | swiValues.get(alias);
+    }
+
+    /**
+     * Generates machine code for an rti instruction.
+     *
+     * Note that this instruction isn't in the ARM Thumb instruction set, but I've ported it over from the LC-3 because
+     * the canonical way of returning from a software interrupt in ARM is impossible to implement here.
+     * When a software interrupt occurs in ARM Thumb code, the processor is "supposed" to switch to ARM mode (that is,
+     * start executing 32-bit instructions instead of 16-bit ones), execute the interrupt, and then switch back into
+     * Thumb mode (for 16-bit instructions) and resume regular execution.
+
+     * Since this simulator doesn't have any 32-bit instructions, we use the LC-3's calling convention for OS routines
+     * instead. For entering a software interrupt, this meant making the swi instruction mimic LC-3's trap instruction,
+     * but for exiting a software interrupt, this means simply porting LC-3's rti instruction.
+     * @param {number} lineNum
+     * @param {string[]} tokens
+     */
+    private parseRti(lineNum: number, tokens: string[])
+    {
+        /*
+        Using the same binary as the original rti would result in this being indistinguishable from a
+        "strh r0, [r0, #0]" instruction, so we imitate a bx instruction instead. Specifically, a "real" ARM Thumb
+        implementation (not like one exists) would read this as "bx r0"
+        */
+        return 0b0100011100000000;
     }
 
     /**

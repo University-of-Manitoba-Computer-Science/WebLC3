@@ -25,7 +25,7 @@ export default class ARMAssembler
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
         "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
         "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh", "sub",
-        "tst", "swi",
+        "tst", "swi", "rti",
 
         "puts",
     ]);
@@ -47,7 +47,7 @@ export default class ARMAssembler
 
         ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2], ["ldrb", 3], ["ldrh", 3], ["ldsb", 3],
         ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2], ["sbc", 2], ["strb", 3],
-        ["strh", 3], ["tst", 2], ["swi", 1],
+        ["strh", 3], ["tst", 2], ["swi", 1], ["rti", 0],
 
         ["puts", 0],
 
