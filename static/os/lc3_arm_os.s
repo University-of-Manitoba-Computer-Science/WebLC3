@@ -22,28 +22,6 @@ BYTE_MASK: .FILL x00FF;
 ; occurrence of x0000 in a memory location.
 ; -----------------------------------------------------------------------------
 TRAP_PUTS:
-    ; Since the .blkw directive doesn't exist yet, we repeating the same instruction over and over in order to verify that the OS gets loaded
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
-    push r0, r1, r2, r3
     push r0, r1, r2, r3
 
 ; --------------------------------------------------
