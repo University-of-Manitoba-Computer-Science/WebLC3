@@ -48,8 +48,8 @@ TRAP_PUTS:
 PUTS_STRING_LOOP:
     ; Load next character into r1
     ldr r1, r0, #0
-    ; AND it with itself to set condition codes
-    and r1, r1
+    ; Set condition codes
+    tst r1, r1
     ; Break loop if we hit a null character
     beq PUTS_BREAK
     ; Mask character
@@ -57,7 +57,7 @@ PUTS_STRING_LOOP:
     ; Wait for console to be ready
 PUTS_CONSOLE_LOOP:
     ldr r3, =CON_STATUS
-    and r3, r3
+    tst r3, r3
     bge PUTS_CONSOLE_LOOP
     ; Write character
     ldr r3, =CON_DATA
