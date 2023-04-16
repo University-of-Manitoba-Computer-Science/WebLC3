@@ -1157,26 +1157,6 @@ class ArmSimWorker extends SimWorker
         return result;
     }
 
-    /**
-     * Converts the given number with specified bit length to a signed number
-     * @param {number} unsigned
-     * @param {number} bits
-     */
-    public static convertToSigned(unsigned: number, bits: number): number
-    {
-        const signBit = 1 << (bits - 1);    // e.g. if bits = 0, signBit = 0b10000000
-        const allBits = (1 << bits) - 1;    // e.g. if bits = 8, allBits = 0b11111111
-        /*
-        If the unsigned number has a 1 in the sign bit, it's actually a negative number, so do a two's complement
-        negation
-        */
-        unsigned &= allBits;
-        if (unsigned & signBit)
-            return (unsigned ^ allBits) + 1;
-        else
-            return unsigned;
-    }
-
     /*
     Returns the value of the user stack pointer
     */
