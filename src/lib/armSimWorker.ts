@@ -36,6 +36,10 @@ class ArmSimWorker extends SimWorker
         return undefined;
     }
 
+    /**
+     * Executes the given instruction
+     * @param instruction The instruction to execute
+     */
     protected static override execute(instruction: number)
     {
         /*
