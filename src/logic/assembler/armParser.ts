@@ -605,7 +605,7 @@ export default class ArmParser extends Parser
     }
 
     /**
-     * Generates machine code for an instruction in format 6 (load/store with register offset)
+     * Generates machine code for an instruction in format 6 (pc-relative load)
      * @param {number} lineNumber
      * @param {string[]} tokens
      * @returns {number}
@@ -1142,38 +1142,41 @@ export default class ArmParser extends Parser
         }
     }
 
+
     /**
-     * Generates machine code for an ldr pseudo-op. This weird instruction looks like an ldr involving a destination
-     * register and a label, but it actually assembles to a mov. Its purpose is the same as the LC-3's lea instruction.
-     * @param {number} lineNumber
+     * Generates machine code in the appropriate format for this weird ldr pseudo-op.
+     * ARM Thumb doesn't have an official way to load the address at a label (i.e. it doesn't have an equivalent to the
+     * LC-3's lea instruction), so I'm putting an unofficial pseudo-op here. This is somewhat similar to an official
+     * ARM pseudo-op with the same syntax:
+    developer.arm.com/documentation/dui0473/m/writing-arm-assembly-language/load-immediate-values-using-ldr-rd---const
+     * @param {number} lineNum
      * @param {string[]} tokens
      * @returns {number}
      */
     private parseLdrLabelPseudoOp(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
     {
-        // Start with a format 3 instruction with opcode 00
-        let result = 0b0010000000000000;
+        // This pseudo-op is just syntactic sugar for a format 6 instruction involving a label
+        let result = 0b0100100000000000;
 
         // Destination register
-        const register = this.parseReg(tokens[1], lineNumber);
-        if (isNaN(register))
+        const destinationRegister = this.parseReg(tokens[1], lineNumber);
+        if (isNaN(destinationRegister))
             return NaN;
-        result |= (register << 8);
+        result |= (destinationRegister << 8);
 
-        // Address: Take the label, calculate its absolute address, and save it
-        const label = tokens[2].substring(1)
-
+        // Immediate value
+        const label = tokens[2].substring(1);
         if (labels.has(label))
         {
-            const address = labels.get(label)
-            // @ts-ignore
-            return result | address;
+            const offset = this.calcLabelOffset(label, pc, labels, 8, lineNumber);
+            result |= offset;
         }
         else
         {
             toFix.set(tokens, pc);
-            return result;
         }
+
+        return result;
     }
 
     /**

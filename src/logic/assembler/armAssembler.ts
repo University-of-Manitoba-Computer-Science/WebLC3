@@ -119,7 +119,7 @@ export default class ARMAssembler
         let startOffset = 0x3000;
         // Index in sourceCode of the line we're currently parsing
         let lineNumber = 0;
-        // Index in memory of the word we're currently writing
+        // Index in the memory array (not the final address) of the word we're currently writing
         let pc = 0;
 
         // Scan for the first non-empty line, must be an .orig directive
@@ -245,9 +245,8 @@ export default class ARMAssembler
                 const label = tokens[tokens.length - 1].substring(1);
                 if (labels.has(label))
                 {
-                    const address = labels.get(label);
-                    // @ts-ignore
-                    memory[location] |= address;
+                    const offset = parser.calcLabelOffset(label, location, labels, 8, lineNumber);
+                    memory[location] |= offset;
                 }
                 else
                 {
