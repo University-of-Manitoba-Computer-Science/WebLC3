@@ -75,16 +75,17 @@ export default class ARMAssembler
      * Uint16Array and a Map of memory addresses mapped to the source
      * code that was assembled and placed at that address.
      * @param {string} sourceCode the code to assemble
-     * @param {boolean} saveFiles if true (default), save the resulting object file and symbol table
+     * @param {boolean} userCode if true (default), this is the user's code. Save the resulting object file and symbol
+     * table and enforce separate text and data sections.
      * @returns {Promise<[Uint16Array, Map<number, string>] | null>}
      */
-    public static async assemble(sourceCode: string, saveFiles: boolean = true)
+    public static async assemble(sourceCode: string, userCode: boolean = true)
         : Promise<[Uint16Array, Map<number, string>] | null>
     {
         let hasError = false;
 
         // Since we're assembling a new program, delete the previously saved object and symbol table files
-        if (saveFiles)
+        if (userCode)
         {
             this.lastObjectFile = null;
             this.lastSymbolTable = null;
@@ -122,7 +123,11 @@ export default class ARMAssembler
         // Index in the memory array (not the final address) of the word we're currently writing
         let pc = 0;
 
-        // Scan for the first non-empty line, must be an .orig directive
+        /*
+        Scan for the first few non-empty lines. They must be an .orig directive, a .text directive, a .global directive
+        with the label _start, and a _start label, in that order. Only the .orig directive is mandatory for all code;
+        the other lines are only required for user code.
+        */
         let currentLine = Parser.trimLine(sourceLines[lineNumber]);
         while (!currentLine)
         {
@@ -149,6 +154,36 @@ export default class ARMAssembler
             else
             {
                 return null;
+            }
+        }
+        /*
+        The following lines are handled separately from .orig because the first line simply needed to start with .orig
+        but the rest need to be an exact match. Also, the remaining lines are only required for user code (i.e. the
+        operating system doesn't need to include them).
+        */
+        if (userCode)
+        {
+            const initialLines = [".text", ".global _start", "_start:"]
+            for (let i = 0; i < initialLines.length; i++)
+            {
+                let currentLine = Parser.trimLine(sourceLines[++lineNumber]);
+                while (!currentLine)
+                {
+                    currentLine = Parser.trimLine(sourceLines[++lineNumber]);
+                }
+
+                if (currentLine.toLowerCase() != initialLines[i])
+                {
+                    let error;
+                    switch (i)
+                    {
+                        case 0: error = "The second line of code must be a .TEXT directive"; break;
+                        case 1: error = "The third line of code must be a .GLOBAL directive followed by the label _start"; break;
+                        case 2: error = 'The fourth line of code must be "_start:"'; break;
+                    }
+                    UI.appendConsole(error + '\n');
+                    return null
+                }
             }
         }
 
@@ -334,7 +369,7 @@ export default class ARMAssembler
             return null;
         else
         {
-            if (saveFiles)
+            if (userCode)
             {
                 // Save object and symbol table blobs
                 await this.makeObjectFileBlob(result);
