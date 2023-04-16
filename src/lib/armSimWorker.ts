@@ -556,7 +556,7 @@ class ArmSimWorker extends SimWorker
 
         const sourceBit = this.getBits(instruction, 11, 11);
         const destinationRegister = this.getBits(instruction, 10, 8);
-        const word8 = this.getBits(instruction, 7, 0);
+        const word8 = this.signExtend(this.getBits(instruction, 7, 0), 8);
 
         if (sourceBit == 0)
             this.setRegister(destinationRegister, this.getPC() + word8);
@@ -739,6 +739,10 @@ class ArmSimWorker extends SimWorker
         console.log("ldr format 9")
 
         const sourceAddress = this.getRegister(baseRegister) + offset5;
+
+        console.log(this.getRegister(baseRegister));
+        console.log(this.signExtend(this.getRegister(baseRegister), 8));
+
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result);
     }
@@ -1133,6 +1137,44 @@ class ArmSimWorker extends SimWorker
         const mask = high_mask ^ low_mask;
 
         return (of & mask) >> from;
+    }
+
+    /**
+     * Sign-extends the given number to 16 bits
+     * @param {number} toExtend
+     * @param {number} originalBitLength
+     */
+    private static signExtend(toExtend: number, originalBitLength: number): number
+    {
+        let result = toExtend;
+        // e.g. if originalBitLength = 8, signBit = 0b1000_0000
+        const signBit = 1 << (originalBitLength - 1);
+        // e.g. if originalBitLength = 8, signExtension = 0b1111_1111_1000_0000
+        const signExtension = ((2 ** 16) - 1) ^ (signBit - 1);
+        if ((result & signBit) != 0)
+            result |= signExtension;
+
+        return result;
+    }
+
+    /**
+     * Converts the given number with specified bit length to a signed number
+     * @param {number} unsigned
+     * @param {number} bits
+     */
+    public static convertToSigned(unsigned: number, bits: number): number
+    {
+        const signBit = 1 << (bits - 1);    // e.g. if bits = 0, signBit = 0b10000000
+        const allBits = (1 << bits) - 1;    // e.g. if bits = 8, allBits = 0b11111111
+        /*
+        If the unsigned number has a 1 in the sign bit, it's actually a negative number, so do a two's complement
+        negation
+        */
+        unsigned &= allBits;
+        if (unsigned & signBit)
+            return (unsigned ^ allBits) + 1;
+        else
+            return unsigned;
     }
 
     /*

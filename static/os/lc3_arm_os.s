@@ -35,6 +35,7 @@ TRAP_PUTS:
 
     ; r2 will mask ASCII characters
     ldr r2, =BYTE_MASK
+    ldr r2, r2, #0
 PUTS_STRING_LOOP:
     ; Load next character into r1
     ldr r1, r0, #0
