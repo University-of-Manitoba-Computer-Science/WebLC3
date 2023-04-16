@@ -446,6 +446,7 @@ class ArmSimWorker extends SimWorker
                         (this.flagNegative()) && !(this.getPSR() & this.MASK_V)
                         || (!this.flagNegative()) && !!(this.getPSR() & this.MASK_V)
                     );
+                break;
         }
 
         if (branch)

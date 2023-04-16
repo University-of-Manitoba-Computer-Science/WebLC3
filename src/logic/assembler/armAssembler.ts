@@ -279,10 +279,14 @@ export default class ARMAssembler
                     UI.appendConsole(errorBuilder.badLabel(lineNumber, tokens[2]) + "\n");
                 }
             }
-
-            else if (tokens[0] == "ldr")
+            else
             {
-                const label = tokens[tokens.length - 1].substring(1);
+                let label;
+                if (tokens[tokens.length - 1].startsWith('='))
+                    label = tokens[tokens.length - 1].substring(1);
+                else
+                    label = tokens[tokens.length - 1];
+
                 if (labels.has(label))
                 {
                     const offset = parser.calcLabelOffset(label, location, labels, 8, lineNumber);

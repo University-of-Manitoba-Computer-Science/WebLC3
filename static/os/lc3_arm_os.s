@@ -26,10 +26,13 @@
 ; Device register addresses
 CON_STATUS: .FILL xFE04
 CON_DATA:   .FILL xFE06
+MCR:        .FILL xFFFE
 
-; Constants
+; Constants (see the bottom of this file for more strings)
 ; To clear the upper byte of a word
-BYTE_MASK: .FILL x00FF;
+BYTE_MASK:  .FILL x00FF
+; To clear the most significant bit of a word
+MSB_MASK:   .FILL x7FFF
 
 ; -----------------------------------------------------------------------------
 ; PUTS
