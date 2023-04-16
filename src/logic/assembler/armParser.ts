@@ -164,7 +164,7 @@ export default class ArmParser extends Parser
     {
         if (tokens.length == 3)
         {
-            if (this.isImmediate(tokens[2][0]))
+            if (this.isImmediate(tokens[2]))
                 if (tokens[1].toLowerCase() == "sp")
                     return this.asmFormat13(lineNumber, tokens);
                 else
