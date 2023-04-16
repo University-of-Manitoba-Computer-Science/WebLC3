@@ -590,7 +590,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("and")
 
-        const result = sourceDestinationRegister & sourceRegister2;
+        const result = this.getRegister(sourceDestinationRegister) & this.getRegister(sourceRegister2);
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
@@ -610,7 +610,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("asr format 4")
 
-        const result = sourceDestinationRegister >> sourceRegister2;
+        const result = this.getRegister(sourceDestinationRegister) >> this.getRegister(sourceRegister2);
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
