@@ -10,6 +10,15 @@
 
 .ORIG 0
 
+; --------------------------
+; TRAP VECTOR TABLE (0x0000)
+; --------------------------
+.BLKW x20
+; Implemented traps begin at x20
+.FILL 0
+.FILL 0
+.FILL TRAP_PUTS
+
 ; -------------------------
 ; OPERATING SYSTEM (0x0200)
 ; -------------------------

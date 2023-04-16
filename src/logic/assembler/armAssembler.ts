@@ -240,7 +240,47 @@ export default class ARMAssembler
                 lineNumber = line;
             }
 
-            if (tokens[0] == "ldr")
+            // .fill and .blkw use absolute addresses, not offsets
+            if (tokens[0] == ".fill")
+            {
+                const labelVal = labels.get(tokens[1]);
+                if (typeof(labelVal) === "undefined")
+                {
+                    hasError = true;
+                    UI.appendConsole(errorBuilder.badLabel(lineNumber, tokens[1]) + "\n");
+                }
+                else
+                {
+                    memory[location] = labelVal;
+                }
+            }
+            else if (tokens[0] == ".blkw")
+            {
+                if (labels.has(tokens[2]))
+                {
+                    const amt = parser.parseImmediate(tokens[1], false, lineNumber);
+                    if (!isNaN(amt))
+                    {
+                        for (let i = 0; i < amt; i++)
+                        {
+                            // @ts-ignore
+                            memory[location + i] = labels.get(tokens[2]) + startOffset;
+                        }
+                    }
+                    else
+                    {
+                        hasError = true;
+                        UI.appendConsole(errorBuilder.badLabel(lineNumber, tokens[2]) + "\n");
+                    }
+                }
+                else
+                {
+                    hasError = true;
+                    UI.appendConsole(errorBuilder.badLabel(lineNumber, tokens[2]) + "\n");
+                }
+            }
+
+            else if (tokens[0] == "ldr")
             {
                 const label = tokens[tokens.length - 1].substring(1);
                 if (labels.has(label))
