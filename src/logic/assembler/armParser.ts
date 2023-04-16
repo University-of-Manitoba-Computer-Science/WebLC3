@@ -1155,8 +1155,8 @@ export default class ArmParser extends Parser
      */
     private parseLdrLabelPseudoOp(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
     {
-        // This pseudo-op is just syntactic sugar for a format 6 instruction involving a label
-        let result = 0b0100100000000000;
+        // This pseudo-op is just syntactic sugar for a format 12 add instruction involving the PC and a label
+        let result = 0b1010000000000000;
 
         // Destination register
         const destinationRegister = this.parseReg(tokens[1], lineNumber);
