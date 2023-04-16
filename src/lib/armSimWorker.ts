@@ -38,8 +38,6 @@ class ArmSimWorker extends SimWorker
 
     protected static override execute(instruction: number)
     {
-        console.log(instruction.toString(16))
-
         /*
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
@@ -90,8 +88,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat1(instruction: number)
     {
-        console.log("format 1");
-
         const opcode = this.getBits(instruction, 12, 11);
         const offset5 = this.getBits(instruction, 10, 6);
         const sourceRegister = this.getBits(instruction, 5, 3);
@@ -111,8 +107,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat2(instruction: number)
     {
-        console.log("format 2")
-
         const immediateFlag = this.getBits(instruction, 10, 10);
         const opcode = this.getBits(instruction, 9, 9);
         const registerOrImmediate = this.getBits(instruction, 6, 8);
@@ -136,8 +130,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat3(instruction: number)
     {
-        console.log("format 3");
-
         const opcode = this.getBits(instruction, 12, 11);
         const destinationRegister = this.getBits(instruction, 10, 8);
         const offset8 = this.getBits(instruction, 7, 0);
@@ -158,8 +150,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat4(instruction: number)
     {
-        console.log("format 4");
-
         const sourceDestinationRegister = this.getBits(instruction, 2, 0);
         const sourceRegister2 = this.getBits(instruction, 5, 3);
 
@@ -223,8 +213,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat7(instruction: number)
     {
-        console.log("format 7");
-
         const loadStoreFlag = this.getBits(instruction, 11, 11);
         const byteWordFlag = this.getBits(instruction, 10, 10);
         const offsetRegister = this.getBits(instruction, 8, 6);
@@ -248,8 +236,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat8(instruction: number)
     {
-        console.log("format 8")
-
         const hFlag = this.getBits(instruction, 11, 11);
         const signExtendFlag = this.getBits(instruction, 10, 10);
         const offsetRegister = this.getBits(instruction, 8, 6);
@@ -272,8 +258,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat9(instruction: number)
     {
-        console.log("format 9");
-
         const loadStoreFlag = this.getBits(instruction, 11, 11);
         const byteWordFlag = this.getBits(instruction, 12, 12);
         const offset5 = this.getBits(instruction, 10, 6);
@@ -296,8 +280,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat10(instruction: number)
     {
-        console.log("format 10")
-
         const loadStoreFlag = this.getBits(instruction, 11, 11);
         const offset5 = this.getBits(instruction, 10, 6);
         const baseRegister = this.getBits(instruction, 5, 3);
@@ -315,8 +297,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat11(instruction: number)
     {
-        console.log("format 11");
-
         const loadStoreBit = this.getBits(instruction, 11, 11);
         const destinationRegister = this.getBits(instruction, 10, 8);
         const word8 = this.getBits(instruction, 7, 0);
@@ -333,8 +313,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat14(instruction: number)
     {
-        console.log("format 14")
-
         const loadStoreBit = this.getBits(instruction, 11, 11);
         const pcLrBit = this.getBits(instruction, 8, 8);
         const registerBits = this.getBits(instruction, 7, 0);
@@ -361,8 +339,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat15(instruction: number)
     {
-        console.log("format 15");
-
         const loadStoreBit = this.getBits(instruction, 11, 11);
         const baseRegister = this.getBits(instruction, 10, 8);
         const registerBits = this.getBits(instruction, 7, 0);
@@ -386,8 +362,6 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat16(instruction: number)
     {
-        console.log("format 16")
-
         const condition = this.getBits(instruction, 11, 8);
         let sOffset8 = this.getBits(instruction, 7, 0);
 
