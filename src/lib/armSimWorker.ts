@@ -928,13 +928,13 @@ class ArmSimWorker extends SimWorker
         {
             if (this.userMode())
             {
-                this.setMemory(this.getUSP(), this.getRegister(i));
                 this.setUSP(this.getUSP() - 1);
+                this.setMemory(this.getUSP(), this.getRegister(i));
             }
             else
             {
-                this.setMemory(this.getSSP(), this.getRegister(i));
                 this.setSSP(this.getSSP() - 1);
+                this.setMemory(this.getSSP(), this.getRegister(i));
             }
         }
     }

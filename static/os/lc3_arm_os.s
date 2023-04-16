@@ -18,6 +18,9 @@
 .FILL 0
 .FILL 0
 .FILL TRAP_PUTS
+.FILL 0
+.FILL 0
+.FILL TRAP_HALT
 
 ; -------------------------
 ; OPERATING SYSTEM (0x0200)
@@ -96,6 +99,7 @@ HALT_LOOP:
     and r0, r1
 
     ldr r1, =MCR
+    ldr r1, r1, #0
     str r0, r1, #0  ; Execution stops here
 
     ; If clock is manually re-enabled, halt the computer again
