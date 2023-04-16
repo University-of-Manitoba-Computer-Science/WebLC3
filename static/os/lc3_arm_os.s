@@ -57,10 +57,13 @@ PUTS_STRING_LOOP:
     ; Wait for console to be ready
 PUTS_CONSOLE_LOOP:
     ldr r3, =CON_STATUS
+    ldr r3, r3, #0
+    ldr r3, r3, #0
     tst r3, r3
-    bge PUTS_CONSOLE_LOOP
+    bpl PUTS_CONSOLE_LOOP
     ; Write character
     ldr r3, =CON_DATA
+    ldr r3, r3, #0
     str r1, r3, #0
     add r0, #1
     b PUTS_STRING_LOOP
