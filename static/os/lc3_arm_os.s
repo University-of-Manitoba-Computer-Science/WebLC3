@@ -79,3 +79,33 @@ PUTS_BREAK:
 ; HALT
 ; Halt execution and print a message on the console.
 ; --------------------------------------------------
+TRAP_HALT:
+    push r0, r1, r7
+HALT_LOOP:
+    ; Print message
+    ldr r0, =HALT_MSG
+    PUTS
+    ; Stop the clock, leave the rest of MCR untouched
+    ldr r1, =MSB_MASK
+    ldr r1, r1, #0
+
+    ldr r0, =MCR
+    ldr r0, r0, #0
+    ldr r0, r0, #0
+
+    and r0, r1
+
+    ldr r1, =MCR
+    str r0, r1, #0  ; Execution stops here
+
+    ; If clock is manually re-enabled, halt the computer again
+    b HALT_LOOP
+
+    pop r0, r1, r7
+    rti
+
+; Strings output by some traps and exceptions
+IN_PROMPT:  .stringz "Input a character > "
+HALT_MSG:   .stringz "Halting computer\n"
+PRIV_MSG:   .stringz "Privilege mode violation\n"
+ILL_MSG:    .stringz "Illegal opcode exception\n"
