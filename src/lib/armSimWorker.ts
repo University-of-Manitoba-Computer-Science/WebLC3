@@ -822,7 +822,7 @@ class ArmSimWorker extends SimWorker
         let result = this.getMemory(sourceAddress) & 0xff;
         // Sign-extend the 8-bit value
         if (this.getBits(result, 7, 7) == 1)
-            result |= 0xffff;
+            result |= 0xff00;
         this.setRegister(destinationRegister, result);
     }
 
