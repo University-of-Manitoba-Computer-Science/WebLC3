@@ -454,7 +454,7 @@ export default class ArmParser extends Parser
         if (this.isImmediate(tokens[3]))
         {
             const immediateFlag = 1;
-            const immediate = this.parseImmediate(tokens[3], false, lineNumber, 3)
+            const immediate = this.parseImmediate(tokens[3], true, lineNumber, 3)
 
             result |= (immediateFlag << 10);
             result |= (immediate << 6);
@@ -647,7 +647,7 @@ export default class ArmParser extends Parser
         result |= (destinationRegister << 8);
 
         // Immediate value
-        const immediate = this.parseImmediate(tokens[2], false, lineNumber, 8)
+        const immediate = this.parseImmediate(tokens[3], false, lineNumber, 8)
         result |= immediate;
 
         return result;
@@ -1116,7 +1116,7 @@ export default class ArmParser extends Parser
         let result = 0b1101111100000000;
 
         // Interrupt vector
-        const value = parseInt(tokens[1])
+        const value = this.parseImmediate(tokens[1], false, lineNumber, 8);
         if (isNaN(value))
             return NaN;
         result |= value;
