@@ -226,8 +226,23 @@ export default class ArmParser extends Parser
      */
     private parseLdr(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number
     {
-        if (tokens.length == 3)
-            if (tokens[2].startsWith('='))
+        // Check for (and remove) square brackets
+        if (tokens[2].startsWith('[') && tokens[3].endsWith(']'))
+        {
+            tokens[2] = tokens[2].substring(1);
+            tokens[3] = tokens[3].substring(0, tokens[3].length - 1);
+        }
+        else
+        {
+            UI.appendConsole(this.errorBuilder.formatMessage(
+                lineNumber, 'Expected square brackets around all operands after the first (e.g. "LDR Rd, [Rb, Ro]")') + '\n');
+            return NaN;
+        }
+
+        console.log(tokens);
+
+        if (tokens[2] == "pc")
+            if (tokens[3].startsWith('='))
                 return this.parseLdrLabelPseudoOp(lineNumber, tokens, pc, labels, toFix);
             else
                 return this.asmFormat6(lineNumber, tokens);
@@ -1165,7 +1180,7 @@ export default class ArmParser extends Parser
         result |= (destinationRegister << 8);
 
         // Immediate value
-        const label = tokens[2].substring(1);
+        const label = tokens[3].substring(1);
         if (labels.has(label))
         {
             const offset = this.calcLabelOffset(label, pc, labels, 8, lineNumber);

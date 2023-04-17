@@ -49,11 +49,11 @@ TRAP_PUTS:
     push r0, r1, r2, r3
 
     ; r2 will mask ASCII characters
-    ldr r2, =BYTE_MASK
-    ldr r2, r2, #0
+    ldr r2, [pc, =BYTE_MASK]
+    ldr r2, [r2, #0]
 PUTS_STRING_LOOP:
     ; Load next character into r1
-    ldr r1, r0, #0
+    ldr r1, [r0, #0]
     ; Set condition codes
     tst r1, r1
     ; Break loop if we hit a null character
@@ -62,14 +62,14 @@ PUTS_STRING_LOOP:
     and r1, r2
     ; Wait for console to be ready
 PUTS_CONSOLE_LOOP:
-    ldr r3, =CON_STATUS
-    ldr r3, r3, #0
-    ldr r3, r3, #0
+    ldr r3, [pc, =CON_STATUS]
+    ldr r3, [r3, #0]
+    ldr r3, [r3, #0]
     tst r3, r3
     bpl PUTS_CONSOLE_LOOP
     ; Write character
-    ldr r3, =CON_DATA
-    ldr r3, r3, #0
+    ldr r3, [pc, =CON_DATA]
+    ldr r3, [r3, #0]
     str r1, r3, #0
     add r0, #1
     b PUTS_STRING_LOOP
@@ -86,20 +86,20 @@ TRAP_HALT:
     push r0, r1, r7
 HALT_LOOP:
     ; Print message
-    ldr r0, =HALT_MSG
+    ldr r0, [pc, =HALT_MSG]
     PUTS
     ; Stop the clock, leave the rest of MCR untouched
-    ldr r1, =MSB_MASK
-    ldr r1, r1, #0
+    ldr r1, [pc, =MSB_MASK]
+    ldr r1, [r1, #0]
 
-    ldr r0, =MCR
-    ldr r0, r0, #0
-    ldr r0, r0, #0
+    ldr r0, [pc, =MCR]
+    ldr r0, [r0, #0]
+    ldr r0, [r0, #0]
 
     and r0, r1
 
-    ldr r1, =MCR
-    ldr r1, r1, #0
+    ldr r1, [pc, =MCR]
+    ldr r1, [r1, #0]
     str r0, r1, #0  ; Execution stops here
 
     ; If clock is manually re-enabled, halt the computer again

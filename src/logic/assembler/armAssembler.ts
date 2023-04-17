@@ -45,7 +45,7 @@ export default class ARMAssembler
         ["beq", 1], ["bne", 1], ["bcs", 1], ["bcc", 1], ["bmi", 1], ["bpl", 1], ["bvs", 1], ["bvc", 1], ["bhi", 1],
         ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
 
-        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2], ["ldrb", 3], ["ldrh", 3], ["ldsb", 3],
+        ["bic", 2], ["bl", 1], ["bx", 1], ["cmn", 2], ["cmp", 2], ["eor", 2], ["ldr", 3], ["ldrb", 3], ["ldrh", 3], ["ldsb", 3],
         ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2], ["sbc", 2], ["strb", 3],
         ["strh", 3], ["tst", 2], ["swi", 1], ["rti", 0],
 
@@ -419,7 +419,6 @@ export default class ARMAssembler
         {
             case "add":
             case "asr":
-            case "ldr":
             case "lsl":
             case "lsr":
             case "str":
