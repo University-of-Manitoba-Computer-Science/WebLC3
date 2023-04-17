@@ -28,7 +28,7 @@ export default class ErrorBuilder
      * @param description
      * @returns
      */
-    protected formatMessage(lineNum: number, description: string): string
+    public formatMessage(lineNum: number, description: string): string
     {
         return (lineNum + 1) + ": " + description + "\n" + this.sourceCode[lineNum];
     }

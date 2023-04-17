@@ -124,6 +124,14 @@ export default class ARMAssembler
         let pc = 0;
 
         /*
+        ARM code is separated into logic and data sections, but the LC-3 OS has logic and data interweaved in a way
+        that's hard to, uh, un-interweave. As such, this enum tracks which section we're currently parsing and whether
+        to throw an error if we see logic or data in the wrong section.
+        */
+        enum Section {Text, Data, NotApplicable}
+        let currentSection = Section.NotApplicable;
+
+        /*
         Scan for the first few non-empty lines. They must be an .orig directive, a .text directive, a .global directive
         with the label _start, and a _start label, in that order. Only the .orig directive is mandatory for all code;
         the other lines are only required for user code.
@@ -185,6 +193,7 @@ export default class ARMAssembler
                     return null
                 }
             }
+            currentSection = Section.Text;
         }
 
         while (++lineNumber < sourceLines.length)
@@ -208,6 +217,16 @@ export default class ARMAssembler
                 // Assembler directive
                 if (this.directives.has(tokens[0]))
                 {
+                    if (tokens[0] == ".data")
+                        currentSection = Section.Data;
+                    else if (currentSection == Section.Text)
+                    {
+                        UI.appendConsole(errorBuilder.formatMessage(
+                            lineNumber, "Cannot include data in text section.") + '\n');
+                        hasError = true;
+                        continue;
+                    }
+
                     if (!this.validOperandCount(tokens))
                     {
                         UI.appendConsole(errorBuilder.operandCount(lineNumber, tokens) + "\n");
@@ -228,6 +247,14 @@ export default class ARMAssembler
                 // Instruction
                 else if (this.opCodes.has(tokens[0]))
                 {
+                    if (currentSection == Section.Data)
+                    {
+                        UI.appendConsole(errorBuilder.formatMessage(
+                            lineNumber, "Cannot include instructions in data section.") + '\n');
+                        hasError = true;
+                        continue;
+                    }
+
                     if (!this.validOperandCount(tokens))
                     {
                         UI.appendConsole(errorBuilder.operandCount(lineNumber, tokens) + "\n");
