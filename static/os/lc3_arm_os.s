@@ -70,7 +70,7 @@ PUTS_CONSOLE_LOOP:
     ; Write character
     ldr r3, [pc, =CON_DATA]
     ldr r3, [r3, #0]
-    str r1, r3, #0
+    str r1, [r3, #0]
     add r0, #1
     b PUTS_STRING_LOOP
 PUTS_BREAK:
@@ -100,7 +100,7 @@ HALT_LOOP:
 
     ldr r1, [pc, =MCR]
     ldr r1, [r1, #0]
-    str r0, r1, #0  ; Execution stops here
+    str r0, [r1, #0]  ; Execution stops here
 
     ; If clock is manually re-enabled, halt the computer again
     b HALT_LOOP

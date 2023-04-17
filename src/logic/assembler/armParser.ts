@@ -338,6 +338,19 @@ export default class ArmParser extends Parser
      */
     private parseStr(lineNumber: number, tokens: string[]): number
     {
+        // Check for (and remove) square brackets
+        if (tokens[2].startsWith('[') && tokens[3].endsWith(']'))
+        {
+            tokens[2] = tokens[2].substring(1);
+            tokens[3] = tokens[3].substring(0, tokens[3].length - 1);
+        }
+        else
+        {
+            UI.appendConsole(this.errorBuilder.formatMessage(
+                lineNumber, 'Expected square brackets around all operands after the first (e.g. "STR Rd, [Rb, Ro]")') + '\n');
+            return NaN;
+        }
+
         if (this.isImmediate(tokens[3]))
         {
             if (tokens[2] == "sp")
