@@ -836,7 +836,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("lsr format 4")
 
-        let result = sourceDestinationRegister >> sourceRegister2;
+        let result = this.getRegister(sourceDestinationRegister) >> this.getRegister(sourceRegister2);
         // Turn the arithmetic right shift into a logical one
         result = this.getBits(result, 16 - sourceRegister2, 0);
         this.setRegister(sourceDestinationRegister, result);
@@ -857,7 +857,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("mul")
 
-        const result = sourceRegister2 * sourceDestinationRegister;
+        const result = this.getRegister(sourceRegister2) * this.getRegister(sourceDestinationRegister);
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
@@ -867,7 +867,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("mvn")
 
-        const result = ~sourceRegister2;
+        const result = ~this.getRegister(sourceRegister2);
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
@@ -877,7 +877,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("neg")
 
-        const result = -sourceRegister2;
+        const result = -this.getRegister(sourceRegister2);
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
