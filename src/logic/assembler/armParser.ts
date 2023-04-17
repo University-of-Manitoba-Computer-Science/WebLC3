@@ -961,6 +961,21 @@ export default class ArmParser extends Parser
      */
     private asmFormat14(lineNumber: number, tokens: string[])
     {
+        // Check for (and remove) curly braces
+        const lastTokenIndex = tokens.length - 1;
+        if (tokens[1].startsWith('{') && tokens[lastTokenIndex].endsWith('}'))
+        {
+            tokens[1] = tokens[1].substring(1);
+            tokens[lastTokenIndex] = tokens[lastTokenIndex].substring(0, tokens[lastTokenIndex].length - 1);
+        }
+        else
+        {
+            UI.appendConsole(this.errorBuilder.formatMessage(
+                lineNumber, 'Expected curly braces around register list (e.g. PUSH {r0, r1, r2})' + '\n'
+            ));
+            return NaN;
+        }
+
         let result = 0b1011010000000000;
 
         // Flags

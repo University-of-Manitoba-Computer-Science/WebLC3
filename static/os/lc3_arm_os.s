@@ -45,8 +45,7 @@ MSB_MASK:   .FILL x7FFF
 ; occurrence of x0000 in a memory location.
 ; -----------------------------------------------------------------------------
 TRAP_PUTS:
-    ; Push r0-r3
-    push r0, r1, r2, r3
+    push {r0, r1, r2, r3}
 
     ; r2 will mask ASCII characters
     ldr r2, [pc, =BYTE_MASK]
@@ -75,7 +74,7 @@ PUTS_CONSOLE_LOOP:
     b PUTS_STRING_LOOP
 PUTS_BREAK:
     ; Pop registers and return
-    pop r0, r1, r2, r3
+    pop {r0, r1, r2, r3}
     rti
 
 ; --------------------------------------------------
@@ -83,7 +82,7 @@ PUTS_BREAK:
 ; Halt execution and print a message on the console.
 ; --------------------------------------------------
 TRAP_HALT:
-    push r0, r1, r7
+    push {r0, r1, r7}
 HALT_LOOP:
     ; Print message
     ldr r0, [pc, =HALT_MSG]
@@ -105,7 +104,7 @@ HALT_LOOP:
     ; If clock is manually re-enabled, halt the computer again
     b HALT_LOOP
 
-    pop r0, r1, r7
+    pop {r0, r1, r7}
     rti
 
 ; Strings output by some traps and exceptions
