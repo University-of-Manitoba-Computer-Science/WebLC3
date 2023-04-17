@@ -887,7 +887,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("orr")
 
-        const result = sourceDestinationRegister | sourceRegister2;
+        const result = this.getRegister(sourceDestinationRegister) | this.getRegister(sourceRegister2);
         this.setRegister(sourceDestinationRegister, result);
         this.setConditions(result);
     }
