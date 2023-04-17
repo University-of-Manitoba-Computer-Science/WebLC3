@@ -239,8 +239,6 @@ export default class ArmParser extends Parser
             return NaN;
         }
 
-        console.log(tokens);
-
         if (tokens[2] == "pc")
             if (tokens[3].startsWith('='))
                 return this.parseLdrLabelPseudoOp(lineNumber, tokens, pc, labels, toFix);
