@@ -224,7 +224,7 @@ export default class ARMAssembler
                         UI.appendConsole(errorBuilder.formatMessage(
                             lineNumber, "Cannot include data in text section.") + '\n');
                         hasError = true;
-                        continue;
+                        break;
                     }
 
                     if (!this.validOperandCount(tokens))
@@ -252,7 +252,7 @@ export default class ARMAssembler
                         UI.appendConsole(errorBuilder.formatMessage(
                             lineNumber, "Cannot include instructions in data section.") + '\n');
                         hasError = true;
-                        continue;
+                        break;
                     }
 
                     if (!this.validOperandCount(tokens))
