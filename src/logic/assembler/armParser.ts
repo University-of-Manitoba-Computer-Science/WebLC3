@@ -454,7 +454,7 @@ export default class ArmParser extends Parser
         if (this.isImmediate(tokens[3]))
         {
             const immediateFlag = 1;
-            const immediate = this.parseImmediate(tokens[3], true, lineNumber, 3)
+            const immediate = this.parseImmediate(tokens[3], false, lineNumber, 3)
 
             result |= (immediateFlag << 10);
             result |= (immediate << 6);

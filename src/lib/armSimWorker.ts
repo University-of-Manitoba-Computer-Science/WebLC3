@@ -113,7 +113,7 @@ class ArmSimWorker extends SimWorker
     {
         const immediateFlag = this.getBits(instruction, 10, 10);
         const opcode = this.getBits(instruction, 9, 9);
-        const registerOrImmediate = this.getBits(instruction, 6, 8);
+        const registerOrImmediate = this.getBits(instruction, 8, 6);
         const sourceRegister = this.getBits(instruction, 5, 3);
         const destinationRegister = this.getBits(instruction, 2, 0);
 
@@ -487,6 +487,10 @@ class ArmSimWorker extends SimWorker
     private static executeAddFormat2Immediate(destinationRegister: number, sourceRegister: number, registerOrImmediate: number)
     {
         console.log("add format 2 (immediate)")
+
+        console.log(destinationRegister)
+        console.log(sourceRegister)
+        console.log(registerOrImmediate)
 
         const result = registerOrImmediate + this.getRegister(sourceRegister);
         this.setRegister(destinationRegister, result);
