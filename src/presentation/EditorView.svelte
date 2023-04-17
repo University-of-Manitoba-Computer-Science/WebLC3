@@ -67,7 +67,7 @@
 		newInput.style.outline = "none"
 		newInput.style.background = "none"
 		newInput.style.borderBottom = "1px solid #5B5B5B"
-		newInput.value = filename.substring(0,filename.length-4)
+		newInput.value = filename
 		newInput.ariaLabel = "Enter new filename"
 
 		// Close input box
@@ -104,7 +104,14 @@
 				.replace(/%(7C|60|5E)/g, (str, hex) =>
 					String.fromCharCode(parseInt(hex, 16))
 				)
-				openedFile.set(newValue + ".asm")
+				/*
+				Let the user specify .asm (LC-3) or .s (ARM), and fall back to LC-3 if the user enters an invalid
+				extension
+				*/
+				if (!newValue.endsWith(".asm") && !newValue.endsWith('.s'))
+					newValue += ".asm"
+
+				openedFile.set(newValue)
 			}
 		}
 
