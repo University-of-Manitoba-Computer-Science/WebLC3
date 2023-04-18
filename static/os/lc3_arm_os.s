@@ -16,7 +16,7 @@
 .BLKW x20
 ; Implemented traps begin at x20
 .FILL 0
-.FILL 0
+.FILL TRAP_OUT
 .FILL TRAP_PUTS
 .FILL 0
 .FILL 0
@@ -36,6 +36,32 @@ MCR:        .FILL xFFFE
 BYTE_MASK:  .FILL x00FF
 ; To clear the most significant bit of a word
 MSB_MASK:   .FILL x7FFF
+
+; ----------------------------------------------------
+; OUT
+; Write a character in R0[7:0] to the console display.
+; ----------------------------------------------------
+TRAP_OUT:
+    push {r0, r1, r2}
+    ; Ensure we only write the lower byte to the console
+    ldr r1, [pc, =BYTE_MASK]
+    ldr r1, [r1, #0]
+    and r0, r1
+OUT_WAIT:
+    ; Wait for the display to be ready
+    ldr r1, [pc, =CON_STATUS]
+    ldr r1, [r1, #0]
+    ldr r1, [r1, #0]
+    tst r1, r1
+    ; The ready bit is the MSB, so we loop until the result is negative
+    bpl OUT_WAIT
+    ; Write a character
+    ldr r2, [pc, =CON_DATA]
+    ldr r2, [r2, #0]
+    str r0, [r2, #0]
+    ; Pop registers and return
+    pop {r0, r1, r2}
+    rti
 
 ; -----------------------------------------------------------------------------
 ; PUTS

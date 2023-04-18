@@ -648,6 +648,8 @@ export default class ArmParser extends Parser
 
         // Immediate value
         const immediate = this.parseImmediate(tokens[3], false, lineNumber, 8)
+        if (isNaN(immediate))
+            return NaN;
         result |= immediate;
 
         return result;
