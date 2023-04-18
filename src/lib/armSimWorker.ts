@@ -894,7 +894,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("pop")
 
-        for (let i = 0; i < registerList.length; i++)
+        for (let i = registerList.length - 1; i >= 0; i--)
         {
             if (this.userMode())
             {

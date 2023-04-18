@@ -313,7 +313,7 @@ export default class ARMAssembler
                 }
                 else
                 {
-                    memory[location] = labelVal;
+                    memory[location] = labelVal + startOffset;
                 }
             }
             else if (tokens[0] == ".blkw")
