@@ -488,10 +488,6 @@ class ArmSimWorker extends SimWorker
     {
         console.log("add format 2 (immediate)")
 
-        console.log(destinationRegister)
-        console.log(sourceRegister)
-        console.log(registerOrImmediate)
-
         const result = registerOrImmediate + this.getRegister(sourceRegister);
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
@@ -722,9 +718,6 @@ class ArmSimWorker extends SimWorker
         console.log("ldr format 9")
 
         const sourceAddress = this.getRegister(baseRegister) + offset5;
-
-        console.log(this.getRegister(baseRegister));
-        console.log(this.signExtend(this.getRegister(baseRegister), 8));
 
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result);
