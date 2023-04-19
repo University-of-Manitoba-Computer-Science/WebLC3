@@ -533,14 +533,19 @@ class ArmSimWorker extends SimWorker
     {
         console.log("add format 12")
 
-        const sourceBit = this.getBits(instruction, 11, 11);
-        const destinationRegister = this.getBits(instruction, 10, 8);
-        const word8 = this.signExtend(this.getBits(instruction, 7, 0), 8);
+        /*
+        Note that I replaced the source bit with an extra bit for the immediate
+        field in order to maintain compatibility with programs that use LC-3's
+        LEA instruction (which uses a 9-bit immediate field)
+        */
+        //const sourceBit = this.getBits(instruction, 11, 11);
+        const destinationRegister = this.getBits(instruction, 11, 9);
+        const word8 = this.signExtend(this.getBits(instruction, 8, 0), 9);
 
-        if (sourceBit == 0)
+        // if (sourceBit == 0)
             this.setRegister(destinationRegister, this.getPC() + word8);
-        else
-            this.setRegister(destinationRegister, this.load(this.savedUSP, 0) + word8);
+        // else
+        //     this.setRegister(destinationRegister, this.load(this.savedUSP, 0) + word8);
     }
 
     // Executes an add instruction in format 13

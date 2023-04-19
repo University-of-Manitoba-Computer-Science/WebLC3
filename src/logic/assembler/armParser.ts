@@ -906,23 +906,27 @@ export default class ArmParser extends Parser
         let result = 0b1010000000000000;
 
         // Source
-        let source = -1;
-        if (tokens[2].toLowerCase() == "pc")
-            source = 0;
-        else if (tokens[2].toLowerCase() == "sp")
-            source = 1;
-        else
+        if (tokens[2] == "sp")
+        {
+            UI.appendConsole(this.errorBuilder.formatMessage(
+                lineNumber, 'SP not supported with format 12 instructions, as the LC-3 hardware has no dedicated stack pointer. For similar functionality, use r6 instead.' + '\n'
+            ));
             return NaN;
-        result |= (source << 11);
+        }
 
         // Destination register
         const destinationRegister = this.parseReg(tokens[1], lineNumber);
         if (isNaN(destinationRegister))
             return NaN;
-        result |= (destinationRegister << 8);
+        result |= (destinationRegister << 9);
 
-        // Immediate value
-        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 8)
+        /*
+        Immediate value. Note that we ignore the word alignment constraint that the instruction is supposed to have,
+        since we don't care about 32-bit addressing.
+        */
+        const immediate = this.parseImmediate(tokens[3], true, lineNumber, 9)
+        if (isNaN(immediate))
+            return NaN;
         result |= immediate;
 
         return result;
@@ -1205,13 +1209,17 @@ export default class ArmParser extends Parser
         const destinationRegister = this.parseReg(tokens[1], lineNumber);
         if (isNaN(destinationRegister))
             return NaN;
-        result |= (destinationRegister << 8);
+        result |= (destinationRegister << 9);
 
         // Immediate value
         const label = tokens[3].substring(1);
+        let offset;
         if (labels.has(label))
         {
-            const offset = this.calcLabelOffset(label, pc, labels, 8, lineNumber);
+            offset = this.calcLabelOffset(label, pc, labels, 9, lineNumber);
+
+            if (isNaN(offset))
+                return NaN;
             result |= offset;
         }
         else

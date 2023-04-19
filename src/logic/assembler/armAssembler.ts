@@ -343,16 +343,23 @@ export default class ARMAssembler
             }
             else
             {
+                let offsetSize = 8;
+                if (tokens[0] == 'ldr')
+                    offsetSize = 9;
+
                 let label;
                 if (tokens[tokens.length - 1].startsWith('='))
                     label = tokens[tokens.length - 1].substring(1);
                 else
                     label = tokens[tokens.length - 1];
 
+                const offset = parser.calcLabelOffset(label, location, labels, offsetSize, lineNumber);
                 if (labels.has(label))
                 {
-                    const offset = parser.calcLabelOffset(label, location, labels, 8, lineNumber);
-                    memory[location] |= offset;
+                    if (isNaN(offset))
+                        hasError = true;
+                    else
+                        memory[location] |= offset;
                 }
                 else
                 {
