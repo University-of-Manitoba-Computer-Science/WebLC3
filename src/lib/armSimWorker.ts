@@ -903,12 +903,12 @@ class ArmSimWorker extends SimWorker
         {
             if (this.userMode())
             {
-                this.setRegister(i, this.getMemory(this.getUSP()));
+                this.setRegister(registerList[i], this.getMemory(this.getUSP()));
                 this.setUSP(this.getUSP() + 1);
             }
             else
             {
-                this.setRegister(i, this.getMemory(this.getSSP()));
+                this.setRegister(registerList[i], this.getMemory(this.getSSP()));
                 this.setSSP(this.getSSP() + 1);
             }
         }
@@ -931,12 +931,12 @@ class ArmSimWorker extends SimWorker
             if (this.userMode())
             {
                 this.setUSP(this.getUSP() - 1);
-                this.setMemory(this.getUSP(), this.getRegister(i));
+                this.setMemory(this.getUSP(), this.getRegister(registerList[i]));
             }
             else
             {
                 this.setSSP(this.getSSP() - 1);
-                this.setMemory(this.getSSP(), this.getRegister(i));
+                this.setMemory(this.getSSP(), this.getRegister(registerList[i]));
             }
         }
     }

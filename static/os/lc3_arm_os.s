@@ -15,7 +15,7 @@
 ; --------------------------
 .BLKW x20
 ; Implemented traps begin at x20
-.FILL 0
+.FILL TRAP_GETC
 .FILL TRAP_OUT
 .FILL TRAP_PUTS
 .FILL 0
@@ -27,6 +27,8 @@
 ; -------------------------
 
 ; Device register addresses
+KBD_STATUS: .FILL xFE00
+KBD_DATA:   .FILL xFE02
 CON_STATUS: .FILL xFE04
 CON_DATA:   .FILL xFE06
 MCR:        .FILL xFFFE
@@ -36,6 +38,36 @@ MCR:        .FILL xFFFE
 BYTE_MASK:  .FILL x00FF
 ; To clear the most significant bit of a word
 MSB_MASK:   .FILL x7FFF
+
+; ----------------------------------------------------------------------------
+; GETC
+; Read a single character from the keyboard. The character is not echoed onto
+; the console. Its ASCII code is copied into R0. The high eight bits of R0 are
+; cleared.
+; ----------------------------------------------------------------------------
+TRAP_GETC:
+    push {r1, r2}
+GETC_WAIT:
+    ; Wait for keyboard to be ready
+    ldr r1, [pc, =KBD_STATUS]
+    ldr r1, [r1, #0]
+    ldr r1, [r1, #0]
+    ; Ready bit is the MSB so we loop until the result is negative
+    tst r1, r1
+    bpl GETC_WAIT
+    ldr r0, [pc, =KBD_DATA]
+    ldr r0, [r0, #0]
+    ldr r0, [r0, #0]
+    ; Clear keyboard ready bit
+    ldr r2, [pc, =MSB_MASK]
+    ldr r2, [r2, #0]
+    and r1, r2
+    ldr r2, [pc, =KBD_STATUS]
+    ldr r2, [r2, #0]
+    str r1, [r2, #0]
+    ; Pop registers and return
+    pop {r1, r2}
+    rti
 
 ; ----------------------------------------------------
 ; OUT
