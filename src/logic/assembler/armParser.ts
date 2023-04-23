@@ -1265,9 +1265,9 @@ export default class ArmParser extends Parser
         /*
         Using the same binary as the original rti would result in this being indistinguishable from a
         "strh r0, [r0, #0]" instruction, so we imitate a bx instruction instead. Specifically, a "real" ARM Thumb
-        implementation (not like one exists) would read this as "bx r0"
+        implementation (not like one exists) would read this as "bx r8"
         */
-        return 0b0100011100000000;
+        return 0b0100011101000000;
     }
 
     /**
