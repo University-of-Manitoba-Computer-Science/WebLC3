@@ -219,6 +219,8 @@ export default class ARMAssembler
                 {
                     if (tokens[0] == ".data")
                         currentSection = Section.Data;
+                    else if (tokens[0] == ".text")
+                        currentSection = Section.Text;
                     else if (currentSection == Section.Text)
                     {
                         UI.appendConsole(errorBuilder.formatMessage(
@@ -343,9 +345,13 @@ export default class ARMAssembler
             }
             else
             {
-                let offsetSize = 8;
-                if (tokens[0] == 'ldr')
-                    offsetSize = 9;
+                let offsetSize;
+                switch (tokens[0])
+                {
+                    case 'bl': offsetSize = 11; break;
+                    case 'ldr': offsetSize = 9; break;
+                    default: offsetSize = 8;    break;
+                }
 
                 let label;
                 if (tokens[tokens.length - 1].startsWith('='))
