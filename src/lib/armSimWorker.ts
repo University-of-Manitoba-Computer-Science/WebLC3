@@ -193,6 +193,12 @@ class ArmSimWorker extends SimWorker
             this.execRti(instruction);
             return;
         }
+        // Other than the custom rti, only support bx with lo registers
+        else if (this.getBits(instruction, 15, 6) == 0b0100011100)
+        {
+            const sourceRegister = this.getBits(instruction, 5, 3);
+            this.executeBxLo(sourceRegister);
+        }
 
         console.log("format 5 (not supported - no high registers)")
         return;
@@ -631,17 +637,37 @@ class ArmSimWorker extends SimWorker
     // Executes a bl instruction
     private static executeBl(instruction: number)
     {
-        console.log("bl (not supported - no link register)")
-        return;
+        /*
+        This implementation ignores the two-instruction gimmick that BL uses. For more information, see the comments on
+        the armParser.asmFormat19 method.
+        */
+        console.log("bl")
 
-        const offsetBit = this.getBits(instruction, 11, 11);
+        // const offsetBit = this.getBits(instruction, 11, 11);
         let offset = this.getBits(instruction, 10, 0);
 
-        if (offsetBit == 0)
-            offset = offset << 12;
-        else
-            offset = offset << 1;
+        // if (offsetBit == 0)
+        //     offset = offset << 12;
+        // else
+        //     offset = offset << 1;
 
+        // Imitate JSR by saving the current (incremented) PC to r7
+        this.setRegister(7, this.getPC());
+
+        this.add(this.pc, 0, offset);
+    }
+
+    // Executes a bx instruction with lo registers
+    private static executeBxLo(sourceRegister: number)
+    {
+        console.log("bx")
+
+        /*
+        Don't do any ARM state change shenanigans; just do an unconditional branch to the address contained in the
+        source register
+        */
+
+        const offset = this.getPC() - this.getRegister(sourceRegister);
         this.add(this.pc, 0, offset);
     }
 
