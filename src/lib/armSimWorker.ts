@@ -927,16 +927,8 @@ class ArmSimWorker extends SimWorker
 
         for (let i = registerList.length - 1; i >= 0; i--)
         {
-            if (this.userMode())
-            {
-                this.setRegister(registerList[i], this.getMemory(this.getUSP()));
-                this.setUSP(this.getUSP() + 1);
-            }
-            else
-            {
-                this.setRegister(registerList[i], this.getMemory(this.getSSP()));
-                this.setSSP(this.getSSP() + 1);
-            }
+            this.setRegister(registerList[i], this.getMemory(this.getRegister(6)));
+            this.setRegister(6, this.getRegister(6) + 1);
         }
     }
 
@@ -954,16 +946,8 @@ class ArmSimWorker extends SimWorker
 
         for (let i = 0; i < registerList.length; i++)
         {
-            if (this.userMode())
-            {
-                this.setUSP(this.getUSP() - 1);
-                this.setMemory(this.getUSP(), this.getRegister(registerList[i]));
-            }
-            else
-            {
-                this.setSSP(this.getSSP() - 1);
-                this.setMemory(this.getSSP(), this.getRegister(registerList[i]));
-            }
+            this.setRegister(6, this.getRegister(6) - 1);
+            this.setMemory(this.getRegister(6), this.getRegister(registerList[i]));
         }
     }
 
@@ -1162,40 +1146,6 @@ class ArmSimWorker extends SimWorker
             result |= signExtension;
 
         return result;
-    }
-
-    /*
-    Returns the value of the user stack pointer
-    */
-    private static getUSP()
-    {
-        return Atomics.load(this.savedUSP, 0);
-    }
-
-    /**
-     * Set the value of the user stack pointer
-     * @param value the 16-bit word to use as the new USP value
-     */
-    private static setUSP(value: number)
-    {
-        return Atomics.store(this.savedUSP, 0, value)
-    }
-
-    /*
-    Returns the value of the supervisor stack pointer
-    */
-    private static getSSP()
-    {
-        return Atomics.load(this.savedSSP, 0);
-    }
-
-    /**
-     * Set the value of the supervisor stack pointer
-     * @param value the 16-bit word to use as the new SSP value
-     */
-    private static setSSP(value: number)
-    {
-        return Atomics.store(this.savedSSP, 0, value)
     }
 }
 

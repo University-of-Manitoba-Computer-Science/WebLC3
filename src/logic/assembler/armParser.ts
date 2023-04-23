@@ -1164,28 +1164,36 @@ export default class ArmParser extends Parser
      */
     private asmFormat19(lineNumber: number, tokens: string[], pc: number, labels: Map<string, number>, toFix: Map<string[], number>): number[]
     {
-        let highInstruction = 0b1111000000000000;
+        /*
+        This instruction plays the same role as JSR in LC-3. Since JSR only uses an 11-bit offset for subroutine jumps,
+        the functionality for representing larger values using multiple instructions would go untested, and as such I'm
+        commenting out its implementation. Feel free to add it back if there's a program that needs it.
+        */
+        // let highInstruction = 0b1111000000000000;
         let lowInstruction = 0b1111100000000000;
 
         // Immediate value
         if (labels.has(tokens[1]))
         {
-            const offset = this.calcLabelOffset(tokens[1], pc, labels, 23, lineNumber);
+            // const offset = this.calcLabelOffset(tokens[1], pc, labels, 23, lineNumber);
+            const offset = this.calcLabelOffset(tokens[1], pc, labels, 11, lineNumber);
             if (isNaN(offset))
                 return [NaN];
 
-            const highBits = (offset & 0b11111111111000000000000) >> 12;
-            highInstruction |= highBits;
+            // const highBits = (offset & 0b111111111110000000000) >> 12;
+            // highInstruction |= highBits;
 
-            const lowBits = (offset & 0b00000000000111111111111);
+            const lowBits = (offset & 0b0000000000011111111111);
             lowInstruction |= lowBits;
 
-            return [highInstruction, lowInstruction];
+            // return [highInstruction, lowInstruction];
+            return [lowInstruction];
         }
         else
         {
             toFix.set(tokens, pc);
-            return [highInstruction, lowInstruction];
+            // return [highInstruction, lowInstruction];
+            return [lowInstruction];
         }
     }
 
