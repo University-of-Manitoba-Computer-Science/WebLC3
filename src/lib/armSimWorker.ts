@@ -198,6 +198,7 @@ class ArmSimWorker extends SimWorker
         {
             const sourceRegister = this.getBits(instruction, 5, 3);
             this.executeBxLo(sourceRegister);
+            return;
         }
 
         console.log("format 5 (not supported - no high registers)")
@@ -667,7 +668,7 @@ class ArmSimWorker extends SimWorker
         source register
         */
 
-        const offset = this.getPC() - this.getRegister(sourceRegister);
+        const offset = this.getRegister(sourceRegister) - this.getPC();
         this.add(this.pc, 0, offset);
     }
 
