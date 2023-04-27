@@ -328,7 +328,7 @@ class ArmSimWorker extends SimWorker
         const pcLrBit = this.getBits(instruction, 8, 8);
         const registerBits = this.getBits(instruction, 7, 0);
         const registerList = [];
-        for (let i = 0; i < 7; i++)
+        for (let i = 0; i < 8; i++)
         {
             if (((1 << i) & registerBits) > 0)
                 registerList.push(i);
@@ -944,6 +944,8 @@ class ArmSimWorker extends SimWorker
     private static executePush(registerList: Array<number>)
     {
         console.log("push")
+
+        console.log(registerList)
 
         for (let i = 0; i < registerList.length; i++)
         {
