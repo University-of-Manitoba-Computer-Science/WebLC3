@@ -148,8 +148,17 @@
 				// Globally store .obj file, and symbol table file blobs
 				if(globalThis.simulator){
 					setObjFilename()
-					globalThis.objFile = Assembler.getObjectFileBlob()
-					globalThis.symbolTable = Assembler.getSymbolTableBlob()
+
+					if (getExtension() === LC3_EXTENSION)
+					{
+						globalThis.objFile = Assembler.getObjectFileBlob()
+						globalThis.symbolTable = Assembler.getSymbolTableBlob()
+					}
+					else if (getExtension() === ARM_EXTENSION)
+					{
+						globalThis.objFile = ARMAssembler.getObjectFileBlob()
+						globalThis.symbolTable = ARMAssembler.getSymbolTableBlob()
+					}
 				}
 			}
 		}
