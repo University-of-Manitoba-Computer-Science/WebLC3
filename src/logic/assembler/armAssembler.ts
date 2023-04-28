@@ -193,6 +193,7 @@ export default class ARMAssembler
                     return null
                 }
             }
+            labels.set("_start", pc);
             currentSection = Section.Text;
         }
 
