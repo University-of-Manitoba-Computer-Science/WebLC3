@@ -193,6 +193,7 @@ export default class ARMAssembler
                     return null
                 }
             }
+            labels.set("_start", pc);
             currentSection = Section.Text;
         }
 
@@ -491,5 +492,25 @@ export default class ARMAssembler
             table += label + " = " + address + "\n";
         }
         this.lastSymbolTable = new Blob(Array.from(table), { type: "text/plain" });
+    }
+
+    /**
+     * Return the most recently assembled object file as a plain text blob. If
+     * the previous assembly ended in an error or nothing has been assembled
+     * yet, returns null.
+     */
+    public static getObjectFileBlob(): Blob | null
+    {
+        return this.lastObjectFile;
+    }
+
+    /**
+     * Return the most recently assembled symbol table as a plain text blob. If
+     * the previous assembly ended in an error or nothing has been assembled
+     * yet, returns null.
+     */
+    public static getSymbolTableBlob(): Blob | null
+    {
+        return this.lastSymbolTable;
     }
 }
