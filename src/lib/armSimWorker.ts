@@ -42,6 +42,9 @@ class ArmSimWorker extends SimWorker
      */
     protected static override execute(instruction: number)
     {
+        console.log(this.getPC().toString(16))
+        console.log(instruction.toString(16));
+
         /*
         Different instructions have their opcodes in different places, so we need to check the instruction format before
         checking the opcode
@@ -647,6 +650,10 @@ class ArmSimWorker extends SimWorker
         // const offsetBit = this.getBits(instruction, 11, 11);
         let offset = this.getBits(instruction, 10, 0, true);
 
+
+        console.log(offset.toString(16));
+
+
         // if (offsetBit == 0)
         //     offset = offset << 12;
         // else
@@ -944,8 +951,6 @@ class ArmSimWorker extends SimWorker
     private static executePush(registerList: Array<number>)
     {
         console.log("push")
-
-        console.log(registerList)
 
         for (let i = 0; i < registerList.length; i++)
         {
