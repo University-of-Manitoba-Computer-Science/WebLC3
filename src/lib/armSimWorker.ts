@@ -271,7 +271,7 @@ class ArmSimWorker extends SimWorker
     {
         const loadStoreFlag = this.getBits(instruction, 11, 11);
         const byteWordFlag = this.getBits(instruction, 12, 12);
-        const offset5 = this.getBits(instruction, 10, 6);
+        const offset5 = this.getBits(instruction, 10, 6, true);
         const baseRegister = this.getBits(instruction, 5, 3);
         const sourceDestinationRegister = this.getBits(instruction, 2, 0);
 
@@ -292,7 +292,7 @@ class ArmSimWorker extends SimWorker
     private static executeFormat10(instruction: number)
     {
         const loadStoreFlag = this.getBits(instruction, 11, 11);
-        const offset5 = this.getBits(instruction, 10, 6);
+        const offset5 = this.getBits(instruction, 10, 6, true);
         const baseRegister = this.getBits(instruction, 5, 3);
         const sourceDestinationRegister = this.getBits(instruction, 2, 0);
 
@@ -547,7 +547,7 @@ class ArmSimWorker extends SimWorker
         */
         //const sourceBit = this.getBits(instruction, 11, 11);
         const destinationRegister = this.getBits(instruction, 11, 9);
-        const word8 = this.signExtend(this.getBits(instruction, 8, 0), 9);
+        const word8 = this.getBits(instruction, 8, 0, true);
 
         // if (sourceBit == 0)
             this.setRegister(destinationRegister, this.getPC() + word8);
@@ -645,7 +645,7 @@ class ArmSimWorker extends SimWorker
         console.log("bl")
 
         // const offsetBit = this.getBits(instruction, 11, 11);
-        let offset = this.getBits(instruction, 10, 0);
+        let offset = this.getBits(instruction, 10, 0, true);
 
         // if (offsetBit == 0)
         //     offset = offset << 12;
@@ -1124,13 +1124,17 @@ class ArmSimWorker extends SimWorker
      * @param {number} from
      * @returns {number}
      */
-    private static getBits(of: number, to: number, from: number): number
+    private static getBits(of: number, to: number, from: number, signed: boolean = false): number
     {
         const high_mask = (1 << (to + 1)) - 1;
         const low_mask = (1 << from) - 1;
         const mask = high_mask ^ low_mask;
 
-        return (of & mask) >> from;
+        let result = (of & mask) >> from;
+        if (signed)
+            result = this.signExtend(result, to - from + 1);
+
+        return result
     }
 
     /**
