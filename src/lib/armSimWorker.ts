@@ -7,23 +7,49 @@ class ArmSimWorker extends SimWorker
     private static MASK_V = 0x20;
 
     /**
-     * Set the condition codes according to the given number
-     * @param result the 16-bit result of an instruction
+     * Sets the carry and overflow flags based on an addition operation
      */
-    protected static override setConditions(result: number)
+    private static setCVAdd(addend1: number, addend2: number, sum: number)
     {
-        super.setConditions(result);
+        const addend1MSB = this.getBits(addend1, 15, 15);
+        const addend2MSB = this.getBits(addend2, 15, 15);
+        const sumMSB = this.getBits(sum, 15, 15);
 
         let psrValue = this.getPSR();
 
-        // (signed) Overflow
-        if (result >= 0x7fff)
+        /*
+        Detect (signed) overflow: If the addends' MSBs are equal, but the sum's MSB is distinct from either of them, we
+        can't properly express the result as a signed value
+        */
+        if (addend1MSB === addend2MSB && addend1MSB !== sumMSB)
             psrValue |= this.MASK_V;
-        // Carry
-        else if (result >= 0xffff)
+        else
+            psrValue &= ~this.MASK_V;
+
+        /*
+        Detect carry: If the result is greater than the maximum unsigned 16-bit value, we can't properly express the
+        result as a signed value
+        */
+        if (sum > 2**16 - 1)
             psrValue |= this.MASK_C;
+        else
+            psrValue &= ~this.MASK_C;
 
         this.setPSR(psrValue);
+    }
+
+    // get status of C flag in PSR
+    protected static flagCarry(): boolean
+    {
+        let psrVal = this.getPSR();
+        return (psrVal & this.MASK_C) != 0;
+    }
+
+    // get status of V flag in PSR
+    protected static flagOverflow(): boolean
+    {
+        let psrVal = this.getPSR();
+        return (psrVal & this.MASK_V) != 0;
     }
 
     /**
@@ -400,11 +426,11 @@ class ArmSimWorker extends SimWorker
             // bcs
             case 0b0010:
                 console.log("bcs");
-                branch = !!(this.getPSR() & this.MASK_C); break;
+                branch = this.flagCarry(); break;
             // bcc
             case 0b0011:
                 console.log("bcc");
-                branch = !(this.getPSR() & this.MASK_C); break;
+                branch = !this.flagCarry(); break;
             // bmi
             case 0b0100:
                 console.log("bmi");
@@ -416,40 +442,40 @@ class ArmSimWorker extends SimWorker
             // bvs
             case 0b0110:
                 console.log("bvs");
-                branch = !!(this.getPSR() & this.MASK_V); break;
+                branch = this.flagOverflow(); break;
             // bvc
             case 0b0111:
                 console.log("bvc");
-                branch = !(this.getPSR() & this.MASK_V); break;
+                branch = !this.flagOverflow(); break;
             // bhi
             case 0b1000:
                 console.log("bhi");
-                branch = !!(this.getPSR() & this.MASK_C) && !this.flagZero(); break;
+                branch = this.flagCarry() && !this.flagZero(); break;
             // bls
             case 0b1001:
                 console.log("bls");
-                branch = !(this.getPSR() & this.MASK_C) || !this.flagZero(); break;
+                branch = !this.flagCarry() || !this.flagZero(); break;
             // bge
             case 0b1010:
                 console.log("bge");
                 branch =
-                    (this.flagNegative() && !!(this.getPSR() & this.MASK_V))
-                    || !(this.flagNegative() && !(this.getPSR() & this.MASK_V));
+                    (this.flagNegative() && this.flagOverflow())
+                    || !(this.flagNegative() && !this.flagOverflow());
                 break;
             // blt
             case 0b1011:
                 console.log("blt");
                 branch =
-                    (this.flagNegative() && !(this.getPSR() & this.MASK_V))
-                    || !(this.flagNegative() && !!(this.getPSR() & this.MASK_V));
+                    (this.flagNegative() && !this.flagOverflow())
+                    || !(this.flagNegative() && this.flagOverflow());
                 break;
             // bgt
             case 0b1100:
                 console.log("bgt");
                 branch =
-                    this.flagZero() && (
-                        (this.flagNegative() && !!(this.getPSR() & this.MASK_V))
-                        || (!this.flagNegative() && !(this.getPSR() & this.MASK_V))
+                    !this.flagZero() && (
+                        (this.flagNegative() && this.flagOverflow())
+                        || (!this.flagNegative() && !this.flagOverflow())
                     );
                 break;
             // ble
@@ -457,8 +483,8 @@ class ArmSimWorker extends SimWorker
                 console.log("ble");
                 branch =
                     this.flagZero() || (
-                        (this.flagNegative()) && !(this.getPSR() & this.MASK_V)
-                        || (!this.flagNegative()) && !!(this.getPSR() & this.MASK_V)
+                        (this.flagNegative()) && !this.flagOverflow()
+                        || (!this.flagNegative()) && this.flagOverflow()
                     );
                 break;
         }
@@ -491,6 +517,7 @@ class ArmSimWorker extends SimWorker
         const result = this.getRegister(registerOrImmediate) + this.getRegister(sourceRegister);
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
+        this.setCVAdd(this.getRegister(registerOrImmediate), this.getRegister(sourceRegister), result);
     }
 
     // Executes an add instruction in format 2, but the last operand is immediate (I want to throw a table at whoever designed this format)
@@ -501,6 +528,7 @@ class ArmSimWorker extends SimWorker
         const result = registerOrImmediate + this.getRegister(sourceRegister);
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
+        this.setCVAdd(registerOrImmediate, this.getRegister(sourceRegister), result);
     }
 
     // Executes an add instruction in format 3
@@ -511,6 +539,7 @@ class ArmSimWorker extends SimWorker
         const result = this.getRegister(destinationRegister) + offset8;
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
+        this.setCVAdd(this.getRegister(destinationRegister), offset8, result);
     }
 
     // Executes an add instruction in format 5
@@ -1082,6 +1111,7 @@ class ArmSimWorker extends SimWorker
         const result = this.getRegister(sourceRegister) - this.getRegister(registerOrImmediate);
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
+        this.setCVAdd(this.getRegister(sourceRegister), this.getRegister(registerOrImmediate), result);
     }
 
     // Executes a sub instruction in format 2, but the last operand is immediate (:/)
@@ -1092,6 +1122,7 @@ class ArmSimWorker extends SimWorker
         const result = this.getRegister(sourceRegister) - registerOrImmediate;
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
+        this.setCVAdd(this.getRegister(sourceRegister), registerOrImmediate, result);
     }
 
     // Executes a sub instruction in format 3
@@ -1102,6 +1133,7 @@ class ArmSimWorker extends SimWorker
         const result = this.getRegister(destinationRegister) - offset8;
         this.setRegister(destinationRegister, result);
         this.setConditions(result);
+        this.setCVAdd(this.getRegister(destinationRegister), offset8, result);
     }
 
     // Executes an swi instruction
