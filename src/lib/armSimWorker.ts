@@ -750,7 +750,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldmia")
 
-        const startLocation = this.getRegister(baseRegister);
+        const startLocation = this.getRegister(baseRegister) & 0xffff;
 
         for (let i = 0; i < registerList.length; i++)
         {
@@ -767,7 +767,7 @@ class ArmSimWorker extends SimWorker
 
         const destinationRegister = this.getBits(instruction, 10, 8);
         const word8 = this.getBits(instruction, 7, 0);
-        this.setRegister(destinationRegister, this.getMemory(this.getPC() + word8));
+        this.setRegister(destinationRegister, this.getMemory((this.getPC() + word8) & 0xffff));
     }
 
     // Executes an ldr instruction in format 7
@@ -775,7 +775,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldr format 7")
 
-        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result);
     }
@@ -785,8 +785,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldr format 9")
 
-        const sourceAddress = this.getRegister(baseRegister) + offset5;
-
+        const sourceAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result);
     }
@@ -797,7 +796,7 @@ class ArmSimWorker extends SimWorker
         console.log("ldr format 11")
 
         const startLocation = this.getRegister(7);
-        const result = this.getMemory(startLocation + word8);
+        const result = this.getMemory((startLocation + word8) & 0xffff);
         this.setRegister(destinationRegister, result);
     }
 
@@ -806,7 +805,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldrb format 7")
 
-        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result & 0x00ff);
     }
@@ -816,7 +815,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldrb format 9")
 
-        const sourceAddress = this.getRegister(baseRegister) + offset5;
+        const sourceAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result & 0x00ff);
     }
@@ -826,7 +825,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldrh format 8")
 
-        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(destinationRegister, result);
     }
@@ -836,7 +835,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldrh format 10")
 
-        const sourceAddress = this.getRegister(baseRegister) + offset5;
+        const sourceAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result);
     }
@@ -866,7 +865,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldsb")
 
-        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         let result = this.getMemory(sourceAddress) & 0xff;
         // Sign-extend the 8-bit value
         if (this.getBits(result, 7, 7) == 1)
@@ -879,7 +878,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("ldsh")
 
-        const sourceAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         let result = this.getMemory(sourceAddress);
         this.setRegister(destinationRegister, result);
     }
@@ -1027,7 +1026,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("stmia")
 
-        const startLocation = this.getRegister(baseRegister);
+        const startLocation = (this.getRegister(baseRegister)) & 0xffff;
 
         for (let i = 0; i < registerList.length; i++)
         {
@@ -1042,7 +1041,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("str format 7")
 
-        const targetAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const targetAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         const result = this.getRegister(sourceDestinationRegister);
         this.setMemory(targetAddress, result);
     }
@@ -1052,7 +1051,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("str format 9")
 
-        const targetAddress = this.getRegister(baseRegister) + offset5;
+        const targetAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         const result = this.getRegister(sourceDestinationRegister);
         this.setMemory(targetAddress, result);
     }
@@ -1063,7 +1062,7 @@ class ArmSimWorker extends SimWorker
         console.log("sdr format 11")
 
         const startLocation = this.getRegister(7);
-        const targetAddress = this.getMemory(startLocation + word8);
+        const targetAddress = (this.getMemory(startLocation + word8)) & 0xffff;
         this.setMemory(targetAddress, this.getRegister(destinationRegister));
     }
 
@@ -1072,7 +1071,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("strb format 7")
 
-        const targetAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const targetAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
     }
 
@@ -1081,7 +1080,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("strb format 9")
 
-        const targetAddress = this.getRegister(baseRegister) + offset5;
+        const targetAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
     }
 
@@ -1090,7 +1089,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("strh format 8")
 
-        const targetAddress = this.getRegister(baseRegister) + this.getRegister(offsetRegister);
+        const targetAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         this.setMemory(targetAddress, this.getRegister(destinationRegister));
     }
 
@@ -1099,7 +1098,7 @@ class ArmSimWorker extends SimWorker
     {
         console.log("strh format 10")
 
-        const targetAddress = this.getRegister(baseRegister) + offset5;
+        const targetAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         this.setMemory(targetAddress, this.getRegister(sourceDestinationRegister));
     }
 
