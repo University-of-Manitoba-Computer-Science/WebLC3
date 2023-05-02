@@ -56,7 +56,7 @@ export default class ErrorBuilder
         }
         else if (!Assembler.validMnemonic(tokens[0]))
         {
-            return "Assembler error: attempted to throw operand count error for unknown instruction/directive " + tokens[0];
+            return this.formatMessage(lineNum, "Assembler error: attempted to throw operand count error for unknown instruction/directive " + tokens[0]);
         }
         else
         {
