@@ -177,7 +177,7 @@ class ArmSimWorker extends SimWorker
     }
 
     /**
-     * Parses an instruction in format 3 (move/compare/add/subtract immediate) and calls the appropriate execute
+     * Parses an instruction in format 4 (ALU operations) and calls the appropriate execute
      * function
      * @param {number} instruction
      */
@@ -513,6 +513,9 @@ class ArmSimWorker extends SimWorker
     private static executeAddFormat2(destinationRegister: number, sourceRegister: number, registerOrImmediate: number)
     {
         console.log("add format 2")
+
+        console.log(this.getRegister(registerOrImmediate))
+        console.log(this.getRegister(sourceRegister))
 
         const result = this.getRegister(registerOrImmediate) + this.getRegister(sourceRegister);
         this.setRegister(destinationRegister, result);
