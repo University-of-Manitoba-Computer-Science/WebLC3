@@ -27,7 +27,7 @@ export default class ARMAssembler
         "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh", "sub",
         "tst", "swi", "rti",
 
-        "getc", "puts", "halt", "out"
+        "getc", "puts", "halt", "out",
     ]);
 
     // All valid assembler directives

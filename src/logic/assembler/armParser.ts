@@ -1320,6 +1320,6 @@ export default class ArmParser extends Parser
      */
     private isImmediate(token: string): boolean
     {
-        return (token[0] == "#");
+        return (token[0] == "#" || token[0] == "x");
     }
 }
