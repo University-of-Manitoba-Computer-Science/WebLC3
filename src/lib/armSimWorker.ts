@@ -805,8 +805,9 @@ class ArmSimWorker extends SimWorker
     // Executes a mov instruction in format 3
     private static executeMovFormat3(destinationRegister: number, offset8: number)
     {
-        this.setRegister(destinationRegister, offset8);
-        this.setConditions(offset8);
+        const value = this.signExtend(offset8, 8);
+        this.setRegister(destinationRegister, value);
+        this.setConditions(value);
     }
 
     // Executes a mul instruction
