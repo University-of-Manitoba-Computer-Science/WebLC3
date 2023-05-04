@@ -34,7 +34,7 @@
 ; -------------------------------
 ; INTERRUPT VECTOR TABLE (0x0180)
 ; -------------------------------
-.FILL 0;.FILL INT_KEYBD
+.FILL INT_KEYBD
 .BLKW x7F, EXPT_UNIMP
 
 ; -------------------------
@@ -249,6 +249,21 @@ EXPT_ILLEGAL:
     ldr r0, [r6, #0]
     ldr r7, [r6, #1]
     ldr r6, [r6, #2]
+    rti
+
+; ---------------------------
+; Keyboard Interrupt
+; Echo the key to the console
+; ---------------------------
+INT_KEYBD:
+    sub r6, r6, #2
+    str r0, [r6, #0]
+    str r7, [r6, #1]
+    ldr r0, [pc, =KBD_DATA]
+    out
+    ldr r0, [r6, #0]
+    ldr r7, [r6, #1]
+    add r6, r6, #2
     rti
 
 ; Strings output by some traps and exceptions
