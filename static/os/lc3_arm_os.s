@@ -13,14 +13,29 @@
 ; --------------------------
 ; TRAP VECTOR TABLE (0x0000)
 ; --------------------------
-.BLKW x20
+.BLKW x20, TRAP_UNIMP
 ; Implemented traps begin at x20
 .FILL TRAP_GETC
 .FILL TRAP_OUT
 .FILL TRAP_PUTS
-.FILL 0
-.FILL 0
+; IN and PUTSP are unimplemented
+.FILL TRAP_UNIMP
+.FILL TRAP_UNIMP
 .FILL TRAP_HALT
+.BLKW xDA, TRAP_UNIMP
+
+; -------------------------------
+; EXCEPTION VECTOR TABLE (0x0100)
+; -------------------------------
+.FILL 0;.FILL EXPT_PRIV
+.FILL 0;.FILL EXPT_ILLEGAL
+.BLKW x7E, EXPT_UNIMP
+
+; -------------------------------
+; INTERRUPT VECTOR TABLE (0x0180)
+; -------------------------------
+.FILL 0;.FILL INT_KEYBD
+.BLKW x7F, EXPT_UNIMP
 
 ; -------------------------
 ; OPERATING SYSTEM (0x0200)
@@ -38,6 +53,26 @@ MCR:        .FILL xFFFE
 BYTE_MASK:  .FILL x00FF
 ; To clear the most significant bit of a word
 MSB_MASK:   .FILL x7FFF
+NOTRAP_MSG: .STRINGZ "Invalid SWI excecuted\n"
+BAD_EX_MSG: .STRINGZ "An invalid interrupt or exception has occured\n"
+
+; -------------------------------
+; Unimplemented Traps
+; Print notification then return.
+; -------------------------------
+TRAP_UNIMP:
+    sub r6, r6, #2
+    str r0, [r6, #0]
+    str r7, [r6, #1]
+    ldr r0, [pc, =NOTRAP_MSG]
+    puts
+    ldr r0, [r6, #0]
+    ldr r7, [r6, #1]
+    add r6, r6, #2
+    rti
+
+; The descriptions of the following trap implementations are quoted directly
+; from Patel, Introduction to Computer Systems 2nd. Edition, p. 543
 
 ; ----------------------------------------------------------------------------
 ; GETC

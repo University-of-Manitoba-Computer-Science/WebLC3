@@ -27,7 +27,7 @@ export default class ARMAssembler
         "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh", "sub",
         "tst", "swi", "rti",
 
-        "getc", "puts", "halt", "out",
+        "getc", "puts", "halt", "out", "putsp", "in"
     ]);
 
     // All valid assembler directives
@@ -49,9 +49,9 @@ export default class ARMAssembler
         ["ldsh", 3], ["mov", 2], ["mul", 2], ["mvn", 2], ["neg", 2], ["orr", 2], ["ror", 2], ["sbc", 2], ["strb", 3],
         ["strh", 3], ["tst", 2], ["swi", 1], ["rti", 0],
 
-        ["getc", 0], ["puts", 0], ["halt", 0], ["out", 0],
+        ["getc", 0], ["puts", 0], ["halt", 0], ["out", 0], ["putsp", 0], ["in", 0],
 
-        [".text", 0], [".global", 1], [".orig", 1], [".data", 0], [".fill", 1], [".blkw", 1], [".stringz", 1],
+        [".text", 0], [".global", 1], [".orig", 1], [".data", 0], [".fill", 1], [".stringz", 1],
     ]);
 
     // Errors where assembly cannot begin for given file
@@ -431,6 +431,8 @@ export default class ARMAssembler
     {
         switch (tokens[0])
         {
+            case ".blkw":
+                return tokens.length == 2 || tokens.length == 3;
             case "add":
             case "asr":
             case "lsl":
