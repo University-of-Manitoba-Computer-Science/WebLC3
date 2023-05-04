@@ -960,6 +960,9 @@ class ArmSimWorker extends SimWorker
     // Executes an strh instruction in format 8
     private static executeStrhFormat8(destinationRegister: number, baseRegister: number, offsetRegister: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const targetAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         this.setMemory(targetAddress, this.getRegister(destinationRegister));
     }
@@ -967,6 +970,9 @@ class ArmSimWorker extends SimWorker
     // Executes an strh instruction in format 10
     private static executeStrhFormat10(sourceDestinationRegister: number, baseRegister: number, offset5: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const targetAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         this.setMemory(targetAddress, this.getRegister(sourceDestinationRegister));
     }
