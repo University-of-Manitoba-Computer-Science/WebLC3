@@ -60,7 +60,12 @@ class ArmSimWorker extends SimWorker
      */
     protected static override checkForException(instruction: number)
     {
-        return undefined;
+        // Privilege mode exception
+        if (this.userMode() && instruction == 0b0100011101000000)
+        {
+            this.initException(Vectors.privilegeViolation());
+            return true;
+        }
     }
 
     /**

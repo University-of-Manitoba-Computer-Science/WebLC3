@@ -27,7 +27,7 @@
 ; -------------------------------
 ; EXCEPTION VECTOR TABLE (0x0100)
 ; -------------------------------
-.FILL 0;.FILL EXPT_PRIV
+.FILL EXPT_PRIV
 .FILL EXPT_ILLEGAL
 .BLKW x7E, EXPT_UNIMP
 
@@ -209,6 +209,23 @@ EXPT_UNIMP:
     str r0, [r6, #0]
     str r7, [r6, #1]
     ldr r0, [pc, =BAD_EX_MSG]
+    puts
+    halt
+    ; In case clock is manually restarted, continue as normal
+    ldr r0, [r6, #0]
+    ldr r7, [r6, #1]
+    ldr r6, [r6, #2]
+    rti
+
+; ------------------------------------------------------
+; Privilege Mode Violation
+; Print a notification of the error and halt the machine
+; ------------------------------------------------------
+EXPT_PRIV:
+    sub r6, r6, #2
+    str r0, [r6, #0]
+    str r7, [r6, #1]
+    ldr r0, [pc, =PRIV_MSG]
     puts
     halt
     ; In case clock is manually restarted, continue as normal
