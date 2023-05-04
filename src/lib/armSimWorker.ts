@@ -228,8 +228,6 @@ class ArmSimWorker extends SimWorker
         }
 
         this.initException(Vectors.illegalOpcode());
-
-        console.log("format 5 (not supported - no high registers)")
         return;
         /*
         Implement a way to view high registers in the simulator before finishing this! As far as storing them goes,
