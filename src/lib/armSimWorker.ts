@@ -746,6 +746,9 @@ class ArmSimWorker extends SimWorker
     // Executes an ldrh instruction in format 8
     private static executeLdrhFormat8(destinationRegister: number, baseRegister: number, offsetRegister: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(destinationRegister, result);
