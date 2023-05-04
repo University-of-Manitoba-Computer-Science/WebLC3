@@ -879,6 +879,9 @@ class ArmSimWorker extends SimWorker
     // Executes a pop instruction involving the program counter
     private static executePopPc(registerList: Array<number>)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         console.log(
             "pop with pc (not supported - relies on calling convention details that aren't implemented yet)")
     }
@@ -896,6 +899,9 @@ class ArmSimWorker extends SimWorker
     // Executes a pop instruction involving the link register
     private static executePushLr(registerList: Array<number>)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         console.log(
             "push with lr (not supported - relies on calling convention details that aren't implemented yet)")
     }
