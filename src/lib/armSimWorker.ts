@@ -565,6 +565,9 @@ class ArmSimWorker extends SimWorker
     // Executes an add instruction in format 13
     private static executeAddFormat13(instruction: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const signBit = this.getBits(instruction, 7, 7);
         const sWord7 = this.getBits(instruction, 6, 0);
         const stackPointerValue = this.load(this.savedUSP, 0);

@@ -995,7 +995,7 @@ export default class ArmParser extends Parser
         let result = 0b1011000000000000;
 
         // Immediate value (part 1)
-        const immediate = parseInt(tokens[2].slice(1, tokens[2].length))
+        const immediate = this.parseImmediate(tokens[2], true, lineNumber, 7);
 
         // Sign flag
         let signFlag = 0;
