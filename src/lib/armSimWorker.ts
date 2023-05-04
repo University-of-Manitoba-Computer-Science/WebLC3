@@ -390,6 +390,9 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat15(instruction: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const loadStoreBit = this.getBits(instruction, 11, 11);
         const baseRegister = this.getBits(instruction, 10, 8);
         const registerBits = this.getBits(instruction, 7, 0);
