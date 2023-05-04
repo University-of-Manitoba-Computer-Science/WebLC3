@@ -518,7 +518,8 @@ export default class SimWorker
         this.setPC(oldPC + 1);
 
         // (1) check for exception
-        this.checkForException(instruction);
+        if (this.checkForException(instruction))
+            return true;
 
         // (2) execute instruction
         this.execute(instruction);
@@ -669,7 +670,7 @@ export default class SimWorker
      * Initialize an exception with the given vector
      * @param vector
      */
-    private static initException(vector: number)
+    protected static initException(vector: number)
     {
         // if R6 is SSP, ensure savedSSP is up to date
         if (!this.userMode())
