@@ -81,7 +81,7 @@
         }
     }
 
-    // Save: Save Editor content as .asm file to client's local filesystem
+    // Save: Save Editor content as .asm or .s file to client's local filesystem
     function saveClick(){
         if(globalThis.editor){
             let content = globalThis.editor.getValue()

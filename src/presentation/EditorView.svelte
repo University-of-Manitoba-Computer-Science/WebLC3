@@ -120,7 +120,7 @@
 
 	// Set filename of assembled .obj file, replacing .asm extension
 	function setObjFilename(){
-		assembledFile.set(filename.substring(0,filename.length-4)+".obj")
+		assembledFile.set(filename.substring(0,filename.length-(getExtension().length+1))+".obj")
 	}
 
 	// Returns the currently open file's extension
