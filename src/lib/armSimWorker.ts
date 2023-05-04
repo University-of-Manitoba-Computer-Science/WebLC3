@@ -724,6 +724,9 @@ class ArmSimWorker extends SimWorker
     // Executes an ldrb instruction in format 7
     private static executeLdrbFormat7(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result & 0x00ff);
@@ -732,6 +735,9 @@ class ArmSimWorker extends SimWorker
     // Executes an ldrb isntruction in format 9
     private static executeLdrbFormat9(sourceDestinationRegister: number, baseRegister: number, offset5: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const sourceAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result & 0x00ff);
