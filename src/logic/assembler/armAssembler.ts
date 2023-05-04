@@ -14,7 +14,7 @@
 
 import Parser from "./parser";
 import UI from "../../presentation/ui";
-import ErrorBuilder from "./errorBuilder";
+import ArmErrorBuilder from "./armErrorBuilder";
 import ArmParser from "./armParser";
 
 export default class ARMAssembler
@@ -98,7 +98,7 @@ export default class ARMAssembler
             return null;
         }
         // Object to generate error messages
-        const errorBuilder = new ErrorBuilder(sourceLines);
+        const errorBuilder = new ArmErrorBuilder(sourceLines);
         // Parses the source code
         const parser = new ArmParser(errorBuilder);
 
@@ -450,6 +450,14 @@ export default class ARMAssembler
                 const result = (tokens.length - 1) == this.operandCounts.get(tokens[0]);
                 return result;
         }
+    }
+
+    /**
+     * determine if string is a valid instruction or directive name
+     */
+    public static validMnemonic(symbol: string) : boolean
+    {
+        return this.opCodes.has(symbol) || this.directives.has(symbol);
     }
 
     /**
