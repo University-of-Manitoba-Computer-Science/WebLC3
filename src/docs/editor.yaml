@@ -314,6 +314,13 @@ pages:
     body: "You can also edit and run ARM assembly code. To use ARM, open an
     existing .s file or rename a new file to have the .s extension.
     <br>
+    <br>
+    Don't use this for assignments until your instructor tells you to! :) ARM
+    has a lot of built-in instructions for things that you have to code yourself
+    in LC-3 (and it's educationally valuable for you to experience coding those
+    things yourself), so your instructor will tell you when you're supposed to use ARM.
+    <br>
+    <br>
     The simulator uses ARM-7 Thumb. Click
     <a href=\"http://bear.ces.cwru.edu/eecs_382/ARM7-TDMI-manual-pt3.pdf\">here</a>
     for a complete reference manual.
