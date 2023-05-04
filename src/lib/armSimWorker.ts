@@ -940,6 +940,9 @@ class ArmSimWorker extends SimWorker
     // Executes an strb instruction in format 7
     private static executeStrbFormat7(sourceDestinationRegister: number, baseRegister: number, offsetRegister: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const targetAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
     }
@@ -947,6 +950,9 @@ class ArmSimWorker extends SimWorker
     // Executes an strb instruction in format 9
     private static executeStrbFormat9(sourceDestinationRegister: number, baseRegister: number, offset5: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const targetAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         this.setMemory(targetAddress, sourceDestinationRegister & 0xff);
     }
