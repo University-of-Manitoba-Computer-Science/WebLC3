@@ -278,6 +278,9 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat8(instruction: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const hFlag = this.getBits(instruction, 11, 11);
         const signExtendFlag = this.getBits(instruction, 10, 10);
         const offsetRegister = this.getBits(instruction, 8, 6);
@@ -322,6 +325,9 @@ class ArmSimWorker extends SimWorker
      */
     private static executeFormat10(instruction: number)
     {
+        this.initException(Vectors.illegalOpcode());
+        return;
+
         const loadStoreFlag = this.getBits(instruction, 11, 11);
         const offset5 = this.getBits(instruction, 10, 6, true);
         const baseRegister = this.getBits(instruction, 5, 3);
@@ -746,9 +752,6 @@ class ArmSimWorker extends SimWorker
     // Executes an ldrh instruction in format 8
     private static executeLdrhFormat8(destinationRegister: number, baseRegister: number, offsetRegister: number)
     {
-        this.initException(Vectors.illegalOpcode());
-        return;
-
         const sourceAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(destinationRegister, result);
@@ -757,9 +760,6 @@ class ArmSimWorker extends SimWorker
     // Executes an ldrh instruction in format 10
     private static executeLdrhFormat10(sourceDestinationRegister: number, baseRegister: number, offset5: number)
     {
-        this.initException(Vectors.illegalOpcode());
-        return;
-
         const sourceAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         const result = this.getMemory(sourceAddress);
         this.setRegister(sourceDestinationRegister, result);
@@ -977,9 +977,6 @@ class ArmSimWorker extends SimWorker
     // Executes an strh instruction in format 8
     private static executeStrhFormat8(destinationRegister: number, baseRegister: number, offsetRegister: number)
     {
-        this.initException(Vectors.illegalOpcode());
-        return;
-
         const targetAddress = (this.getRegister(baseRegister) + this.getRegister(offsetRegister)) & 0xffff;
         this.setMemory(targetAddress, this.getRegister(destinationRegister));
     }
@@ -987,9 +984,6 @@ class ArmSimWorker extends SimWorker
     // Executes an strh instruction in format 10
     private static executeStrhFormat10(sourceDestinationRegister: number, baseRegister: number, offset5: number)
     {
-        this.initException(Vectors.illegalOpcode());
-        return;
-
         const targetAddress = (this.getRegister(baseRegister) + offset5) & 0xffff;
         this.setMemory(targetAddress, this.getRegister(sourceDestinationRegister));
     }
