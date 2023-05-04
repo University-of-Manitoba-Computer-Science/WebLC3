@@ -28,7 +28,7 @@
 ; EXCEPTION VECTOR TABLE (0x0100)
 ; -------------------------------
 .FILL 0;.FILL EXPT_PRIV
-.FILL 0;.FILL EXPT_ILLEGAL
+.FILL EXPT_ILLEGAL
 .BLKW x7E, EXPT_UNIMP
 
 ; -------------------------------
@@ -198,6 +198,40 @@ HALT_LOOP:
     b HALT_LOOP
 
     pop {r0, r1, r7}
+    rti
+
+; ------------------------------------------------------
+; Unimplemented Interrupts / Exceptions
+; Print a notification of the error and halt the machine
+; ------------------------------------------------------
+EXPT_UNIMP:
+    sub r6, r6, #2
+    str r0, [r6, #0]
+    str r7, [r6, #1]
+    ldr r0, [pc, =BAD_EX_MSG]
+    puts
+    halt
+    ; In case clock is manually restarted, continue as normal
+    ldr r0, [r6, #0]
+    ldr r7, [r6, #1]
+    ldr r6, [r6, #2]
+    rti
+
+; ------------------------------------------------------
+; Illegal Opcode Exception
+; Print a notification of the error and halt the machine
+; ------------------------------------------------------
+EXPT_ILLEGAL:
+    sub r6, r6, #2
+    str r0, [r6, #0]
+    str r7, [r6, #1]
+    ldr r0, [pc, =ILL_MSG]
+    puts
+    halt
+    ; In case clock is manually restarted, continue as normal
+    ldr r0, [r6, #0]
+    ldr r7, [r6, #1]
+    ldr r6, [r6, #2]
     rti
 
 ; Strings output by some traps and exceptions

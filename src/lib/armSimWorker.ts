@@ -1,4 +1,5 @@
 import SimWorker from "./simWorker"
+import Vectors from "./vectors";
 
 class ArmSimWorker extends SimWorker
 {
@@ -225,6 +226,8 @@ class ArmSimWorker extends SimWorker
             this.executeBxLo(sourceRegister);
             return;
         }
+
+        this.initException(Vectors.illegalOpcode());
 
         console.log("format 5 (not supported - no high registers)")
         return;
