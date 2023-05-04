@@ -113,6 +113,7 @@ export default class ArmParser extends Parser
             case "swi":
                 return this.asmFormat17(lineNum, tokens);
             case "b":
+            case "🅱️":
                 return this.asmFormat18(lineNum, tokens, pc, labels, toFix);
             case "getc":
             case "out":

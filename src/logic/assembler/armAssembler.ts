@@ -21,7 +21,7 @@ export default class ARMAssembler
 {
     // All valid opcodes including trap aliases
     private static opCodes = new Set([
-        "adc", "add", "and", "asr", "b",
+        "adc", "add", "and", "asr", "b", "🅱️",
         "beq", "bne", "bcs", "bcc", "bmi", "bpl", "bvs", "bvc", "bhi", "bls", "bge", "blt", "bgt", "ble",
         "bic", "bl", "bx", "cmn", "cmp", "eor", "ldmia", "ldr", "ldrb", "ldrh", "lsl", "ldsb", "ldsh", "lsr",
         "mov", "mul", "mvn", "neg", "orr", "pop", "push", "ror", "sbc", "stmia", "str", "strb", "strh", "sub",
@@ -40,7 +40,7 @@ export default class ARMAssembler
      variable number of operands and are handled in this.validOperandCount.
     */
     private static operandCounts = new Map([
-        ["adc", 2], ["and", 2], ["b", 1],
+        ["adc", 2], ["and", 2], ["b", 1], ["🅱️", 1],
 
         ["beq", 1], ["bne", 1], ["bcs", 1], ["bcc", 1], ["bmi", 1], ["bpl", 1], ["bvs", 1], ["bvc", 1], ["bhi", 1],
         ["bls", 1], ["bge", 1], ["blt", 1], ["bgt", 1], ["ble", 1],
