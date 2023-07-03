@@ -114,6 +114,40 @@ export default class ArmSimWorker extends SimWorker
     }
 
     /**
+     * Set clock-enable and run one instruction, unless it is a BL or SWI,
+     * in which case run until one of the conditions for stepOut() or run()
+     * is encountered. Will also step over exceptions and interrupts.
+     */
+    protected static stepOver()
+    {
+        let depth = 0;
+        let nextInstruction = this.getMemory(this.getPC());
+
+        // if we have a jsr/jsrr/trap, we'll need to step out of it
+        if (ArmFormats.isBL(nextInstruction) || ArmFormats.isSWI(nextInstruction))
+        {
+            ++depth;
+        }
+        // run 1 instruction, if interrupt or exception occurs we'll step out of it
+        this.enableClock();
+        if (this.instructionCycle())
+        {
+            ++depth;
+        }
+
+        // call stepOut() until we're back to depth of 0
+        while (!this.haltSet() && depth > 0 && this.isClockEnabled() && !this.breakPoints.has(this.getPC()))
+        {
+            // call with quiet = true so we don't tell the simulator we're done
+            this.stepOut(true);
+            --depth;
+        }
+
+        self.postMessage({type: Messages.WORKER_DONE});
+        this.flushConsoleBuffer();
+    }
+
+    /**
      * Checks whether an exception would occur if the given instruction is executed
      * @param instruction The instruction to be executed if an exception doesn't occur
      * @returns

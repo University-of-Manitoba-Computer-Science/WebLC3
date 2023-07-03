@@ -464,7 +464,7 @@ export default class SimWorker
      * TRAP, in which case run until one of the conditions for stepOut() or
      * run() is encountered. Will also step over exceptions and interrupts.
      */
-    private static stepOver()
+    protected static stepOver()
     {
         let depth = 0;
         let nextInstruction = this.getMemory(this.getPC());
