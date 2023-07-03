@@ -55,7 +55,7 @@ export default class SimWorker
     private static interruptVector: Uint16Array;
 
     // addresses of each active breakpoint
-    private static breakPoints: Set<number>;
+    protected static breakPoints: Set<number>;
 
     // if set to non-zero, worker must stop executing
     protected static haltFlag: Uint8Array;
@@ -63,9 +63,9 @@ export default class SimWorker
     // buffer for console output so we don't spam main thread too much
     private static consoleBuffer = "";
     private static CON_BUFF_LEN = 1024; // maximum length before flushing
-    private static lastFlush: number; // time that console was last flushed
+    protected static lastFlush: number; // time that console was last flushed
     // maximum amount of time between console buffer flushes while running (ms)
-    private static CON_BUFF_TIME = 100;
+    protected static CON_BUFF_TIME = 100;
 
     // queue containing lengths of messages sent
     private static msgLens: number[] = [];
@@ -144,7 +144,7 @@ export default class SimWorker
     /**
      * Send the contents of the console buffer to the main thread to be printed
      */
-    private static flushConsoleBuffer()
+    protected static flushConsoleBuffer()
     {
         if (this.consoleBuffer && !this.messageQueueFull())
         {
@@ -278,19 +278,19 @@ export default class SimWorker
     }
 
     // set clock-enable bit in machine control register
-    private static enableClock()
+    protected static enableClock()
     {
         this.or(this.memory, this.MCR, 0x8000);
     }
 
     // check if clock-enable bit is set in machine control register
-    private static isClockEnabled(): boolean
+    protected static isClockEnabled(): boolean
     {
         return (this.load(this.memory, this.MCR) & 0x8000) != 0;
     }
 
     // check if simWorker's halt flag is set
-    private static haltSet(): boolean
+    protected static haltSet(): boolean
     {
         return this.load(this.haltFlag, 0) != 0;
     }
@@ -407,7 +407,7 @@ export default class SimWorker
      * stopping are encountered
      * @param quiet if true, do not send a WORKER_DONE message when finished
      */
-    private static stepOut(quiet = false)
+    protected static stepOut(quiet = false)
     {
         let currDepth = 1;
         let nextInstruction = this.getMemory(this.getPC());

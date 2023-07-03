@@ -1,7 +1,9 @@
+import Messages from "./simMessages";
 import SimWorker from "./simWorker"
 import Vectors from "./vectors";
+import ArmFormats from "./armFormats";
 
-class ArmSimWorker extends SimWorker
+export default class ArmSimWorker extends SimWorker
 {
     // Extra flag for ARM's additional status register bits
     private static MASK_C = 0x10;
@@ -51,6 +53,64 @@ class ArmSimWorker extends SimWorker
     {
         let psrVal = this.getPSR();
         return (psrVal & this.MASK_V) != 0;
+    }
+
+    /**
+     * Set clock-enable and run until the currently executing subroutine or
+     * service call is returned from, or any of the conditions for run()
+     * stopping are encountered
+     * @param quiet if true, do not send a WORKER_DONE message when finished
+     */
+    protected static stepOut(quiet = false)
+    {
+        let currDepth = 1;
+        let nextInstruction = this.getMemory(this.getPC());
+        this.enableClock();
+
+        // execute first instruction cycle, ignoring breakpoints
+        if (ArmFormats.isBXorRTI(nextInstruction)) // needs to be memory[pc], not pc
+        {
+            --currDepth;
+        }
+        else if (ArmFormats.isBL(nextInstruction) || ArmFormats.isSWI(nextInstruction))
+        {
+            ++currDepth;
+        }
+        if (this.instructionCycle())
+        {
+            ++currDepth;
+            // if we have an option to toggle breaking on interrupts/exceptions, handle it here
+        }
+
+        // keep executing but don't ignore clock or breakpoints
+        while (!this.haltSet() && currDepth > 0 && this.isClockEnabled() && !this.breakPoints.has(this.getPC()))
+        {
+            nextInstruction = this.getMemory(this.getPC());
+            if (ArmFormats.isBXorRTI(nextInstruction))
+            {
+                --currDepth;
+            }
+            else if (ArmFormats.isBL(nextInstruction) || ArmFormats.isSWI(nextInstruction))
+            {
+                ++currDepth;
+            }
+
+            // execute instruction cycle, increase depth if we're handling an INT/exception
+            if (this.instructionCycle())
+            {
+                ++currDepth;
+                // if we have an option to toggle breaking on interrupts/exceptions, handle it here
+            }
+
+            if (Date.now() - this.lastFlush > this.CON_BUFF_TIME)
+                this.flushConsoleBuffer();
+        }
+
+        if (!quiet)
+        {
+            self.postMessage({type: Messages.WORKER_DONE});
+            this.flushConsoleBuffer();
+        }
     }
 
     /**
@@ -1051,7 +1111,7 @@ class ArmSimWorker extends SimWorker
      * @param {number} from
      * @returns {number}
      */
-    private static getBits(of: number, to: number, from: number, signed: boolean = false): number
+    public static getBits(of: number, to: number, from: number, signed: boolean = false): number
     {
         const high_mask = (1 << (to + 1)) - 1;
         const low_mask = (1 << from) - 1;
