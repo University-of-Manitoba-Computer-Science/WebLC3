@@ -1,0 +1,10 @@
+node_modules
+dist
+.svelte-kit
+.git
+.gitignore
+.DS_Store
+*.log
+*.md
+Dockerfile
+.dockerignore

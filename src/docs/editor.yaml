@@ -14,8 +14,10 @@ pages:
       <ul style="list-style-type:square;">
         <li>User Experience, Design and Application Components: Andrea Abellera</li>
         <li>Assembler and Simulator Logic, Documentation: Aidan Garvey</li>
+        <li>ARM support by Zoey Kitt</li>
+        <li>Bugfixes and small enhancements: Zach Havens, and Braeden Clarke</li>
       </ul>
-      ARM support by Zoey Kitt, 2023
+      
       <h2>Special Thanks</h2>
       <ul style="list-style-type:square;">
         <li>Michael Zapp, our industry contact during COMP 4560</li>
