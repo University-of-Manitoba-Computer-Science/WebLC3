@@ -1,3 +1,5 @@
+build
+
 # Ambient
 .svelte-kit/ambient.d.ts
 .svelte-kit/
