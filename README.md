@@ -22,14 +22,57 @@ npm run dev -- --open
 
 ## Deploying
 
+### Docker
+
+You can run WebLC3 in a Docker container without installing Node.js or any other dependencies on the host. A `docker-compose.yml` is provided with two profiles: **dev** and **production**.
+
+#### Development
+
+The dev profile runs the Vite dev server inside the container and bind-mounts your source code so that local file edits are immediately reflected via hot module replacement.
+
+```bash
+docker compose --profile dev up --build
+```
+
+WebLC3 will be available at [http://localhost:5173](http://localhost:5173). Edit files on your host and changes will appear in the browser automatically.
+
+#### Production
+
+The production profile builds optimized static assets and serves them with Nginx.
+
+```bash
+docker compose --profile production up --build -d
+```
+
+WebLC3 will be available at [http://localhost:8080](http://localhost:8080).
+
+Alternatively, you can build and run the production image directly:
+
+```bash
+docker build -t weblc3 --target production .
+docker run -d -p 8080:80 --name weblc3 weblc3
+```
+
+#### Stop containers
+
+```bash
+docker compose --profile dev down
+# or
+docker compose --profile production down
+```
+
+
+
+### Running without docker
+
 This section explains how to deploy WebLC3 on a Linux webserver.
 
-### Prerequisites
+#### Prerequisites
 
 * git
 * curl
 
-### Instructions
+#### Instructions
 
 You may need to restart your system or shell during this process.
 
@@ -86,7 +129,7 @@ You may need to restart your system or shell during this process.
     $ sudo systemctl restart caddy
     ```
 
-### Verifying deployment
+#### Verifying deployment
 
 After following the above instructions, WebLC3 should be deployed. You can
 verify this by opening a web browser and visiting the web address you expect it
